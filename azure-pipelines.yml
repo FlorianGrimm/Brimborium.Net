@@ -57,6 +57,7 @@ steps:
     command: push
     projects: $(SolutionPath)
     searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
-    feedPublish: 'Brimborium.Net'
+    #feedPublish: 'Brimborium.Net'
+    publishVstsFeed: 'Brimborium.Net/Brimborium.Net'
     
 #
