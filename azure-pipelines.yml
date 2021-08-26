@@ -46,18 +46,24 @@ steps:
     command: pack
     arguments: --configuration $(buildConfiguration)
     projects: $(SolutionPath)
-#    packagesToPack: '**/*.csproj'
-#    versioningScheme: 'byEnvVar'
-#    versionEnvVar: 'Build.BuildNumber'
     includesymbols: true 
     nobuild: true
-- task: DotNetCoreCLI@2
-  displayName: 'Push $(ProjectName)'
-  inputs:
-    command: push
-    projects: $(SolutionPath)
-    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
-    #feedPublish: 'Brimborium.Net'
-    publishVstsFeed: 'Brimborium.Net/Brimborium.Net'
     
+#- task: DotNetCoreCLI@2
+#  displayName: 'Push $(ProjectName)'
+#  inputs:
+#    command: push
+#    projects: $(SolutionPath)
+#    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
+#    #feedPublish: 'Brimborium.Net'
+#    publishVstsFeed: 'Brimborium.Net/Brimborium.Net'
+#    nobuild: true
+#    includesymbols: true
+- task: NuGetCommand@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '98a3cab6-96a1-42fc-9f66-561fe90ed4c9/2f2cd7a7-e639-4a69-bac2-0284d0b5f91b'
+    allowPackageConflicts: true
 #
