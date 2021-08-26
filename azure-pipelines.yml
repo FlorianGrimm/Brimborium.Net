@@ -1,0 +1,63 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+#https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/dotnet-core-cli?view=azure-devops
+
+trigger:
+- main
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  buildConfiguration: 'Release'
+  ProjectName: 'Brimborium.Registrator'
+  SolutionPath: 'Brimborium.Registrator/Brimborium.Registrator.sln'
+  ProjectPath: 'Brimborium.Registrator/**/*.csproj'
+
+steps:
+
+#- script: dotnet build --configuration $(buildConfiguration) $(Pipeline.Workspace)/s/
+#  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'restore $(ProjectName)'
+  inputs:
+    command: restore
+    arguments: --configuration $(buildConfiguration)
+    projects: $(SolutionPath)
+
+- task: DotNetCoreCLI@2
+  displayName: 'build $(ProjectName)'
+  inputs:
+    command: build
+    arguments: --configuration $(buildConfiguration)
+    projects: $(SolutionPath)
+#    packagesToPack: '**/*.csproj'
+#    versioningScheme: 'byEnvVar'
+#    versionEnvVar: 'Build.BuildNumber'
+    includesymbols: true 
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack $(ProjectName)'
+  inputs:
+    command: pack
+    arguments: --configuration $(buildConfiguration)
+    projects: $(SolutionPath)
+#    packagesToPack: '**/*.csproj'
+#    versioningScheme: 'byEnvVar'
+#    versionEnvVar: 'Build.BuildNumber'
+    includesymbols: true 
+    nobuild: true
+- task: DotNetCoreCLI@2
+  displayName: 'Push $(ProjectName)'
+  inputs:
+    command: push
+    projects: $(SolutionPath)
+    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
+    #feedPublish: 'Brimborium.Net'
+    publishVstsFeed: 'Brimborium.Net/Brimborium.Net'
+    
+#
