@@ -59,5 +59,7 @@ steps:
     searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
     #feedPublish: 'Brimborium.Net'
     publishVstsFeed: 'Brimborium.Net/Brimborium.Net'
+    nobuild: true
+    includesymbols: true
     
 #
