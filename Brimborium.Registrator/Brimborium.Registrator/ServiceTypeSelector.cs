@@ -13,8 +13,8 @@ namespace Brimborium.Registrator {
     {
         public ServiceTypeSelector(IImplementationTypeSelector inner, IEnumerable<Type> types)
         {
-            Inner = inner;
-            Types = types;
+            this.Inner = inner;
+            this.Types = types;
         }
 
         private IImplementationTypeSelector Inner { get; }
@@ -27,31 +27,31 @@ namespace Brimborium.Registrator {
 
         public ILifetimeSelector AsSelf()
         {
-            return As(t => new[] { t });
+            return this.As(t => new[] { t });
         }
 
         public ILifetimeSelector As<T>()
         {
-            return As(typeof(T));
+            return this.As(typeof(T));
         }
 
         public ILifetimeSelector As(params Type[] types)
         {
             Preconditions.NotNull(types, nameof(types));
 
-            return As(types.AsEnumerable());
+            return this.As(types.AsEnumerable());
         }
 
         public ILifetimeSelector As(IEnumerable<Type> types)
         {
             Preconditions.NotNull(types, nameof(types));
 
-            return AddSelector(Types.Select(t => new TypeMap(t, types)), Enumerable.Empty<TypeFactoryMap>());
+            return this.AddSelector(this.Types.Select(t => new TypeMap(t, types)), Enumerable.Empty<TypeFactoryMap>());
         }
 
         public ILifetimeSelector AsImplementedInterfaces()
         {
-            return AsTypeInfo(t => t.ImplementedInterfaces
+            return this.AsTypeInfo(t => t.ImplementedInterfaces
                 .Where(x => x.HasMatchingGenericArity(t))
                 .Select(x => x.GetRegistrationType(t)));
         }
@@ -72,33 +72,33 @@ namespace Brimborium.Registrator {
                     .Select(x => x.GetRegistrationType(info));
             }
 
-            return AddSelector(
-                Types.Select(t => new TypeMap(t, new[] { t })),
-                Types.Select(t => new TypeFactoryMap(x => x.GetRequiredService(t), Selector(t.GetTypeInfo()))));
+            return this.AddSelector(
+                this.Types.Select(t => new TypeMap(t, new[] { t })),
+                this.Types.Select(t => new TypeFactoryMap(x => x.GetRequiredService(t), Selector(t.GetTypeInfo()))));
         }
 
         public ILifetimeSelector AsMatchingInterface()
         {
-            return AsMatchingInterface(null);
+            return this.AsMatchingInterface(null);
         }
 
         public ILifetimeSelector AsMatchingInterface(Action<TypeInfo, IImplementationTypeFilter>? action)
         {
-            return AsTypeInfo(t => t.FindMatchingInterface(action));
+            return this.AsTypeInfo(t => t.FindMatchingInterface(action));
         }
 
         public ILifetimeSelector As(Func<Type, IEnumerable<Type>> selector)
         {
             Preconditions.NotNull(selector, nameof(selector));
 
-            return AddSelector(Types.Select(t => new TypeMap(t, selector(t))), Enumerable.Empty<TypeFactoryMap>());
+            return this.AddSelector(this.Types.Select(t => new TypeMap(t, selector(t))), Enumerable.Empty<TypeFactoryMap>());
         }
 
-        public IImplementationTypeSelector UsingAttributes()
+        public IImplementationTypeSelector UsingAttributes(Func<Type, Type, bool>? predicate=default)
         {
-            var selector = new AttributeSelector(Types);
+            var selector = new AttributeSelector(this.Types, predicate);
 
-            Selectors.Add(selector);
+            this.Selectors.Add(selector);
 
             return this;
         }
@@ -107,7 +107,7 @@ namespace Brimborium.Registrator {
         {
             Preconditions.NotNull(registrationStrategy, nameof(registrationStrategy));
 
-            RegistrationStrategy = registrationStrategy;
+            this.RegistrationStrategy = registrationStrategy;
             return this;
         }
 
@@ -115,94 +115,94 @@ namespace Brimborium.Registrator {
 
         public IImplementationTypeSelector FromCallingAssembly()
         {
-            return Inner.FromCallingAssembly();
+            return this.Inner.FromCallingAssembly();
         }
 
         public IImplementationTypeSelector FromExecutingAssembly()
         {
-            return Inner.FromExecutingAssembly();
+            return this.Inner.FromExecutingAssembly();
         }
 
         public IImplementationTypeSelector FromEntryAssembly()
         {
-            return Inner.FromEntryAssembly();
+            return this.Inner.FromEntryAssembly();
         }
 
         public IImplementationTypeSelector FromApplicationDependencies()
         {
-            return Inner.FromApplicationDependencies();
+            return this.Inner.FromApplicationDependencies();
         }
 
-        public IImplementationTypeSelector FromApplicationDependencies(Func<Assembly, bool> predicate)
+        public IImplementationTypeSelector FromApplicationDependencies(Func<AssemblyName, bool> predicate)
         {
-            return Inner.FromApplicationDependencies(predicate);
+            return this.Inner.FromApplicationDependencies(predicate);
         }
 
         public IImplementationTypeSelector FromAssemblyDependencies(Assembly assembly)
         {
-            return Inner.FromAssemblyDependencies(assembly);
+            return this.Inner.FromAssemblyDependencies(assembly);
         }
 
         public IImplementationTypeSelector FromDependencyContext(DependencyContext context)
         {
-            return Inner.FromDependencyContext(context);
+            return this.Inner.FromDependencyContext(context);
         }
 
-        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<Assembly, bool> predicate)
+        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool> predicate)
         {
-            return Inner.FromDependencyContext(context, predicate);
+            return this.Inner.FromDependencyContext(context, predicate);
         }
 
         public IImplementationTypeSelector FromAssemblyOf<T>()
         {
-            return Inner.FromAssemblyOf<T>();
+            return this.Inner.FromAssemblyOf<T>();
         }
 
         public IImplementationTypeSelector FromAssembliesOf(params Type[] types)
         {
-            return Inner.FromAssembliesOf(types);
+            return this.Inner.FromAssembliesOf(types);
         }
 
         public IImplementationTypeSelector FromAssembliesOf(IEnumerable<Type> types)
         {
-            return Inner.FromAssembliesOf(types);
+            return this.Inner.FromAssembliesOf(types);
         }
 
         public IImplementationTypeSelector FromAssemblies(params Assembly[] assemblies)
         {
-            return Inner.FromAssemblies(assemblies);
+            return this.Inner.FromAssemblies(assemblies);
         }
 
         public IImplementationTypeSelector FromAssemblies(IEnumerable<Assembly> assemblies)
         {
-            return Inner.FromAssemblies(assemblies);
+            return this.Inner.FromAssemblies(assemblies);
         }
 
         public IServiceTypeSelector AddClasses()
         {
-            return Inner.AddClasses();
+            return this.Inner.AddClasses();
         }
 
         public IServiceTypeSelector AddClasses(bool publicOnly)
         {
-            return Inner.AddClasses(publicOnly);
+            return this.Inner.AddClasses(publicOnly);
         }
 
         public IServiceTypeSelector AddClasses(Action<IImplementationTypeFilter> action)
         {
-            return Inner.AddClasses(action);
+            return this.Inner.AddClasses(action);
         }
 
         public IServiceTypeSelector AddClasses(Action<IImplementationTypeFilter> action, bool publicOnly)
         {
-            return Inner.AddClasses(action, publicOnly);
+            return this.Inner.AddClasses(action, publicOnly);
         }
 
         #endregion
 
         internal void PropagateLifetime(ServiceLifetime lifetime)
         {
-            foreach (var selector in Selectors.OfType<LifetimeSelector>())
+            foreach (var selector in this.Selectors.OfType<LifetimeSelector>())
             {
                 selector.Lifetime = lifetime;
             }
@@ -210,14 +210,14 @@ namespace Brimborium.Registrator {
 
         void ISelector.Populate(IServiceCollection services, RegistrationStrategy registrationStrategy)
         {
-            if (Selectors.Count == 0)
+            if (this.Selectors.Count == 0)
             {
-                AsSelf();
+                this.AsSelf();
             }
 
-            var strategy = RegistrationStrategy ?? registrationStrategy;
+            var strategy = this.RegistrationStrategy ?? registrationStrategy;
 
-            foreach (var selector in Selectors)
+            foreach (var selector in this.Selectors)
             {
                 selector.Populate(services, strategy);
             }
@@ -227,14 +227,14 @@ namespace Brimborium.Registrator {
         {
             var selector = new LifetimeSelector(this, types, factories);
 
-            Selectors.Add(selector);
+            this.Selectors.Add(selector);
 
             return selector;
         }
 
         private ILifetimeSelector AsTypeInfo(Func<TypeInfo, IEnumerable<Type>> selector)
         {
-            return As(t => selector(t.GetTypeInfo()));
+            return this.As(t => selector(t.GetTypeInfo()));
         }
     }
 }

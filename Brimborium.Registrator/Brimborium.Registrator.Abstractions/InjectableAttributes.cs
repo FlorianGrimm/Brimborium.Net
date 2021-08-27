@@ -4,51 +4,48 @@ using System;
 
 namespace Brimborium.Registrator {
 
-    /// <summary>
-    /// Annotate as injectable class.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class InjectableAttribute : Attribute {
-        /// <summary>
-        /// Create new instance by entry mode.
-        /// </summary>
-        /// <param name="mode"></param>
-        public InjectableAttribute(ServiceLifetime mode) {
-            Mode = mode;
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public class ServiceDescriptorAttribute : Attribute {
+        public ServiceDescriptorAttribute() : this(null) { }
+
+        public ServiceDescriptorAttribute(Type? serviceType) : this(serviceType, ServiceLifetime.Transient) { }
+
+        public ServiceDescriptorAttribute(Type? serviceType, ServiceLifetime lifetime) {
+            ServiceType = serviceType;
+            Lifetime = lifetime;
         }
-
-        /// <summary>
-        /// Get injection mode
-        /// </summary>
-        public ServiceLifetime Mode { get; }
-
         /// <summary>
         /// Register class as itself or not.
         /// </summary>
         public bool AsSelf { get; init; }
+
+        /// <summary>
+        /// Register this ServiceType
+        /// </summary>
+        public Type? ServiceType { get; init; }
+
+        public ServiceLifetime Lifetime { get; init; }
     }
 
     /// <summary>
     /// Annotate as singleton class by singleton lifetime.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class SingletonAttribute : InjectableAttribute {
-        /// <summary>
-        /// Create new instance.
-        /// </summary>
-        public SingletonAttribute() : base(ServiceLifetime.Singleton) {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public class SingletonAttribute : ServiceDescriptorAttribute {
+        public SingletonAttribute() : base(null, ServiceLifetime.Singleton) {
+        }
+        public SingletonAttribute(Type? serviceType) : base(serviceType, ServiceLifetime.Singleton) {
         }
     }
 
     /// <summary>
     /// Annotate as scoped class by scoped lifetime.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ScopedAttribute : InjectableAttribute {
-        /// <summary>
-        /// Create new instance.
-        /// </summary>
-        public ScopedAttribute() : base(ServiceLifetime.Scoped) {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public class ScopedAttribute : ServiceDescriptorAttribute {
+        public ScopedAttribute() : base(null, ServiceLifetime.Scoped) {
+        }
+        public ScopedAttribute(Type? serviceType) : base(serviceType, ServiceLifetime.Scoped) {
         }
     }
 
@@ -56,33 +53,11 @@ namespace Brimborium.Registrator {
     /// <summary>
     /// Annotate as transient class by transient lifetime.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class TransientAttribute : InjectableAttribute {
-        /// <summary>
-        /// Create new instance.
-        /// </summary>
-        public TransientAttribute() : base(ServiceLifetime.Transient) {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    public class TransientAttribute : ServiceDescriptorAttribute {
+        public TransientAttribute() : base(null, ServiceLifetime.Transient) {
         }
-    }
-
-    /// <summary>
-    /// Annotate as factory class by singleton lifetime.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class FactoryAttribute : SingletonAttribute {
-    }
-
-    /// <summary>
-    /// Annotate as repository class by scoped lifetime.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class RepositoryAttribute : ScopedAttribute {
-    }
-
-    /// <summary>
-    /// Annotate as service class by scoped lifetime.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class ServiceAttribute : ScopedAttribute {
+        public TransientAttribute(Type? serviceType) : base(serviceType, ServiceLifetime.Transient) {
+        }
     }
 }

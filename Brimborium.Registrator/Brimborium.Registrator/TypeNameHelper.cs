@@ -177,10 +177,10 @@ namespace Microsoft.Extensions.Internal
         {
             public DisplayNameOptions(bool fullName, bool includeGenericParameterNames, bool includeGenericParameters, char nestedTypeDelimiter)
             {
-                FullName = fullName;
-                IncludeGenericParameters = includeGenericParameters;
-                IncludeGenericParameterNames = includeGenericParameterNames;
-                NestedTypeDelimiter = nestedTypeDelimiter;
+                this.FullName = fullName;
+                this.IncludeGenericParameters = includeGenericParameters;
+                this.IncludeGenericParameterNames = includeGenericParameterNames;
+                this.NestedTypeDelimiter = nestedTypeDelimiter;
             }
 
             public bool FullName { get; }

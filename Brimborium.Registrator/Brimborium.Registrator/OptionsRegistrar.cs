@@ -17,9 +17,9 @@ namespace Brimborium.Registrator {
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         /// <exception cref="ArgumentException"></exception>
-        public static void ConfigureReguto(this IServiceCollection services, IConfiguration configuration) {
+        public static void ConfigureOptions(this IServiceCollection services, IConfiguration configuration) {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            services.ConfigureReguto(configuration, assemblies);
+            services.ConfigureOptions(configuration, assemblies);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Brimborium.Registrator {
         /// <param name="configuration"></param>
         /// <param name="assemblies"></param>
         /// <exception cref="ArgumentException"></exception>
-        public static void ConfigureReguto(this IServiceCollection services, IConfiguration configuration, params Assembly[] assemblies) {
+        public static void ConfigureOptions(this IServiceCollection services, IConfiguration configuration, params Assembly[] assemblies) {
             var options = from assembly in assemblies
                           from option in assembly.FindOptions()
                           select option;
@@ -49,7 +49,10 @@ namespace Brimborium.Registrator {
             return options;
         }
 
-        private static void ConfigureOption(this IServiceCollection /* IEnumerable */ services, IConfiguration configuration, (Type Type, string Section) option) {
+        private static void ConfigureOption(
+            this IServiceCollection /* IEnumerable */ services,
+            IConfiguration configuration,
+            (Type Type, string Section) option) {
             if (configuration is null) {
                 throw new ArgumentNullException(nameof(configuration));
             }

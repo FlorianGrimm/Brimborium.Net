@@ -7,8 +7,8 @@ namespace Brimborium.Registrator
     {
         public TypeFactoryMap(Func<IServiceProvider, object> implementationFactory, IEnumerable<Type> serviceTypes)
         {
-            ImplementationFactory = implementationFactory;
-            ServiceTypes = serviceTypes;
+            this.ImplementationFactory = implementationFactory;
+            this.ServiceTypes = serviceTypes;
         }
 
         public Func<IServiceProvider, object> ImplementationFactory { get; }

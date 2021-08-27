@@ -9,8 +9,8 @@ using Microsoft.Extensions.DependencyModel;
 namespace Brimborium.Registrator.Internals {
     internal class ImplementationTypeSelector : IImplementationTypeSelector, ISelector {
         public ImplementationTypeSelector(ITypeSourceSelector inner, IEnumerable<Type> types) {
-            Inner = inner;
-            Types = types;
+            this.Inner = inner;
+            this.Types = types;
         }
 
         private ITypeSourceSelector Inner { get; }
@@ -20,93 +20,93 @@ namespace Brimborium.Registrator.Internals {
         private List<ISelector> Selectors { get; } = new List<ISelector>();
 
         public IServiceTypeSelector AddClasses() {
-            return AddClasses(publicOnly: true);
+            return this.AddClasses(publicOnly: true);
         }
 
         public IServiceTypeSelector AddClasses(bool publicOnly) {
-            var classes = GetNonAbstractClasses(publicOnly);
+            var classes = this.GetNonAbstractClasses(publicOnly);
 
-            return AddSelector(classes);
+            return this.AddSelector(classes);
         }
 
         public IServiceTypeSelector AddClasses(Action<IImplementationTypeFilter> action) {
-            return AddClasses(action, publicOnly: false);
+            return this.AddClasses(action, publicOnly: false);
         }
 
         public IServiceTypeSelector AddClasses(Action<IImplementationTypeFilter> action, bool publicOnly) {
             Preconditions.NotNull(action, nameof(action));
 
-            var classes = GetNonAbstractClasses(publicOnly);
+            var classes = this.GetNonAbstractClasses(publicOnly);
 
             var filter = new ImplementationTypeFilter(classes);
 
             action(filter);
 
-            return AddSelector(filter.Types);
+            return this.AddSelector(filter.Types);
         }
 
         #region Chain Methods
 
         public IImplementationTypeSelector FromCallingAssembly() {
-            return Inner.FromCallingAssembly();
+            return this.Inner.FromCallingAssembly();
         }
 
         public IImplementationTypeSelector FromExecutingAssembly() {
-            return Inner.FromExecutingAssembly();
+            return this.Inner.FromExecutingAssembly();
         }
 
         public IImplementationTypeSelector FromEntryAssembly() {
-            return Inner.FromEntryAssembly();
+            return this.Inner.FromEntryAssembly();
         }
 
         public IImplementationTypeSelector FromApplicationDependencies() {
-            return Inner.FromApplicationDependencies();
+            return this.Inner.FromApplicationDependencies();
         }
 
-        public IImplementationTypeSelector FromApplicationDependencies(Func<Assembly, bool> predicate) {
-            return Inner.FromApplicationDependencies(predicate);
+        public IImplementationTypeSelector FromApplicationDependencies(Func<AssemblyName, bool> predicate) {
+            return this.Inner.FromApplicationDependencies(predicate);
         }
 
         public IImplementationTypeSelector FromAssemblyDependencies(Assembly assembly) {
-            return Inner.FromAssemblyDependencies(assembly);
+            return this.Inner.FromAssemblyDependencies(assembly);
         }
 
         public IImplementationTypeSelector FromDependencyContext(DependencyContext context) {
-            return Inner.FromDependencyContext(context);
+            return this.Inner.FromDependencyContext(context);
         }
 
-        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<Assembly, bool> predicate) {
-            return Inner.FromDependencyContext(context, predicate);
+        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool> predicate) {
+            return this.Inner.FromDependencyContext(context, predicate);
         }
 
         public IImplementationTypeSelector FromAssemblyOf<T>() {
-            return Inner.FromAssemblyOf<T>();
+            return this.Inner.FromAssemblyOf<T>();
         }
 
         public IImplementationTypeSelector FromAssembliesOf(params Type[] types) {
-            return Inner.FromAssembliesOf(types);
+            return this.Inner.FromAssembliesOf(types);
         }
 
         public IImplementationTypeSelector FromAssembliesOf(IEnumerable<Type> types) {
-            return Inner.FromAssembliesOf(types);
+            return this.Inner.FromAssembliesOf(types);
         }
 
         public IImplementationTypeSelector FromAssemblies(params Assembly[] assemblies) {
-            return Inner.FromAssemblies(assemblies);
+            return this.Inner.FromAssemblies(assemblies);
         }
 
         public IImplementationTypeSelector FromAssemblies(IEnumerable<Assembly> assemblies) {
-            return Inner.FromAssemblies(assemblies);
+            return this.Inner.FromAssemblies(assemblies);
         }
 
         #endregion
 
         void ISelector.Populate(IServiceCollection services, RegistrationStrategy registrationStrategy) {
-            if (Selectors.Count == 0) {
-                AddClasses();
+            if (this.Selectors.Count == 0) {
+                this.AddClasses();
             }
 
-            foreach (var selector in Selectors) {
+            foreach (var selector in this.Selectors) {
                 selector.Populate(services, registrationStrategy);
             }
         }
@@ -114,13 +114,13 @@ namespace Brimborium.Registrator.Internals {
         private IServiceTypeSelector AddSelector(IEnumerable<Type> types) {
             var selector = new ServiceTypeSelector(this, types);
 
-            Selectors.Add(selector);
+            this.Selectors.Add(selector);
 
             return selector;
         }
 
         private IEnumerable<Type> GetNonAbstractClasses(bool publicOnly) {
-            return Types.Where(t => t.IsNonAbstractClass(publicOnly));
+            return this.Types.Where(t => t.IsNonAbstractClass(publicOnly));
         }
     }
 }

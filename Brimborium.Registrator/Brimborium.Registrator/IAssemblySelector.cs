@@ -40,7 +40,7 @@ namespace Brimborium.Registrator {
         /// using the entry assembly.
         /// </remarks>
         /// <param name="predicate">The predicate to match assemblies.</param>
-        IImplementationTypeSelector FromApplicationDependencies(Func<Assembly, bool> predicate);
+        IImplementationTypeSelector FromApplicationDependencies(Func<AssemblyName, bool> predicate);
 
         /// <summary>
         /// Will load and scan all runtime libraries referenced by the currently specified <paramref name="assembly"/>.
@@ -59,7 +59,7 @@ namespace Brimborium.Registrator {
         /// </summary>
         /// <param name="context">The dependency context.</param>
         /// <param name="predicate">The predicate to match assemblies.</param>
-        IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<Assembly, bool> predicate);
+        IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool> predicate);
 
         /// <summary>
         /// Will scan for types from the assembly of type <typeparamref name="T"/>.

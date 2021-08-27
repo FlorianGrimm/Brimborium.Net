@@ -1,4 +1,6 @@
 ﻿#pragma warning disable IDE0041 // Use 'is null' check
+using Microsoft.Extensions.DependencyInjection;
+
 using System;
 using System.Diagnostics;
 
@@ -40,6 +42,17 @@ namespace Brimborium.Registrator.Internals {
             }
 
             return value;
+        }
+
+        public static void EnsureValidServiceLifetime(ServiceLifetime value, string parameterName)  {
+            switch (value) {
+                case ServiceLifetime.Singleton:
+                case ServiceLifetime.Scoped:
+                case ServiceLifetime.Transient:
+                    return;
+                default:
+                    throw new ArgumentOutOfRangeException(parameterName);
+            }
         }
     }
 }

@@ -71,14 +71,14 @@ namespace Brimborium.Registrator
         {
             public ReplaceRegistrationStrategy(ReplacementBehavior behavior)
             {
-                Behavior = behavior;
+                this.Behavior = behavior;
             }
 
             private ReplacementBehavior Behavior { get; }
 
             public override void Apply(IServiceCollection services, ServiceDescriptor descriptor)
             {
-                var behavior = Behavior;
+                var behavior = this.Behavior;
 
                 if (behavior == ReplacementBehavior.Default)
                 {

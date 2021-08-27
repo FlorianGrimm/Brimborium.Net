@@ -63,7 +63,7 @@ namespace Brimborium.Registrator
         /// <summary>
         /// Registers each matching concrete type according to their <see cref="ServiceDescriptorAttribute"/>.
         /// </summary>
-        IImplementationTypeSelector UsingAttributes();
+        IImplementationTypeSelector UsingAttributes(Func<Type, Type, bool>? predicate = default);
 
         IServiceTypeSelector UsingRegistrationStrategy(RegistrationStrategy registrationStrategy);
     }

@@ -285,7 +285,8 @@ namespace Microsoft.Extensions.DependencyInjection {
         }
 
         private static bool TryGetDescriptors(this IServiceCollection services, Type serviceType, out ICollection<ServiceDescriptor> descriptors) {
-            return (descriptors = services.Where(service => service.ServiceType == serviceType).ToArray()).Any();
+            descriptors = services.Where(service => service.ServiceType == serviceType).ToArray();
+            return descriptors.Any();
         }
 
         private static ServiceDescriptor Decorate<TService>(this ServiceDescriptor descriptor, Func<TService, IServiceProvider, TService> decorator)

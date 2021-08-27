@@ -7,8 +7,8 @@ namespace Brimborium.Registrator
     {
         public TypeMap(Type implementationType, IEnumerable<Type> serviceTypes)
         {
-            ImplementationType = implementationType;
-            ServiceTypes = serviceTypes;
+            this.ImplementationType = implementationType;
+            this.ServiceTypes = serviceTypes;
         }
 
         public Type ImplementationType { get; }
