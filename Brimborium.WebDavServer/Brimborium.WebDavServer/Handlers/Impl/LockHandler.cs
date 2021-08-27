@@ -1,0 +1,226 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+
+using Brimborium.WebDavServer.FileSystem;
+using Brimborium.WebDavServer.Locking;
+using Brimborium.WebDavServer.Model;
+using Brimborium.WebDavServer.Model.Headers;
+using Brimborium.WebDavServer.Utils;
+
+namespace Brimborium.WebDavServer.Handlers.Impl {
+    /// <summary>
+    /// Implements the <see cref="ILockManager"/> interface.
+    /// </summary>
+    public class LockHandler : ILockHandler {
+        private readonly IFileSystem _rootFileSystem;
+
+        private readonly ILockManager? _lockManager;
+
+        private readonly ITimeoutPolicy? _timeoutPolicy;
+
+        private readonly IWebDavContext _context;
+
+        private readonly bool _useAbsoluteHref = false;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LockHandler"/> class.
+        /// </summary>
+        /// <param name="context">The WebDAV request context</param>
+        /// <param name="rootFileSystem">The root file system</param>
+        /// <param name="lockManager">The lock manager</param>
+        /// <param name="timeoutPolicy">The timeout policy for the selection of the <see cref="TimeoutHeader"/> value</param>
+        public LockHandler(IWebDavContext context, IFileSystem rootFileSystem, ILockManager? lockManager = null, ITimeoutPolicy? timeoutPolicy = null) {
+            this._context = context;
+            this._rootFileSystem = rootFileSystem;
+            this._lockManager = lockManager;
+            this._timeoutPolicy = timeoutPolicy;
+            this.HttpMethods = this._lockManager == null ? new string[0] : new[] { "LOCK" };
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<string> HttpMethods { get; }
+
+        /// <inheritdoc />
+        public async Task<IWebDavResult> LockAsync(string path, lockinfo info, CancellationToken cancellationToken) {
+            if (this._lockManager == null) {
+                throw new NotSupportedException();
+            }
+
+            var owner = info.owner;
+            var recursive = (this._context.RequestHeaders.Depth ?? DepthHeader.Infinity) == DepthHeader.Infinity;
+            var accessType = LockAccessType.Write;
+            var shareType = info.lockscope.ItemElementName == ItemChoiceType.exclusive
+                ? LockShareMode.Exclusive
+                : LockShareMode.Shared;
+            var timeout = this._timeoutPolicy?.SelectTimeout(
+                              this._context.RequestHeaders.Timeout?.Values ?? new[] { TimeoutHeader.Infinite })
+                          ?? TimeoutHeader.Infinite;
+
+            var href = this.GetHref(path);
+            var l = new Lock(
+                path,
+                href,
+                recursive,
+                owner,
+                accessType,
+                shareType,
+                timeout);
+
+            Debug.Assert(this._lockManager != null, "_lockManager != null");
+            var lockResult = await this._lockManager.LockAsync(l, cancellationToken).ConfigureAwait(false);
+            if (lockResult.ConflictingLocks != null) {
+                // Lock cannot be acquired
+                if (lockResult.ConflictingLocks.ChildLocks.Count == 0) {
+                    return new WebDavResult<error>(WebDavStatusCode.Locked, this.CreateError(lockResult.ConflictingLocks.GetLocks()));
+                }
+
+                var errorResponses = new List<response>();
+                if (lockResult.ConflictingLocks.ChildLocks.Count != 0
+                    || lockResult.ConflictingLocks.ReferenceLocks.Count != 0) {
+                    errorResponses.Add(this.CreateErrorResponse(
+                        WebDavStatusCode.Forbidden,
+                        lockResult.ConflictingLocks.ChildLocks.Concat(lockResult.ConflictingLocks.ReferenceLocks)));
+                }
+
+                if (lockResult.ConflictingLocks.ParentLocks.Count != 0) {
+                    var errorResponse = this.CreateErrorResponse(
+                        WebDavStatusCode.Forbidden,
+                        lockResult.ConflictingLocks.ChildLocks);
+                    errorResponse.error = this.CreateError(new IActiveLock[0]);
+                    errorResponses.Add(errorResponse);
+                }
+
+                errorResponses.Add(new response() {
+                    href = this.GetHref(l.Path),
+                    ItemsElementName = new[] { ItemsChoiceType2.status, },
+                    Items = new object[]
+                    {
+                        new Status(this._context.RequestProtocol, WebDavStatusCode.FailedDependency).ToString(),
+                    },
+                });
+
+                var multistatus = new multistatus() {
+                    response = errorResponses.ToArray(),
+                };
+
+                return new WebDavResult<multistatus>(WebDavStatusCode.MultiStatus, multistatus);
+            }
+
+            var activeLock = lockResult.Lock;
+            Debug.Assert(activeLock != null, "activeLock != null");
+            try {
+                var selectionResult = await this._rootFileSystem.SelectAsync(path, cancellationToken).ConfigureAwait(false);
+
+                WebDavStatusCode statusCode;
+                if (selectionResult.IsMissing) {
+                    if (this._context.RequestHeaders.IfNoneMatch != null) {
+                        throw new WebDavException(WebDavStatusCode.PreconditionFailed);
+                    }
+
+                    if (selectionResult.MissingNames.Count > 1) {
+                        return new WebDavResult(WebDavStatusCode.Conflict);
+                    }
+
+                    var current = selectionResult.Collection;
+                    var docName = selectionResult.MissingNames.Single();
+                    await current.CreateDocumentAsync(docName, cancellationToken).ConfigureAwait(false);
+                    statusCode = WebDavStatusCode.Created;
+                } else {
+                    await this._context
+                        .RequestHeaders.ValidateAsync(selectionResult.TargetEntry, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    statusCode = WebDavStatusCode.OK;
+                }
+
+                var activeLockXml = activeLock.ToXElement();
+                var result = new prop() {
+                    Any = new[] { new XElement(WebDavXml.Dav + "lockdiscovery", activeLockXml) },
+                };
+                var webDavResult = new WebDavResult<prop>(statusCode, result);
+                webDavResult.Headers["Lock-Token"] = new[] { new LockTokenHeader(new Uri(activeLock.StateToken)).ToString() };
+                return webDavResult;
+            } catch {
+                await this._lockManager
+                    .ReleaseAsync(activeLock.Path, new Uri(activeLock.StateToken, UriKind.RelativeOrAbsolute), cancellationToken)
+                    .ConfigureAwait(false);
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<IWebDavResult> RefreshLockAsync(string path, IfHeader ifHeader, TimeoutHeader? timeoutHeader, CancellationToken cancellationToken) {
+            if (this._lockManager == null) {
+                throw new NotSupportedException();
+            }
+
+            if (ifHeader.Lists.Any(x => x.Path.IsAbsoluteUri)) {
+                throw new InvalidOperationException("A Resource-Tag pointing to a different server or application isn't supported.");
+            }
+
+            var timeout = this._timeoutPolicy?.SelectTimeout(
+                              timeoutHeader?.Values ?? new[] { TimeoutHeader.Infinite })
+                          ?? TimeoutHeader.Infinite;
+
+            var result = await this._lockManager.RefreshLockAsync(this._rootFileSystem, ifHeader, timeout, cancellationToken).ConfigureAwait(false);
+            if (result.ErrorResponse != null) {
+                return new WebDavResult<error>(WebDavStatusCode.PreconditionFailed, result.ErrorResponse.error);
+            }
+
+            Debug.Assert(result.RefreshedLocks != null, "result.RefreshedLocks != null");
+            var prop = new prop() {
+                Any = result.RefreshedLocks.Select(x => new XElement(WebDavXml.Dav + "lockdiscovery", x.ToXElement())).ToArray(),
+            };
+
+            return new WebDavResult<prop>(WebDavStatusCode.OK, prop);
+        }
+
+        private error CreateError(IEnumerable<IActiveLock> activeLocks) {
+            return new error() {
+                ItemsElementName = new[] { ItemsChoiceType.noconflictinglock, },
+                Items = new object[]
+                {
+                    new errorNoconflictinglock()
+                    {
+                        href = this.GetHrefs(activeLocks),
+                    },
+                },
+            };
+        }
+
+        private response CreateErrorResponse(WebDavStatusCode statusCode, IEnumerable<IActiveLock> activeLocks) {
+            var hrefs = this.GetHrefs(activeLocks);
+            var choices = hrefs.Skip(1)
+                .Select(x => Tuple.Create(ItemsChoiceType2.href, x))
+                .ToList();
+            choices.Add(Tuple.Create(
+                ItemsChoiceType2.status,
+                new Status(this._context.RequestProtocol, statusCode).ToString()));
+            var response = new response() {
+                href = hrefs.FirstOrDefault(),
+                ItemsElementName = choices.Select(x => x.Item1).ToArray(),
+                Items = choices.Select(x => x.Item2).Cast<object>().ToArray(),
+            };
+
+            return response;
+        }
+
+        private string[] GetHrefs(IEnumerable<IActiveLock> activeLocks) {
+            return activeLocks.Select(x => this.GetHref(x.Path)).ToArray();
+        }
+
+        private string GetHref(string path) {
+            var href = this._context.PublicControllerUrl.Append(path, true);
+            if (!this._useAbsoluteHref) {
+                return "/" + this._context.PublicRootUrl.MakeRelativeUri(href).OriginalString;
+            }
+
+            return href.OriginalString;
+        }
+    }
+}

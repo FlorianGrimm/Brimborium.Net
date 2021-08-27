@@ -352,3 +352,5 @@ MigrationBackup/
 #
 Brimborium.Registrator/.store/
 Brimborium.Registrator/nbgv.exe
+Brimborium.WebDavServer/.store/
+Brimborium.WebDavServer/nbgv.exe
