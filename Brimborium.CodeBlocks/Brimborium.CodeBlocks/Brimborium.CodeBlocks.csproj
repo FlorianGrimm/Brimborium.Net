@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <PackageId>dotnetcodeblocks</PackageId>
+    <Product>NuGet Package Explorer</Product>
+    <Description>Enables Validation of .NET Packages from the CLI</Description>
+    <ToolCommandName>codeblocks</ToolCommandName>
+
+    <PackageOutputPath>../nupkg</PackageOutputPath>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+</Project>

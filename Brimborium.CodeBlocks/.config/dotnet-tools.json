@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "dotnetcodeblocks": {
+      "version": "1.0.5-beta-ga769bb6dcc",
+      "commands": [
+        "codeblocks"
+      ]
+    }
+  }
+}
