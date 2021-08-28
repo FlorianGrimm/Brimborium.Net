@@ -47,7 +47,6 @@ steps:
     arguments: --configuration $(buildConfiguration)
     projects: $(SolutionPath)
     includesymbols: true 
-    nobuild: true
  
 - task: NuGetCommand@2
   inputs:
