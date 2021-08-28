@@ -26,6 +26,8 @@
     <None Include="Model\webdav.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Brimborium.Registrator" Version="1.0.9-beta-g1b710fe841" />
+    <PackageReference Include="Brimborium.Registrator.Abstractions" Version="1.0.9-beta-g1b710fe841" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -35,8 +37,6 @@
     <PackageReference Include="System.Interactive.Async" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
-    <ProjectReference Include="..\Brimborium.Registrator\Brimborium.Registrator.csproj" />
     <ProjectReference Include="..\Brimborium.WebDavServer.Model\Brimborium.WebDavServer.Model.csproj" />
   </ItemGroup>
 </Project>

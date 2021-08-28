@@ -1,10 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Brimborium.Registrator.Internals {
     internal class AttributeSelector : ISelector {
@@ -12,8 +11,9 @@ namespace Brimborium.Registrator.Internals {
         private readonly Func<Type, Type, bool> _Predicate;
 
         private static bool defaultPredicate(Type type, Type serviceType) {
-            return !(typeof(System.IDisposable).Equals(serviceType));
-            
+            if (typeof(System.IDisposable).Equals(serviceType)) { return false; }
+            if (typeof(System.IAsyncDisposable).Equals(serviceType)) { return false; }
+            return true;
         }
 
         public AttributeSelector(IEnumerable<Type> types, Func<Type, Type, bool>? predicate) {
@@ -25,70 +25,81 @@ namespace Brimborium.Registrator.Internals {
         void ISelector.Populate(IServiceCollection services, RegistrationStrategy registrationStrategy) {
             var strategy = registrationStrategy ?? RegistrationStrategy.Append;
 
-            foreach (var type in this._Types) {
-                var typeInfo = type.GetTypeInfo();
+            foreach (var implementationType in this._Types) {
+                var typeInfo = implementationType.GetTypeInfo();
 
-                var attributes = typeInfo.GetCustomAttributes<ServiceDescriptorAttribute>().Concat(
-                        typeInfo.GetCustomAttributes<SingletonAttribute>()
-                    ).Concat(
-                        typeInfo.GetCustomAttributes<ScopedAttribute>()
-                    ).Concat(
-                        typeInfo.GetCustomAttributes<TransientAttribute>()
-                    )
-                    .ToArray();
+                var attributes = typeInfo.GetCustomAttributes<ServiceDescriptorAttribute>();
+                if (attributes.Any()) {
+                    var distLifetime = attributes.Select(sda => sda.Lifetime).Distinct();
+                    if (distLifetime.Skip(1).Any()) {
+                        var txtLifetime = string.Join(", ", distLifetime.Select(l => l.ToString()));
 
-                List<AttributeServiceType> attributeServiceTypes = attributes
-                    .SelectMany(attribute =>
-                        attribute.GetServiceTypes(type)
-                            .Where(serviceType => this._Predicate(type, serviceType))
-                            .Select(serviceType => new AttributeServiceType(attribute, serviceType))
-                    ).ToList();
+                        throw new InvalidOperationException($@"Type ""{implementationType.ToFriendlyName()}"" has multiple Lifetimes ""{txtLifetime}"".");
+                    }
+                    var lifetime = distLifetime.First();
 
-                // Check if the type has multiple attributes with same ServiceType.
-                var duplicates = attributeServiceTypes.GroupBy(ast => ast.ServiceType).Where(grp => grp.Skip(1).Any());
-                if (duplicates.Any()) {
-                    var serviceTypeNames = string.Join(", ", duplicates.Select(grp => grp.Key.ToFriendlyName()));
+                    var isIncludeSelf = false;
+                    var isIncludeInterfaces = false;
+                    var isIncludeClasses = false;
+                    var hsServiceTypes = new HashSet<Type>();
+                    foreach (var sda in attributes) {
+                        if (sda.Mode == ServiceTypeMode.Auto) {
+                            if (sda.ServiceType is not null) {
+                                // hsServiceTypes.Add(sda.ServiceType);
+                            } else {
+                                isIncludeInterfaces = true;
+                            }
+                        } else {
+                            if (sda.Mode.HasFlag(ServiceTypeMode.IncludeSelf)) {
+                                isIncludeSelf = true;
+                            }
+                            if (sda.Mode.HasFlag(ServiceTypeMode.IncludeInterfaces)) {
+                                isIncludeInterfaces = true;
+                            }
+                            if (sda.Mode.HasFlag(ServiceTypeMode.IncludeClasses)) {
+                                isIncludeClasses = true;
+                            }
 
-                    throw new InvalidOperationException($@"Type ""{type.ToFriendlyName()}"" has multiple ServiceDescriptor attributes with the same service type ""{serviceTypeNames}"".");
-                }
-
-                if (attributeServiceTypes.Count == 1) {
-                    var ast = attributeServiceTypes[0];
-                    var descriptor = new ServiceDescriptor(ast.ServiceType, type, ast.Attribute.Lifetime);
-                    strategy.Apply(services, descriptor);
-                } else {
-                    var distLifetime = attributeServiceTypes.Select(ast => ast.Attribute.Lifetime).Distinct();
-                    if (distLifetime.Count() == 1) {
-                        var lifetime = distLifetime.First();
-                        {
-                            var descriptor = new ServiceDescriptor(type, type, lifetime);
-                            strategy.Apply(services, descriptor);
                         }
-                        var factory = getFactory(type);
-                        foreach (var ast in attributeServiceTypes) {
-                            var descriptor = new ServiceDescriptor(ast.ServiceType, factory, lifetime);
-                            strategy.Apply(services, descriptor);
+                        if (sda.ServiceType is not null) {
+                            if (implementationType.IsAssignableTo(sda.ServiceType)) {
+                                hsServiceTypes.Add(sda.ServiceType);
+                            } else {
+                                throw new InvalidOperationException($@"Type ""{implementationType.ToFriendlyName()}"" is not assignable to ""{sda.ServiceType.ToFriendlyName()}"".");
+                            }
                         }
+                    }
+
+                    if (isIncludeInterfaces || isIncludeClasses) {
+                        foreach (var serviceType in implementationType.GetBaseTypes(isIncludeInterfaces, isIncludeClasses)) {
+                            hsServiceTypes.Add(serviceType);
+                        }
+                    }
+
+                    if (!isIncludeSelf && hsServiceTypes.Count == 1) {
+                        var descriptor = new ServiceDescriptor(hsServiceTypes.First(), implementationType, lifetime);
+                        strategy.Apply(services, descriptor);
                     } else {
-                        // error ?
-                        foreach (var ast in attributeServiceTypes) {
-                            var descriptor = new ServiceDescriptor(ast.ServiceType, type, ast.Attribute.Lifetime);
+                        {
+                            var descriptor = new ServiceDescriptor(implementationType, implementationType, lifetime);
                             strategy.Apply(services, descriptor);
+                        }
+                        if (hsServiceTypes.Count > 0) {
+                            Func<IServiceProvider, object> factory = (new FactoryOfType(implementationType)).factory;
+                            foreach (var serviceType in hsServiceTypes) {
+                                var descriptor = new ServiceDescriptor(serviceType, factory, lifetime);
+                                strategy.Apply(services, descriptor);
+                            }
                         }
                     }
                 }
             }
         }
 
-        static Func<IServiceProvider, object> getFactory(Type type) {
-            return factory;
-
-            object factory(IServiceProvider provider) {
-                return provider.GetService(type)!;
+        private record FactoryOfType(Type Type) {
+            public object factory(IServiceProvider provider) {
+                return provider.GetService(Type)!;
             }
         }
-
-
-        private record AttributeServiceType(ServiceDescriptorAttribute Attribute, Type ServiceType);
     }
 }

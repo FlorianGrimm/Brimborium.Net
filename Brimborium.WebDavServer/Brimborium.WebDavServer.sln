@@ -5,6 +5,17 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.WebDavServer.Model", "Brimborium.WebDavServer.Model\Brimborium.WebDavServer.Model.csproj", "{5AF335A8-1501-4E7C-B9A2-584E73933CF3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FCADDA72-E43F-469F-AE1B-C21698D2D5E8}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		global.json = global.json
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.WebDavServer", "Brimborium.WebDavServer\Brimborium.WebDavServer.csproj", "{F0C291D8-9B6B-427C-B690-094026C44E72}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.WebDav.WebApp", "Brimborium.WebDav.WebApp\Brimborium.WebDav.WebApp.csproj", "{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +38,30 @@ Global
 		{5AF335A8-1501-4E7C-B9A2-584E73933CF3}.Release|x64.Build.0 = Release|Any CPU
 		{5AF335A8-1501-4E7C-B9A2-584E73933CF3}.Release|x86.ActiveCfg = Release|Any CPU
 		{5AF335A8-1501-4E7C-B9A2-584E73933CF3}.Release|x86.Build.0 = Release|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Debug|x64.Build.0 = Debug|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Debug|x86.Build.0 = Debug|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Release|x64.ActiveCfg = Release|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Release|x64.Build.0 = Release|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Release|x86.ActiveCfg = Release|Any CPU
+		{F0C291D8-9B6B-427C-B690-094026C44E72}.Release|x86.Build.0 = Release|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Debug|x64.Build.0 = Debug|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Debug|x86.Build.0 = Debug|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Release|x64.ActiveCfg = Release|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Release|x64.Build.0 = Release|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Release|x86.ActiveCfg = Release|Any CPU
+		{52D9B3A8-27AE-42F9-A5FD-804A48F521C8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

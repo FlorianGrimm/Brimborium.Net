@@ -32,21 +32,25 @@ namespace Brimborium.Registrator {
             return false;
         }
 
-        public static IEnumerable<Type> GetBaseTypes(this Type type) {
-            var typeInfo = type.GetTypeInfo();
+        public static IEnumerable<Type> GetBaseTypes(
+            this Type type,
+            bool includeInterfaces,
+            bool includeClasses
+            ) {
 
-            foreach (var implementedInterface in typeInfo.ImplementedInterfaces) {
-                yield return implementedInterface;
+            if (includeInterfaces) {
+                foreach (var implementedInterface in type.GetTypeInfo().ImplementedInterfaces) {
+                    yield return implementedInterface;
+                }
             }
 
-            var baseType = typeInfo.BaseType;
+            if (includeClasses) {
+                var baseType = type.GetTypeInfo().BaseType;
 
-            while (baseType != null) {
-                var baseTypeInfo = baseType.GetTypeInfo();
-
-                yield return baseType;
-
-                baseType = baseTypeInfo.BaseType;
+                while (baseType != null) {
+                    yield return baseType;
+                    baseType = baseType.BaseType;
+                }
             }
         }
 

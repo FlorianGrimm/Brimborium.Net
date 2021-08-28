@@ -1,5 +1,5 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 
 namespace Brimborium.Registrator.Test {
@@ -7,8 +7,8 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void SameInstanceInterfaceTwice() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddSingleton<IA, DummyImpl>();
-            services.AddSingleton<IB, DummyImpl>();
+            services.AddSingleton<IA, DummyImpl2>();
+            services.AddSingleton<IB, DummyImpl2>();
             using var provider = services.BuildServiceProvider();
             var ia = provider.GetRequiredService<IA>();
             var ia2 = provider.GetRequiredService<IA>();
@@ -18,8 +18,8 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void AnotherInstanceDifferentInterface() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddSingleton<IA, DummyImpl>();
-            services.AddSingleton<IB, DummyImpl>();
+            services.AddSingleton<IA, DummyImpl2>();
+            services.AddSingleton<IB, DummyImpl2>();
             using var provider = services.BuildServiceProvider();
             var ia = provider.GetRequiredService<IA>();
             var ia2 = provider.GetRequiredService<IA>();
@@ -28,11 +28,11 @@ namespace Brimborium.Registrator.Test {
             Assert.NotSame(ia, ib);
         }
         [Fact]
-        public void AnotherInstanceSameInterface() {
+        public void SameInstanceDifferentInterface() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddSingleton<DummyImpl>();
-            services.AddSingleton<IA, DummyImpl>((provider)=>provider.GetRequiredService< DummyImpl>());
-            services.AddSingleton<IB, DummyImpl>((provider) => provider.GetRequiredService<DummyImpl>());
+            services.AddSingleton<DummyImpl2>();
+            services.AddSingleton<IA, DummyImpl2>((provider) => provider.GetRequiredService<DummyImpl2>());
+            services.AddSingleton<IB, DummyImpl2>((provider) => provider.GetRequiredService<DummyImpl2>());
             using var provider = services.BuildServiceProvider();
             var ia = provider.GetRequiredService<IA>();
             var ia2 = provider.GetRequiredService<IA>();
@@ -40,8 +40,5 @@ namespace Brimborium.Registrator.Test {
             Assert.Same(ia, ia2);
             Assert.Same(ia, ib);
         }
-        public interface IA { }
-        public interface IB { }
-        public class DummyImpl : IA, IB{ }
     }
 }

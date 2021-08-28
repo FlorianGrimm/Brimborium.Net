@@ -18,10 +18,6 @@ variables:
   ProjectPath: 'Brimborium.Registrator/**/*.csproj'
 
 steps:
-
-#- script: dotnet build --configuration $(buildConfiguration) $(Pipeline.Workspace)/s/
-#  displayName: 'dotnet build $(buildConfiguration)'
-
 - task: DotNetCoreCLI@2
   displayName: 'restore $(ProjectName)'
   inputs:
@@ -35,9 +31,14 @@ steps:
     command: build
     arguments: --configuration $(buildConfiguration)
     projects: $(SolutionPath)
-#    packagesToPack: '**/*.csproj'
-#    versioningScheme: 'byEnvVar'
-#    versionEnvVar: 'Build.BuildNumber'
+    includesymbols: true 
+
+- task: DotNetCoreCLI@2
+  displayName: 'test $(ProjectName)'
+  inputs:
+    command: test
+    arguments: --configuration $(buildConfiguration)
+    projects: $(SolutionPath)
     includesymbols: true 
 
 - task: DotNetCoreCLI@2
@@ -48,18 +49,8 @@ steps:
     projects: $(SolutionPath)
     includesymbols: true 
     nobuild: true
-    
-#- task: DotNetCoreCLI@2
-#  displayName: 'Push $(ProjectName)'
-#  inputs:
-#    command: push
-#    projects: $(SolutionPath)
-#    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
-#    #feedPublish: 'Brimborium.Net'
-#    publishVstsFeed: 'Brimborium.Net/Brimborium.Net'
-#    nobuild: true
-#    includesymbols: true
-- task: NuGetCommand@2
+ 
+ - task: NuGetCommand@2
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'

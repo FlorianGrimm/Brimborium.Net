@@ -20,4 +20,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+  </ItemGroup>
+
 </Project>
