@@ -10,6 +10,10 @@ using Microsoft.Extensions.Internal;
 
 namespace Brimborium.Registrator {
     internal static class ReflectionExtensions {
+        public static bool DefaultPredicateAssemblyName(AssemblyName name) {
+            return !(name.Name ?? string.Empty).StartsWith("System.");
+        }
+
         public static bool IsNonAbstractClass(this Type type, bool publicOnly) {
             var typeInfo = type.GetTypeInfo();
 
@@ -40,7 +44,9 @@ namespace Brimborium.Registrator {
 
             if (includeInterfaces) {
                 foreach (var implementedInterface in type.GetTypeInfo().ImplementedInterfaces) {
-                    yield return implementedInterface;
+                    if(implementedInterface.HasMatchingGenericArity(type.GetTypeInfo())) {
+                        yield return implementedInterface;
+                    }
                 }
             }
 

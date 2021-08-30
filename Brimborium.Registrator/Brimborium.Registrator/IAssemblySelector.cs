@@ -7,31 +7,6 @@ using Microsoft.Extensions.DependencyModel;
 namespace Brimborium.Registrator {
     public interface IAssemblySelector : IFluentInterface {
         /// <summary>
-        /// Will scan for types from the calling assembly.
-        /// </summary>
-        IImplementationTypeSelector FromCallingAssembly();
-
-        /// <summary>
-        /// Will scan for types from the currently executing assembly.
-        /// </summary>
-        IImplementationTypeSelector FromExecutingAssembly();
-
-        /// <summary>
-        /// Will scan for types from the entry assembly.
-        /// </summary>
-        IImplementationTypeSelector FromEntryAssembly();
-
-        /// <summary>
-        /// Will load and scan all runtime libraries referenced by the currently executing application.
-        /// Calling this method is equivalent to calling <see cref="FromDependencyContext(DependencyContext)"/> and passing in <see cref="DependencyContext.Default"/>.
-        /// </summary>
-        /// <remarks>
-        /// If loading <see cref="DependencyContext.Default"/> fails, this method will fall back to calling <see cref="FromAssemblyDependencies(Assembly)"/>,
-        /// using the entry assembly.
-        /// </remarks>
-        IImplementationTypeSelector FromApplicationDependencies();
-
-        /// <summary>
         /// Will load and scan all runtime libraries referenced by the currently executing application.
         /// Calling this method is equivalent to calling <see cref="FromDependencyContext(DependencyContext, Func{Assembly, bool})"/> and passing in <see cref="DependencyContext.Default"/>.
         /// </summary>
@@ -39,27 +14,24 @@ namespace Brimborium.Registrator {
         /// If loading <see cref="DependencyContext.Default"/> fails, this method will fall back to calling <see cref="FromAssemblyDependencies(Assembly)"/>,
         /// using the entry assembly.
         /// </remarks>
+        /// <param name="context">The dependency context.</param>
         /// <param name="predicate">The predicate to match assemblies.</param>
-        IImplementationTypeSelector FromApplicationDependencies(Func<AssemblyName, bool> predicate);
+        IImplementationTypeSelector FromApplicationDependencies(DependencyContext context, Func<AssemblyName, bool>? predicate = default);
 
         /// <summary>
         /// Will load and scan all runtime libraries referenced by the currently specified <paramref name="assembly"/>.
         /// </summary>
-        /// <param name="assembly">The assembly whose dependencies should be scanned.</param>
-        IImplementationTypeSelector FromAssemblyDependencies(Assembly assembly);
-
-        /// <summary>
-        /// Will load and scan all runtime libraries in the given <paramref name="context"/>.
-        /// </summary>
         /// <param name="context">The dependency context.</param>
-        IImplementationTypeSelector FromDependencyContext(DependencyContext context);
+        /// <param name="assembly">The assembly whose dependencies should be scanned.</param>
+        /// <param name="predicate">The predicate to match assemblies.</param>
+        IImplementationTypeSelector FromAssemblyDependencies(DependencyContext context, Assembly assembly, Func<AssemblyName, bool>? predicate = default);
 
         /// <summary>
         /// Will load and scan all runtime libraries in the given <paramref name="context"/>.
         /// </summary>
         /// <param name="context">The dependency context.</param>
         /// <param name="predicate">The predicate to match assemblies.</param>
-        IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool> predicate);
+        IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool>? predicate = default);
 
         /// <summary>
         /// Will scan for types from the assembly of type <typeparamref name="T"/>.

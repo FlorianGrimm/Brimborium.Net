@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Brimborium.Registrator
-{
-    public interface ITypeSelector : IFluentInterface
-    {
+namespace Brimborium.Registrator {
+    public interface ITypeSelector : IFluentInterface {
         /// <summary>
         /// Will scan the types <see cref="Type"/> in <paramref name="types"/>.
         /// </summary>

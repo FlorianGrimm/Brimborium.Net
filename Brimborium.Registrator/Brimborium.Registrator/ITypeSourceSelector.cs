@@ -1,6 +1,4 @@
-namespace Brimborium.Registrator
-{
-    public interface ITypeSourceSelector : IAssemblySelector, ITypeSelector
-    {
+namespace Brimborium.Registrator {
+    public interface ITypeSourceSelector : IAssemblySelector, ITypeSelector {
     }
 }

@@ -10,19 +10,19 @@ namespace Brimborium.Registrator.Internals {
         private readonly IEnumerable<Type> _Types;
         private readonly Func<Type, Type, bool> _Predicate;
 
-        private static bool defaultPredicate(Type type, Type serviceType) {
+        private static bool DefaultTypePredicate(Type type, Type serviceType) {
             if (typeof(System.IDisposable).Equals(serviceType)) { return false; }
             if (typeof(System.IAsyncDisposable).Equals(serviceType)) { return false; }
             return true;
         }
 
-        public AttributeSelector(IEnumerable<Type> types, Func<Type, Type, bool>? predicate) {
+        internal AttributeSelector(IEnumerable<Type> types, Func<Type, Type, bool>? predicate) {
             this._Types = types;
-            this._Predicate = predicate ?? defaultPredicate;
+            this._Predicate = predicate ?? DefaultTypePredicate;
         }
 
 
-        void ISelector.Populate(IServiceCollection services, RegistrationStrategy registrationStrategy) {
+        void ISelector.Populate(RegistrationStrategy registrationStrategy, ISelectorTarget selectorTarget) {
             var strategy = registrationStrategy ?? RegistrationStrategy.Append;
 
             foreach (var implementationType in this._Types) {
@@ -75,30 +75,8 @@ namespace Brimborium.Registrator.Internals {
                             hsServiceTypes.Add(serviceType);
                         }
                     }
-
-                    if (!isIncludeSelf && hsServiceTypes.Count == 1) {
-                        var descriptor = new ServiceDescriptor(hsServiceTypes.First(), implementationType, lifetime);
-                        strategy.Apply(services, descriptor);
-                    } else {
-                        {
-                            var descriptor = new ServiceDescriptor(implementationType, implementationType, lifetime);
-                            strategy.Apply(services, descriptor);
-                        }
-                        if (hsServiceTypes.Count > 0) {
-                            Func<IServiceProvider, object> factory = (new FactoryOfType(implementationType)).factory;
-                            foreach (var serviceType in hsServiceTypes) {
-                                var descriptor = new ServiceDescriptor(serviceType, factory, lifetime);
-                                strategy.Apply(services, descriptor);
-                            }
-                        }
-                    }
+                    selectorTarget.AddServicePopulation(new ServicePopulation(implementationType, hsServiceTypes.ToArray(), isIncludeSelf, lifetime, strategy));
                 }
-            }
-        }
-
-        private record FactoryOfType(Type Type) {
-            public object factory(IServiceProvider provider) {
-                return provider.GetService(Type)!;
             }
         }
     }

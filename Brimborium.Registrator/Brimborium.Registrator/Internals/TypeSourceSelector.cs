@@ -9,50 +9,36 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 
 namespace Brimborium.Registrator {
-    public class TypeSourceSelector : ITypeSourceSelector, ISelector {
-        private static Assembly EntryAssembly => Assembly.GetEntryAssembly()
-            ?? throw new InvalidOperationException("Could not get entry assembly.");
+    internal sealed class TypeSourceSelector : ITypeSourceSelector, ISelector {
+        private static bool DefaultPredicate(AssemblyName assemblyName) => true;
 
-        private readonly List<ISelector> Selectors = new List<ISelector>();
+        private readonly List<ISelector> _Selectors;
+        private readonly Dictionary<AssemblyName, Assembly> _AssemblyLoaded;
+
+        public TypeSourceSelector() {
+            this._Selectors = new List<ISelector>();
+            this._AssemblyLoaded = new Dictionary<AssemblyName, Assembly>();
+        }
 
         /// <inheritdoc />
         public IImplementationTypeSelector FromAssemblyOf<T>() {
             return this.InternalFromAssembliesOf(new[] { typeof(T).GetTypeInfo() });
         }
 
-        public IImplementationTypeSelector FromCallingAssembly() {
-            return this.FromAssemblies(Assembly.GetCallingAssembly());
-        }
-
-        public IImplementationTypeSelector FromExecutingAssembly() {
-            return this.FromAssemblies(Assembly.GetExecutingAssembly());
-        }
-
-        public IImplementationTypeSelector FromEntryAssembly() {
-            return this.FromAssemblies(EntryAssembly);
-        }
-
-        public IImplementationTypeSelector FromApplicationDependencies() {
-            return this.FromApplicationDependencies(_ => true);
-        }
-
-        public IImplementationTypeSelector FromApplicationDependencies(Func<AssemblyName, bool> predicate) {
+        public IImplementationTypeSelector FromApplicationDependencies(DependencyContext context, Func<AssemblyName, bool>? predicate = default) {
             try {
-                return this.FromDependencyContext(DependencyContext.Default, predicate);
+                return this.FromDependencyContext(context, predicate);
             } catch {
                 // Something went wrong when loading the DependencyContext, fall
                 // back to loading all referenced assemblies of the entry assembly...
-                return this.FromAssemblyDependencies(EntryAssembly);
+                var entryAssembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Could not get entry assembly.");
+                return this.FromAssemblyDependencies(context, entryAssembly, predicate);
             }
         }
 
-        public IImplementationTypeSelector FromDependencyContext(DependencyContext context) {
-            return this.FromDependencyContext(context, _ => true);
-        }
-
-        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool> predicate) {
+        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool>? predicate = default) {
             Preconditions.NotNull(context, nameof(context));
-            Preconditions.NotNull(predicate, nameof(predicate));
+            predicate ??= ReflectionExtensions.DefaultPredicateAssemblyName;
 
             var assemblyNames = context.RuntimeLibraries
                 .SelectMany(library => library.GetDefaultAssemblyNames(context))
@@ -64,20 +50,19 @@ namespace Brimborium.Registrator {
             return this.InternalFromAssemblies(assemblies);
         }
 
-        public IImplementationTypeSelector FromAssemblyDependencies(Assembly assembly) {
+        public IImplementationTypeSelector FromAssemblyDependencies(DependencyContext context, Assembly assembly, Func<AssemblyName, bool>? predicate = default) {
             Preconditions.NotNull(assembly, nameof(assembly));
+            predicate ??= ReflectionExtensions.DefaultPredicateAssemblyName;
 
             var assemblies = new List<Assembly> { assembly };
 
-            try {
-                var dependencyNames = assembly.GetReferencedAssemblies();
+            var dependencyNames = assembly.GetReferencedAssemblies()
+                .Where(predicate)
+                ;
 
-                assemblies.AddRange(LoadAssemblies(dependencyNames));
+            assemblies.AddRange(LoadAssemblies(dependencyNames));
 
-                return this.InternalFromAssemblies(assemblies);
-            } catch {
-                return this.InternalFromAssemblies(assemblies);
-            }
+            return this.InternalFromAssemblies(assemblies);
         }
 
         public IImplementationTypeSelector FromAssembliesOf(params Type[] types) {
@@ -109,7 +94,7 @@ namespace Brimborium.Registrator {
 
             var selector = new ImplementationTypeSelector(this, types);
 
-            this.Selectors.Add(selector);
+            this._Selectors.Add(selector);
 
             return selector.AddClasses();
         }
@@ -119,14 +104,14 @@ namespace Brimborium.Registrator {
 
             var selector = new ImplementationTypeSelector(this, types);
 
-            this.Selectors.Add(selector);
+            this._Selectors.Add(selector);
 
             return selector.AddClasses();
         }
 
-        public void Populate(IServiceCollection services, RegistrationStrategy registrationStrategy) {
-            foreach (var selector in this.Selectors) {
-                selector.Populate(services, registrationStrategy);
+        void ISelector.Populate(RegistrationStrategy registrationStrategy, ISelectorTarget selectorTarget) {
+            foreach (var selector in this._Selectors) {
+                selector.Populate(registrationStrategy, selectorTarget);
             }
         }
 
@@ -138,13 +123,19 @@ namespace Brimborium.Registrator {
             return this.AddSelector(assemblies.SelectMany(asm => asm.DefinedTypes).Select(x => x.AsType()));
         }
 
-        private static IEnumerable<Assembly> LoadAssemblies(IEnumerable<AssemblyName> assemblyNames) {
+        private IEnumerable<Assembly> LoadAssemblies(IEnumerable<AssemblyName> assemblyNames) {
             var assemblies = new List<Assembly>();
-#warning optimize needed?
+
             foreach (var assemblyName in assemblyNames) {
                 try {
-                    // Try to load the referenced assembly...
-                    assemblies.Add(Assembly.Load(assemblyName));
+                    if (this._AssemblyLoaded.TryGetValue(assemblyName, out var assembly)) {
+                        assemblies.Add(assembly);
+                    } else {
+                        // Try to load the referenced assembly...
+                        assembly = Assembly.Load(assemblyName);
+                        assemblies.Add(assembly);
+                        this._AssemblyLoaded[assemblyName] = assembly;
+                    }
                 } catch {
                     // Failed to load assembly. Skip it.
                 }
@@ -156,7 +147,7 @@ namespace Brimborium.Registrator {
         private IImplementationTypeSelector AddSelector(IEnumerable<Type> types) {
             var selector = new ImplementationTypeSelector(this, types);
 
-            this.Selectors.Add(selector);
+            this._Selectors.Add(selector);
 
             return selector;
         }

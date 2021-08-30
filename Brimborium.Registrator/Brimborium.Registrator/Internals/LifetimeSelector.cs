@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -7,187 +8,169 @@ using Microsoft.Extensions.DependencyModel;
 
 namespace Brimborium.Registrator.Internals {
     internal sealed class LifetimeSelector : ILifetimeSelector, ISelector {
-        public LifetimeSelector(ServiceTypeSelector inner, IEnumerable<TypeMap> typeMaps, IEnumerable<TypeFactoryMap> typeFactoryMaps) {
-            this.Inner = inner;
-            this.TypeMaps = typeMaps;
-            this.TypeFactoryMaps = typeFactoryMaps;
-        }
+        private readonly ServiceTypeSelector _Inner;
 
-        private ServiceTypeSelector Inner { get; }
-
-        private IEnumerable<TypeMap> TypeMaps { get; }
-
-        private IEnumerable<TypeFactoryMap> TypeFactoryMaps { get; }
+        private readonly ServicePopulation[] _Items;
 
         public ServiceLifetime? Lifetime { get; set; }
 
+        internal LifetimeSelector(ServiceTypeSelector inner, IEnumerable<ServicePopulation> items) {
+            this._Inner = inner;
+            this._Items = items.ToArray();
+        }
+
         public IImplementationTypeSelector WithSingletonLifetime() {
-            this.Inner.PropagateLifetime(ServiceLifetime.Singleton);
+            this._Inner.PropagateLifetime(ServiceLifetime.Singleton);
             return this;
         }
 
         public IImplementationTypeSelector WithScopedLifetime() {
-            this.Inner.PropagateLifetime(ServiceLifetime.Scoped);
+            this._Inner.PropagateLifetime(ServiceLifetime.Scoped);
             return this;
         }
 
         public IImplementationTypeSelector WithTransientLifetime() {
-            this.Inner.PropagateLifetime(ServiceLifetime.Transient);
+            this._Inner.PropagateLifetime(ServiceLifetime.Transient);
             return this;
         }
 
         public IImplementationTypeSelector WithLifetime(ServiceLifetime lifetime) {
             Preconditions.EnsureValidServiceLifetime(lifetime, nameof(lifetime));
 
-            this.Inner.PropagateLifetime(lifetime);
+            this._Inner.PropagateLifetime(lifetime);
 
             return this;
         }
 
         #region Chain Methods
 
-        public IImplementationTypeSelector FromCallingAssembly() {
-            return this.Inner.FromCallingAssembly();
+        public IImplementationTypeSelector FromApplicationDependencies(DependencyContext context, Func<AssemblyName, bool>? predicate = default) {
+            return this._Inner.FromApplicationDependencies(context, predicate);
         }
 
-        public IImplementationTypeSelector FromExecutingAssembly() {
-            return this.Inner.FromExecutingAssembly();
+        public IImplementationTypeSelector FromAssemblyDependencies(DependencyContext context, Assembly assembly, Func<AssemblyName, bool>? predicate = default) {
+            return this._Inner.FromAssemblyDependencies(context, assembly, predicate);
         }
 
-        public IImplementationTypeSelector FromEntryAssembly() {
-            return this.Inner.FromEntryAssembly();
-        }
-
-        public IImplementationTypeSelector FromApplicationDependencies() {
-            return this.Inner.FromApplicationDependencies();
-        }
-
-        public IImplementationTypeSelector FromApplicationDependencies(Func<AssemblyName, bool> predicate) {
-            return this.Inner.FromApplicationDependencies(predicate);
-        }
-
-        public IImplementationTypeSelector FromAssemblyDependencies(Assembly assembly) {
-            return this.Inner.FromAssemblyDependencies(assembly);
-        }
-
-        public IImplementationTypeSelector FromDependencyContext(DependencyContext context) {
-            return this.Inner.FromDependencyContext(context);
-        }
-
-        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool> predicate) {
-            return this.Inner.FromDependencyContext(context, predicate);
+        public IImplementationTypeSelector FromDependencyContext(DependencyContext context, Func<AssemblyName, bool>? predicate = default) {
+            return this._Inner.FromDependencyContext(context, predicate);
         }
 
         public IImplementationTypeSelector FromAssemblyOf<T>() {
-            return this.Inner.FromAssemblyOf<T>();
+            return this._Inner.FromAssemblyOf<T>();
         }
 
         public IImplementationTypeSelector FromAssembliesOf(params Type[] types) {
-            return this.Inner.FromAssembliesOf(types);
+            return this._Inner.FromAssembliesOf(types);
         }
 
         public IImplementationTypeSelector FromAssembliesOf(IEnumerable<Type> types) {
-            return this.Inner.FromAssembliesOf(types);
+            return this._Inner.FromAssembliesOf(types);
         }
 
         public IImplementationTypeSelector FromAssemblies(params Assembly[] assemblies) {
-            return this.Inner.FromAssemblies(assemblies);
+            return this._Inner.FromAssemblies(assemblies);
         }
 
         public IImplementationTypeSelector FromAssemblies(IEnumerable<Assembly> assemblies) {
-            return this.Inner.FromAssemblies(assemblies);
+            return this._Inner.FromAssemblies(assemblies);
         }
 
         public IServiceTypeSelector AddClasses() {
-            return this.Inner.AddClasses();
+            return this._Inner.AddClasses();
         }
 
         public IServiceTypeSelector AddClasses(bool publicOnly) {
-            return this.Inner.AddClasses(publicOnly);
+            return this._Inner.AddClasses(publicOnly);
         }
 
         public IServiceTypeSelector AddClasses(Action<IImplementationTypeFilter> action) {
-            return this.Inner.AddClasses(action);
+            return this._Inner.AddClasses(action);
         }
 
         public IServiceTypeSelector AddClasses(Action<IImplementationTypeFilter> action, bool publicOnly) {
-            return this.Inner.AddClasses(action, publicOnly);
+            return this._Inner.AddClasses(action, publicOnly);
         }
 
         public ILifetimeSelector AsSelf() {
-            return this.Inner.AsSelf();
+            return this._Inner.AsSelf();
         }
 
         public ILifetimeSelector As<T>() {
-            return this.Inner.As<T>();
+            return this._Inner.As<T>();
         }
 
         public ILifetimeSelector As(params Type[] types) {
-            return this.Inner.As(types);
+            return this._Inner.As(types);
         }
 
         public ILifetimeSelector As(IEnumerable<Type> types) {
-            return this.Inner.As(types);
+            return this._Inner.As(types);
         }
 
         public ILifetimeSelector AsImplementedInterfaces() {
-            return this.Inner.AsImplementedInterfaces();
+            return this._Inner.AsImplementedInterfaces();
         }
 
         public ILifetimeSelector AsSelfWithInterfaces() {
-            return this.Inner.AsSelfWithInterfaces();
+            return this._Inner.AsSelfWithInterfaces();
         }
 
         public ILifetimeSelector AsMatchingInterface() {
-            return this.Inner.AsMatchingInterface();
+            return this._Inner.AsMatchingInterface();
         }
 
         public ILifetimeSelector AsMatchingInterface(Action<TypeInfo, IImplementationTypeFilter> action) {
-            return this.Inner.AsMatchingInterface(action);
+            return this._Inner.AsMatchingInterface(action);
         }
 
         public ILifetimeSelector As(Func<Type, IEnumerable<Type>> selector) {
-            return this.Inner.As(selector);
+            return this._Inner.As(selector);
         }
 
         public IImplementationTypeSelector UsingAttributes(Func<Type, Type, bool>? predicate = default) {
-            return this.Inner.UsingAttributes(predicate);
+            return this._Inner.UsingAttributes(predicate);
         }
 
         public IServiceTypeSelector UsingRegistrationStrategy(RegistrationStrategy registrationStrategy) {
-            return this.Inner.UsingRegistrationStrategy(registrationStrategy);
+            return this._Inner.UsingRegistrationStrategy(registrationStrategy);
         }
 
         #endregion
 
-        void ISelector.Populate(IServiceCollection services, RegistrationStrategy strategy) {
+        void ISelector.Populate(RegistrationStrategy strategy, ISelectorTarget selectorTarget) {
             if (!this.Lifetime.HasValue) {
                 this.Lifetime = ServiceLifetime.Transient;
             }
 
             strategy ??= RegistrationStrategy.Append;
 
-            foreach (var typeMap in this.TypeMaps) {
-                foreach (var serviceType in typeMap.ServiceTypes) {
-                    var implementationType = typeMap.ImplementationType;
-
-                    if (!implementationType.IsAssignableTo(serviceType)) {
-                        throw new InvalidOperationException($@"Type ""{implementationType.ToFriendlyName()}"" is not assignable to ""${serviceType.ToFriendlyName()}"".");
-                    }
-
-                    var descriptor = new ServiceDescriptor(serviceType, implementationType, this.Lifetime.Value);
-
-                    strategy.Apply(services, descriptor);
-                }
+            foreach (var item in this._Items) {
+                var itemLT = (item.Lifetime.HasValue) ? item : (item with { Lifetime = this.Lifetime });
+                var itemSt = (itemLT.Strategy is null) ? itemLT : (itemLT with { Strategy = strategy });
+                selectorTarget.AddServicePopulation(itemSt);
             }
 
-            foreach (var typeFactoryMap in this.TypeFactoryMaps) {
-                foreach (var serviceType in typeFactoryMap.ServiceTypes) {
-                    var descriptor = new ServiceDescriptor(serviceType, typeFactoryMap.ImplementationFactory, this.Lifetime.Value);
+            //foreach (var typeMap in this._TypeMaps) {
+            //    var implementationType = typeMap.ImplementationType;
+            //    var serviceTypes = typeMap.ServiceTypes.ToArray();
+            //    foreach (var serviceType in serviceTypes) {
 
-                    strategy.Apply(services, descriptor);
-                }
-            }
+            //        if (!implementationType.IsAssignableTo(serviceType)) {
+            //            throw new InvalidOperationException($@"Type ""{implementationType.ToFriendlyName()}"" is not assignable to ""${serviceType.ToFriendlyName()}"".");
+            //        }
+
+            //        //var descriptor = new ServiceDescriptor(serviceType, implementationType, this.Lifetime.Value);
+            //        //strategy.Apply(services, descriptor);
+            //    }
+            //    selectorTarget.AddServicePopulation(
+            //        new ServicePopulation(implementationType, serviceTypes, false, this.Lifetime.Value, strategy));
+            //}
+
+            //foreach (var typeFactoryMap in this._TypeFactoryMaps) {
+            //    selectorTarget.AddServicePopulation(
+            //            new ServicePopulation(typeFactoryMap.ImplementationType, typeFactoryMap.ServiceTypes.ToArray(), true, this.Lifetime.Value, strategy));
+            //}
         }
     }
 }
