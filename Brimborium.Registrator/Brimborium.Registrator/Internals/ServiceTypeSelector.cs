@@ -13,7 +13,7 @@ namespace Brimborium.Registrator {
         private IImplementationTypeSelector _Inner;
         private IEnumerable<Type> _Types;
         private List<ISelector> _Selectors;
-        private RegistrationStrategy? RegistrationStrategy;
+        private RegistrationStrategy? _RegistrationStrategy;
 
         public ServiceTypeSelector(IImplementationTypeSelector inner, IEnumerable<Type> types) {
             this._Inner = inner;
@@ -32,13 +32,23 @@ namespace Brimborium.Registrator {
         public ILifetimeSelector As(params Type[] types) {
             Preconditions.NotNull(types, nameof(types));
 
-            return this.As(types.AsEnumerable());
+            return this.AddSelector(
+                this._Types
+                    .Select(t => new { implementationType = t, serviceTypes = types.Where(i => t.IsAssignableTo(i)).ToArray() })
+                    .Where(t => t.serviceTypes.Length > 0)
+                    .Select(t => ServicePopulation.Create(t.implementationType, t.serviceTypes, false, null, null))
+                );
         }
 
         public ILifetimeSelector As(IEnumerable<Type> types) {
             Preconditions.NotNull(types, nameof(types));
 
-            return this.AddSelector(this._Types.Select(t => new ServicePopulation(t, types.ToArray(), false, null, null)));
+            return this.AddSelector(
+                this._Types
+                    .Select(t => new { implementationType = t, serviceTypes = types.Where(i => t.IsAssignableTo(i)).ToArray() })
+                    .Where(t => t.serviceTypes.Length > 0)
+                    .Select(t => ServicePopulation.Create(t.implementationType, t.serviceTypes, false, null, null))
+                );
         }
 
         public ILifetimeSelector AsImplementedInterfaces() {
@@ -60,12 +70,11 @@ namespace Brimborium.Registrator {
                     .Select(x => x.GetRegistrationType(info));
             }
 
-            //return this.AddSelector(
-            //    this._Types.Select(t => new TypeMap(t, new[] { t })),
-            //    this._Types.Select(t => new TypeFactoryMap(t, Selector(t.GetTypeInfo()))));
-
             return this.AddSelector(
-                this._Types.Select(t => new ServicePopulation(t, Selector(t.GetTypeInfo()).ToArray(), true, null, null)));
+                this._Types
+                    .Select(t => new { implementationType = t, serviceTypes = Selector(t.GetTypeInfo()).ToArray() })
+                    .Where(t => t.serviceTypes.Any())
+                    .Select(t => new ServicePopulation(t.implementationType, t.serviceTypes, true, null, null)));
         }
 
         public ILifetimeSelector AsMatchingInterface() {
@@ -79,7 +88,12 @@ namespace Brimborium.Registrator {
         public ILifetimeSelector As(Func<Type, IEnumerable<Type>> selector) {
             Preconditions.NotNull(selector, nameof(selector));
 
-            return this.AddSelector(this._Types.Select(t => new ServicePopulation(t, selector(t).ToArray(), false, null, null)));
+            return this.AddSelector(
+                this._Types
+                    .Select(t => new { implementationType = t, serviceTypes = selector(t).ToArray() })
+                    .Where(t => t.serviceTypes.Any())
+                    .Select(t => new ServicePopulation(t.implementationType, t.serviceTypes, false, null, null))
+                );
         }
 
         public IImplementationTypeSelector UsingAttributes(Func<Type, Type, bool>? predicate = default) {
@@ -93,7 +107,7 @@ namespace Brimborium.Registrator {
         public IServiceTypeSelector UsingRegistrationStrategy(RegistrationStrategy registrationStrategy) {
             Preconditions.NotNull(registrationStrategy, nameof(registrationStrategy));
 
-            this.RegistrationStrategy = registrationStrategy;
+            this._RegistrationStrategy = registrationStrategy;
             return this;
         }
 
@@ -160,7 +174,7 @@ namespace Brimborium.Registrator {
                 this.AsSelf();
             }
 
-            var strategy = this.RegistrationStrategy ?? registrationStrategy;
+            var strategy = this._RegistrationStrategy ?? registrationStrategy;
 
             foreach (var selector in this._Selectors) {
                 selector.Populate(strategy, selectorTarget);

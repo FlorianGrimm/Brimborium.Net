@@ -1,11 +1,11 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+using System;
+
 using Xunit;
-using Brimborium.Registrator;
-using System.Linq;
 
 namespace Brimborium.Registrator.Test {
-   
+
     public class UseAttributeTest1 {
         [Fact]
         public void UseAttribute_1_SameInstanceDifferentInterface() {

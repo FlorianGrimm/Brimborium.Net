@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 		Global.props = Global.props
 		Library.props = Library.props
+		version.json = version.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Registrator.Test", "Brimborium.Registrator.Test\Brimborium.Registrator.Test.csproj", "{4753A1C3-A506-4F58-A6CF-0EE048BE4E8A}"

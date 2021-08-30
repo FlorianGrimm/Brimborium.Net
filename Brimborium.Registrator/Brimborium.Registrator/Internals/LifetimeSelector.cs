@@ -112,6 +112,7 @@ namespace Brimborium.Registrator.Internals {
             return this._Inner.AsImplementedInterfaces();
         }
 
+
         public ILifetimeSelector AsSelfWithInterfaces() {
             return this._Inner.AsSelfWithInterfaces();
         }
