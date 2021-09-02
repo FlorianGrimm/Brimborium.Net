@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RequestHandler\" />
+  </ItemGroup>
+
 </Project>
