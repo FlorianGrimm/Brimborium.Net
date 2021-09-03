@@ -13,8 +13,8 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  ProjectName: 'Brimborium.Registrator'
-  SolutionPath: 'Brimborium.Registrator/Brimborium.Registrator.sln'
+  ProjectName: 'Brimborium.Net'
+  SolutionPath: 'Brimborium.Net.sln'
   ProjectPath: 'Brimborium.Registrator/**/*.csproj'
 
 steps:
