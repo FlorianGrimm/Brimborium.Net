@@ -8,8 +8,10 @@
             this._SyncItemFactory = syncFactory;
         }
 
-        protected override SyncById CreateSyncById() {
-            return this.Factory.CreateSyncById<T>(this);
+        public ISyncItemFactory<T> SyncItemFactory => this._SyncItemFactory;
+
+        protected override SyncById CreateSyncById(object id) {
+            return this.Factory.CreateSyncById<T>(this, id);
         }
     }
 

@@ -14,12 +14,12 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             return new SyncByType<T>(syncDictionary, syncFactory);
         }
 
-        public virtual SyncById CreateSyncByIdGeneral(SyncByType syncByType) {
-            return new SyncById(syncByType);
+        public virtual SyncById CreateSyncByIdGeneral(SyncByType syncByType, object id) {
+            return new SyncByIdUntyped(syncByType, id);
         }
 
-        public virtual SyncById<T> CreateSyncById<T>(SyncByType syncByType) {
-            return new SyncById<T>(syncByType);
+        public virtual SyncById<T> CreateSyncById<T>(SyncByType<T> syncByType, object id) {
+            return new SyncById<T>(syncByType, id);
         }
 
         public virtual ISyncItemFactory<object> GetSyncFactory(Type type) {

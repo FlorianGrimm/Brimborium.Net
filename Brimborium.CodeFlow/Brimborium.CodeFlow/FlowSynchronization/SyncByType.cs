@@ -39,20 +39,26 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             GC.SuppressFinalize(this);
         }
 
-        public Task<IDisposable> LockAsync(object id, SyncLockCollection? synLockCollection, CancellationToken cancellationToken = default) {
+        public Task<ISyncLock> LockAsync(
+            object id,
+            bool exclusiveLock,
+            SyncLockCollection? synLockCollection,
+            CancellationToken cancellationToken = default) {
             var syncById = this.GetSyncById(id);
-            return syncById.LockAsync(id, synLockCollection, cancellationToken);
+            return syncById.LockAsync(exclusiveLock, synLockCollection, cancellationToken);
         }
 
-        public SyncDictionary GetParentSyncDictionary() => this._ParentSyncDictionary;
-        internal SyncDictionaryOptions Options => this._ParentSyncDictionary.Options;
-        protected internal SyncFactory Factory => this._ParentSyncDictionary.Options.Factory;
+        public SyncDictionary ParentSyncDictionary => this._ParentSyncDictionary;
+
+        public SyncDictionaryOptions Options => this._ParentSyncDictionary.Options;
+
+        public SyncFactory Factory => this._ParentSyncDictionary.Options.Factory;
 
         private SyncById GetSyncById(object id) {
             while (true) {
                 if (!this._SyncById.TryGetValue(id, out var result)) {
                     lock (this) {
-                        result = this.CreateSyncById();
+                        result = this.CreateSyncById(id);
                         if (this._SyncById.TryAdd(id, result)) {
                             return result;
                         } else {
@@ -65,8 +71,16 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             }
         }
 
-        protected virtual SyncById CreateSyncById() {
-            return this.Factory.CreateSyncByIdGeneral(this);
+        protected virtual SyncById CreateSyncById(object id) {
+            return this.Factory.CreateSyncByIdGeneral(this, id);
+        }
+
+        internal void StopTimeoutDispose(SyncById syncById) {
+#warning throw new NotImplementedException();
+        }
+
+        internal void StartTimeoutDispose(SyncById syncById) {
+#warning throw new NotImplementedException();
         }
     }
 }

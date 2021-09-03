@@ -1,59 +1,108 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.FlowSynchronization {
-    public class SyncById : IDisposable {
-        private SemaphoreSlim? _SemaphoreSlim;
+    public abstract class SyncById : IDisposable, ISyncById {
         internal readonly SyncByType SyncByType;
         private bool _DisposedValue;
-        private SyncLock? _CurrentLock;
+        private SyncGroupLock? _CurrentLock;
+        private SyncGroupLock? _LastLock;
+        private Queue<SyncGroupLock>? _Queue;
 
-        public SyncById(SyncByType syncByType) {
+        public readonly object Id;
+
+        protected SyncById(SyncByType syncByType, object id) {
             this.SyncByType = syncByType;
+            this.Id = id;
             this._CurrentLock = null;
+            this._Queue = null;
         }
 
-        public async Task<IDisposable> LockAsync(object id, SyncLockCollection? synLockCollection, CancellationToken cancellationToken = default) {
-            var semaphoreSlim = this.GetSemaphoreSlim();
-            await semaphoreSlim.WaitAsync(cancellationToken);
-            var result = new SyncLock(this, id);
-            this._CurrentLock = result;
-            if (synLockCollection is not null) {
-                synLockCollection.Add(result);
-            }
+
+        public async Task<ISyncLock> LockAsync(
+            bool exclusiveLock,
+            SyncLockCollection? synLockCollection,
+            CancellationToken cancellationToken = default) {
             this.StopTimeoutDispose();
-            this.OnLock(result);
-            return result;
+            SyncLock result = this.CreateSyncLock();
+            try {
+                var task = this.setCurrentOrEnqueue(result, exclusiveLock);
+                if (task is null) {
+                    // quick path no waits
+                    await this.OnLock();
+                } else {
+                    if (cancellationToken == CancellationToken.None) {
+                        await task;
+                    } else {
+                        await task.ContinueWith(t => { }, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                }
+                if (synLockCollection is not null) {
+                    synLockCollection.Add(result);
+                }
+                return result;
+            } catch {
+                result.Dispose();
+                throw;
+            }
         }
 
-        private SemaphoreSlim GetSemaphoreSlim() {
-            if (this._SemaphoreSlim is null) {
-                lock (this) {
-                    if (this._SemaphoreSlim is null) {
-                        var semaphoreSlim = new SemaphoreSlim(1, 1);
-                        var oldValue = System.Threading.Interlocked.CompareExchange(ref this._SemaphoreSlim, semaphoreSlim, null);
-                        if (oldValue is null) {
-                            // OK 
-                            System.Threading.Interlocked.MemoryBarrier();
-                            return this._SemaphoreSlim;
-                        } else {
-                            semaphoreSlim.Dispose();
-                            return this._SemaphoreSlim;
-                        }
+        protected abstract SyncLock CreateSyncLock();
+
+        private Task? setCurrentOrEnqueue(
+                SyncLock item,
+                bool exclusiveLock
+            ) {
+            lock (this) {
+                if (this._CurrentLock is null) {
+                    var grp = new SyncGroupLock(this, item, exclusiveLock);
+                    this._CurrentLock = grp;
+                    this._LastLock = grp;
+                    grp.SetActive();
+                    return null;
+                }
+                {
+                    if ((!exclusiveLock) && (this._LastLock is not null) && (!this._LastLock.ExclusiveLock)) {
+                        this._LastLock.AddItem(item);
+                        return null;
+                    }
+                }
+                {
+                    if ((!exclusiveLock) && (this._CurrentLock is not null) && (!this._CurrentLock.ExclusiveLock) && ((this._Queue is null) || (this._Queue.Count == 0))) {
+                        this._CurrentLock.AddItem(item);
+                        return null;
+                    }
+                }
+                {
+                    var queue = this._Queue ??= new Queue<SyncGroupLock>();
+                    if (!exclusiveLock && (this._LastLock is not null) && !this._LastLock.ExclusiveLock) {
+                        return this._LastLock.AddItem(item);
+                    } else {
+                        var grp = new SyncGroupLock(this, item, exclusiveLock);
+                        this._LastLock = grp;
+                        var task = grp.SetWaiting();
+                        queue.Enqueue(grp);
+                        return task;
                     }
                 }
             }
-            return this._SemaphoreSlim;
         }
 
         protected virtual void Dispose(bool disposing) {
             if (!this._DisposedValue) {
                 if (disposing) {
+                    if (this._Queue is not null) {
+                        while (this._Queue.TryDequeue(out var syncGroupLock)) {
+                            syncGroupLock.Dispose();
+                        }
+                        this._Queue = null;
+                    }
+                } else {
                 }
-                using (var semaphoreSlim = this._SemaphoreSlim) {
-                    this._SemaphoreSlim = null;
-                }
+
                 this._DisposedValue = true;
             }
         }
@@ -67,28 +116,47 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             GC.SuppressFinalize(this);
         }
 
-        internal void Release(SyncLock syncLock) {
-            var old = System.Threading.Interlocked.CompareExchange(ref this._CurrentLock, null, syncLock);
-            if (ReferenceEquals(old, syncLock)) {
-                var semaphore = this._SemaphoreSlim;
-                if (semaphore is not null) {
-                    semaphore.Release();
+        internal void StartNextGroup(SyncGroupLock syncGroupLockFinished) {
+            lock (this) {
+                System.Threading.Interlocked.CompareExchange(ref this._CurrentLock, null, syncGroupLockFinished);
+                System.Threading.Interlocked.CompareExchange(ref this._LastLock, null, syncGroupLockFinished);
+                if (this._CurrentLock is null) {
+                    this.OnRelease();
+                    if (this._Queue != null) {
+                        if (this._Queue.TryDequeue(out var syncGroupLockNext)) {
+                            this._CurrentLock = syncGroupLockNext;
+                            this.OnLock();
+                            syncGroupLockNext.SetActive();
+                            return;
+                        }
+                    }
                     this.StartTimeoutDispose();
-                    this.OnRelease(syncLock);
                 }
             }
         }
 
+        private bool _TimeoutDisposeIsStarted;
+
         private void StopTimeoutDispose() {
-            this.SyncByType.GetParentSyncDictionary().StopTimeoutDispose(this);
+            if (_TimeoutDisposeIsStarted) {
+                _TimeoutDisposeIsStarted = false;
+                this.SyncByType.StopTimeoutDispose(this);
+            }
         }
-
         private void StartTimeoutDispose() {
-            this.SyncByType.GetParentSyncDictionary().StartTimeoutDispose(this);
+            if (!_TimeoutDisposeIsStarted) {
+                _TimeoutDisposeIsStarted = true;
+                this.SyncByType.StartTimeoutDispose(this);
+            }
         }
 
-        protected virtual void OnLock(SyncLock result) { }
+        protected virtual Task OnLock() {
+            return Task.CompletedTask;
+        }
 
-        protected virtual void OnRelease(SyncLock syncLock) { }
+        protected virtual Task OnRelease() {
+            return Task.CompletedTask;
+        }
     }
+
 }

@@ -24,7 +24,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             this._Options = options;
             this._SyncTimer = syncTimer;
         }
-        
+
         internal SyncDictionaryOptions Options => this._Options;
 
         private SyncByType GetSyncByType(Type type) {
@@ -45,9 +45,23 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             }
         }
 
-        public Task<IDisposable> LockAsync(Type type, string id, SyncLockCollection? synLockCollection, CancellationToken cancellationToken = default) {
+        public Task<ISyncLock> LockAsync<T>(
+            object id,
+            bool exclusiveLock,
+            SyncLockCollection? synLockCollection,
+            CancellationToken cancellationToken = default) {
+            var syncByType = this.GetSyncByType(typeof(T));
+            return syncByType.LockAsync(id, exclusiveLock, synLockCollection, cancellationToken);
+        }
+
+        public Task<ISyncLock> LockAsync(
+            Type type,
+            object id,
+            bool exclusiveLock,
+            SyncLockCollection? synLockCollection,
+            CancellationToken cancellationToken = default) {
             var syncByType = this.GetSyncByType(type);
-            return syncByType.LockAsync(id, synLockCollection, cancellationToken);
+            return syncByType.LockAsync(id, exclusiveLock, synLockCollection, cancellationToken);
         }
 
         private void Dispose(bool disposing) {
@@ -72,7 +86,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             GC.SuppressFinalize(this);
         }
 
-        public bool Add<T>(ISyncItemFactory<T> creator) {
+        public bool RegisterType<T>(ISyncItemFactory<T> creator) {
             while (true) {
                 if (!this._SyncByType.TryGetValue(typeof(T), out var syncByType)) {
                     syncByType = this.Options.Factory.CreateSyncByType<T>(this, creator);
