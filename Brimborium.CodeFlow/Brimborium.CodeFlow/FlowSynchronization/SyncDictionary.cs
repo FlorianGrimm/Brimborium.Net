@@ -45,13 +45,14 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             }
         }
 
-        public Task<ISyncLock> LockAsync<T>(
+        public async Task<ISyncLock<T>> LockAsync<T>(
             object id,
             bool exclusiveLock,
             SyncLockCollection? synLockCollection,
             CancellationToken cancellationToken = default) {
             var syncByType = this.GetSyncByType(typeof(T));
-            return syncByType.LockAsync(id, exclusiveLock, synLockCollection, cancellationToken);
+            var result = await syncByType.LockAsync(id, exclusiveLock, synLockCollection, cancellationToken);
+            return (ISyncLock<T>)result;
         }
 
         public Task<ISyncLock> LockAsync(
