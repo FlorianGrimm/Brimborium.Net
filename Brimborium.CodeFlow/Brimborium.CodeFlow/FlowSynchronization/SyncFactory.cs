@@ -6,16 +6,8 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
         public SyncFactory() {
         }
 
-        public virtual SyncByType CreateSyncByTypeGeneral(Type type, SyncDictionary syncDictionary, ISyncItemFactory<object> syncFactory) {
-            return new SyncByType<object>(syncDictionary, syncFactory);
-        }
-
-        public virtual SyncByType<T> CreateSyncByType<T>(SyncDictionary syncDictionary, ISyncItemFactory<T> syncFactory) {
-            return new SyncByType<T>(syncDictionary, syncFactory);
-        }
-
-        public virtual SyncById CreateSyncByIdGeneral(SyncByType syncByType, object id) {
-            return new SyncByIdUntyped(syncByType, id);
+        public virtual SyncByType<T> CreateSyncByType<T>(SyncDictionary syncDictionary, Type byType, ISyncItemFactory<T> syncFactory, TimeSpan lifeTimeSpan) {
+            return new SyncByType<T>(syncDictionary, byType, syncFactory);
         }
 
         public virtual SyncById<T> CreateSyncById<T>(SyncByType<T> syncByType, object id) {

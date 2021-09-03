@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE0060 // Remove unused parameter
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
@@ -12,12 +10,17 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
         private readonly SyncDictionary _ParentSyncDictionary;
         private bool _DisposedValue;
 
-        protected SyncByType(SyncDictionary syncDictionary) {
+        protected SyncByType(SyncDictionary syncDictionary, Type byType) {
             this._ParentSyncDictionary = syncDictionary;
+            this.ByType = byType;
             this._SyncById = new ConcurrentDictionary<object, SyncById>();
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable IDE0079 // Remove unnecessary suppression
         private void Dispose(bool disposing) {
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore IDE0079 // Remove unnecessary suppression
             if (!this._DisposedValue) {
                 // if (disposing) { }
                 var arrKeys = this._SyncById.Keys.ToArray();
@@ -54,7 +57,9 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
 
         public SyncFactory Factory => this._ParentSyncDictionary.Options.Factory;
 
-        private SyncById GetSyncById(object id) {
+        public Type ByType { get; }
+
+        public SyncById GetSyncById(object id) {
             while (true) {
                 if (!this._SyncById.TryGetValue(id, out var result)) {
                     lock (this) {
@@ -71,16 +76,16 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             }
         }
 
-        protected virtual SyncById CreateSyncById(object id) {
-            return this.Factory.CreateSyncByIdGeneral(this, id);
-        }
+        protected abstract SyncById CreateSyncById(object id);
 
         internal void StopTimeoutDispose(SyncById syncById) {
 #warning throw new NotImplementedException();
+            //if (this._ParentSyncDictionary.StopTimeoutDispose(this)) {             }
         }
 
         internal void StartTimeoutDispose(SyncById syncById) {
 #warning throw new NotImplementedException();
+            //if (this._ParentSyncDictionary.StartTimeoutDispose(this)) {             }
         }
     }
 }

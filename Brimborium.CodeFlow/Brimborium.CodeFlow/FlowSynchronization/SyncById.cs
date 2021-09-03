@@ -26,9 +26,9 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             SyncLockCollection? synLockCollection,
             CancellationToken cancellationToken = default) {
             this.StopTimeoutDispose();
-            SyncLock result = this.CreateSyncLock();
+            SyncLock result = this.CreateSyncLock(exclusiveLock);
             try {
-                var task = this.setCurrentOrEnqueue(result, exclusiveLock);
+                var task = this.SetCurrentOrEnqueue(result, exclusiveLock);
                 if (task is null) {
                     // quick path no waits
                     await this.OnLock();
@@ -50,9 +50,9 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             }
         }
 
-        protected abstract SyncLock CreateSyncLock();
+        protected abstract SyncLock CreateSyncLock(bool exclusiveLock);
 
-        private Task? setCurrentOrEnqueue(
+        private Task? SetCurrentOrEnqueue(
                 SyncLock item,
                 bool exclusiveLock
             ) {
@@ -90,6 +90,12 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                 }
             }
         }
+
+        public abstract void SetItemUntyped(object item);
+
+        public abstract bool IsItemSet();
+
+        public abstract object GetItemUntyped();
 
         protected virtual void Dispose(bool disposing) {
             if (!this._DisposedValue) {

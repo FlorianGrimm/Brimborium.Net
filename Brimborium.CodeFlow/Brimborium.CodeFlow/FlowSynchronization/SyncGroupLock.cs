@@ -13,8 +13,9 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
         public bool ExclusiveLock { get; }
 
         public SyncGroupLock(SyncById owner, SyncLock item, bool exclusiveLock) {
-            this._Items = new List<SyncLock>();
-            this._Items.Add(item);
+            this._Items = new List<SyncLock> {
+                item
+            };
             this._Owner = owner;
             this.ExclusiveLock = exclusiveLock;
         }
@@ -71,7 +72,8 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                 foreach (var item in this._Items) {
                     if (!item.IsFinished()) {
                         isFinished = false;
-                        break;
+                        this._Items.Remove(syncLock);
+                        return;
                     }
                 }
                 if (isFinished) {

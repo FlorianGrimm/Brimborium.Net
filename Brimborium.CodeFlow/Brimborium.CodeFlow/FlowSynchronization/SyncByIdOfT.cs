@@ -9,15 +9,26 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
 
         public SyncById(SyncByType<T> syncByType, object id) : base(syncByType, id) { }
 
-        protected override SyncLock CreateSyncLock() => new SyncLock<T>(this);
+        protected override SyncLock CreateSyncLock(bool exclusiveLock) => new SyncLock<T>(this, exclusiveLock);
 
-        public bool IsItemSet() => this._ItemIsSet;
+        public override bool IsItemSet() => this._ItemIsSet;
 
         public void SetItem(T item) {
             this._Item = item;
             this._ItemIsSet = true;
         }
 
+        public override void SetItemUntyped(object item) {
+            this.SetItem((T)item);
+        }
+
+        public override object GetItemUntyped() {
+            if (this._ItemIsSet) {
+                return _Item!;
+            } else {
+                throw new InvalidOperationException("Item is not set.");
+            }
+        }
         public T GetItem() {
             if (this._ItemIsSet) {
                 return _Item!;
@@ -38,6 +49,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                 }
             }
         }
+
 
         ~SyncById() {
             this.Dispose(disposing: false);

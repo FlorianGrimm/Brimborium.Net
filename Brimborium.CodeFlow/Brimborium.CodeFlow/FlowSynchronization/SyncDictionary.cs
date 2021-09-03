@@ -13,7 +13,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
     public class SyncDictionary : IDisposable {
         private readonly SyncDictionaryOptions _Options;
         private readonly SyncTimer? _SyncTimer;
-        private ConcurrentDictionary<Type, SyncByType> _SyncByType;
+        private readonly ConcurrentDictionary<Type, SyncByType> _SyncByType;
         private bool _DisposedValue;
 
         public SyncDictionary(
@@ -27,12 +27,17 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
 
         internal SyncDictionaryOptions Options => this._Options;
 
-        private SyncByType GetSyncByType(Type type) {
+        public SyncByType GetSyncByType(Type type) {
+            {
+                if (this._SyncByType.TryGetValue(type, out var syncByType)) {
+                    return syncByType;
+                }
+            }
             while (true) {
                 if (!this._SyncByType.TryGetValue(type, out var syncByType)) {
                     if (this.Options.AllowUnregistered) {
                         ISyncItemFactory<object> syncFactory = this.Options.Factory.GetSyncFactory(type);
-                        syncByType = this.Options.Factory.CreateSyncByTypeGeneral(type, this, syncFactory);
+                        syncByType = this.Options.Factory.CreateSyncByType<object>(this, type, syncFactory, this.Options.DefaultLifeTimeSpan);
                         if (!this._SyncByType.TryAdd(type, syncByType)) {
                             syncByType.Dispose();
                             continue;
@@ -55,7 +60,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             return (ISyncLock<T>)result;
         }
 
-        public Task<ISyncLock> LockAsync(
+        public Task<ISyncLock> LockByTypeAsync(
             Type type,
             object id,
             bool exclusiveLock,
@@ -65,7 +70,9 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             return syncByType.LockAsync(id, exclusiveLock, synLockCollection, cancellationToken);
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         private void Dispose(bool disposing) {
+#pragma warning restore IDE0060 // Remove unused parameter
             if (!this._DisposedValue) {
                 // if (disposing) { }
                 var arrKeys = this._SyncByType.Keys.ToArray();
@@ -87,10 +94,10 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             GC.SuppressFinalize(this);
         }
 
-        public bool RegisterType<T>(ISyncItemFactory<T> creator) {
+        public bool RegisterType<T>(ISyncItemFactory<T> creator, TimeSpan? lifeTimeSpan) {
             while (true) {
-                if (!this._SyncByType.TryGetValue(typeof(T), out var syncByType)) {
-                    syncByType = this.Options.Factory.CreateSyncByType<T>(this, creator);
+                if (!this._SyncByType.ContainsKey(typeof(T))) {
+                    var syncByType = this.Options.Factory.CreateSyncByType<T>(this, typeof(T), creator, lifeTimeSpan ?? this._Options.DefaultLifeTimeSpan);
                     if (!this._SyncByType.TryAdd(typeof(T), syncByType)) {
                         syncByType.Dispose();
                         continue;
@@ -101,10 +108,20 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             }
         }
 
-        internal void StopTimeoutDispose(SyncById syncById) {
+        internal bool StopTimeoutDispose(SyncById syncById) {
+            if (this._SyncTimer is null) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
-        internal void StartTimeoutDispose(SyncById syncById) {
+        internal bool StartTimeoutDispose(SyncById syncById, DateTime at) {
+            if (this._SyncTimer is null) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 

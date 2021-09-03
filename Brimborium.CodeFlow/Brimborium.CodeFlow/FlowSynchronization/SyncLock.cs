@@ -1,15 +1,18 @@
 ﻿using System;
 
 namespace Brimborium.CodeFlow.FlowSynchronization {
-    public class SyncLock : ISyncLock, IDisposable {
+    public class SyncLock : IDisposable, ISyncLock {
         protected SyncLockMode _LockMode;
         protected bool _DisposedValue;
         protected readonly SyncById _SyncById;
         protected SyncGroupLock? _SyncGroupLock;
 
-        protected SyncLock(SyncById item) {
+        public bool ExclusiveLock { get; }
+
+        protected SyncLock(SyncById item, bool exclusiveLock) {
             this._LockMode = SyncLockMode.Initialized;
             this._SyncById = item;
+            this.ExclusiveLock = exclusiveLock;
         }
 
         internal void SetWaiting() {
@@ -47,7 +50,11 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
 
         internal bool IsFinished() => this._LockMode == SyncLockMode.Finished;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0060 // Remove unused parameter
         protected void Dispose(bool disposing) {
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+#pragma warning restore IDE0060 // Remove unused parameter
             if (!this._DisposedValue) {
                 this._DisposedValue = true;
                 this._LockMode = SyncLockMode.Finished;
@@ -64,23 +71,52 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             GC.SuppressFinalize(this);
         }
 
-        public ISyncById GetSyncByIdUntyped() {
+        public object GetItemUntyped() {
             if (this._DisposedValue) {
                 throw new ObjectDisposedException("SyncLock");
             } else {
-                return this._SyncById;
+                return this._SyncById.GetItemUntyped();
+            }
+        }
+
+        public bool IsItemSet() {
+            if (this._DisposedValue) {
+                throw new ObjectDisposedException("SyncLock");
+            } else {
+                return this._SyncById.IsItemSet();
+
+            }
+        }
+
+        public void SetItemUntyped(object item) {
+            if (this._DisposedValue) {
+                throw new ObjectDisposedException("SyncLock");
+            } else if (this._SyncById.IsItemSet() && !this.ExclusiveLock) {
+                throw new InvalidOperationException("No ExclusiveLock");
+            } else {
+                this._SyncById.SetItemUntyped(item);
             }
         }
     }
 
     internal sealed class SyncLock<T> : SyncLock, ISyncLock<T>, IDisposable {
-        internal SyncLock(ISyncById<T> syncById) : base((SyncById)syncById) { }
+        internal SyncLock(ISyncById<T> syncById, bool exclusiveLock) : base((SyncById)syncById, exclusiveLock) { }
 
-        public ISyncById<T> GetSyncById() {
+        public T GetItem() {
             if (this._DisposedValue) {
                 throw new ObjectDisposedException("SyncLock");
             } else {
-                return (ISyncById<T>)this._SyncById;
+                return ((ISyncById<T>)this._SyncById).GetItem();
+            }
+        }
+
+        public void SetItem(T item) {
+            if (this._DisposedValue) {
+                throw new ObjectDisposedException("SyncLock");
+            } else if (this._SyncById.IsItemSet() && !this.ExclusiveLock){
+                throw new InvalidOperationException("No ExclusiveLock");
+            } else {
+                ((ISyncById<T>)this._SyncById).SetItem(item);
             }
         }
 
@@ -89,8 +125,8 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
         }
     }
 
-    internal sealed class SyncLockUntyped : SyncLock {
-        internal SyncLockUntyped(SyncById syncById) : base(syncById) { }
+    internal sealed class SyncLockUntyped : SyncLock, ISyncLock {
+        internal SyncLockUntyped(SyncById syncById, bool exclusiveLock) : base(syncById, exclusiveLock) { }
 
         ~SyncLockUntyped() {
             this.Dispose(disposing: false);

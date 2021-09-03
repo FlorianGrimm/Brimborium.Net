@@ -1,10 +1,7 @@
-﻿using Brimborium.CodeFlow.FlowSynchronization;
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -20,7 +17,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                     false,
                     TimeSpan.FromSeconds(1)),
                 null);
-            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"));
+            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"), null);
             object key = "1";
             var t1 = sut.LockAsync<object>(key, true, null, default);
             var t2 = sut.LockAsync<object>(key, true, null, default);
@@ -29,7 +26,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             Assert.Equal(TaskStatus.RanToCompletion, t1.Status);
             Assert.Equal(TaskStatus.WaitingForActivation, t2.Status);
             Assert.Equal(TaskStatus.WaitingForActivation, t3.Status);
-            var v1 = (await t1).GetSyncById().GetItem().ToString();
+            var v1 = (await t1).GetItem().ToString();
             Assert.Equal("1-1", v1);
 
             (await t1).Dispose();
@@ -43,54 +40,6 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             Assert.Equal(TaskStatus.RanToCompletion, t1.Status);
             Assert.Equal(TaskStatus.RanToCompletion, t2.Status);
             Assert.Equal(TaskStatus.RanToCompletion, t3.Status);
-
-            //var tcsStartAll = new TaskCompletionSource();
-            //var tcsStart0 = new TaskCompletionSource();
-            //var tcsStart1 = new TaskCompletionSource();
-            //var tcs1 = new TaskCompletionSource();
-            //var tcs2 = new TaskCompletionSource();
-            //var act = new List<int>();
-            //var t1 = Task.Run(async () => {
-            //    tcsStart0.SetResult();
-            //    await tcsStartAll.Task;
-
-            //    await tcs2.Task;
-            //    var d1 = await sut.LockAsync<string>("1", true, null, default);
-            //    lock (act) {
-            //        act.Add(1);
-            //    }
-            //    await Task.Delay(1);
-            //    await tcs1.Task;
-            //    d1.Dispose();
-            //    lock (act) {
-            //        act.Add(2);
-            //    }
-            //});
-            //var t2 = Task.Run(async () => {
-            //    tcsStart1.SetResult();
-            //    await tcsStartAll.Task;
-            //    await tcs1.Task;
-            //    await tcs2.Task;
-            //    var d2 = await sut.LockAsync<string>("1", true, null, default);
-            //    lock (act) {
-            //        act.Add(3);
-            //    }
-            //    await Task.Delay(1);
-            //    d2.Dispose();
-            //    lock (act) {
-            //        act.Add(4);
-            //    }
-            //});
-            //await tcsStart0.Task;
-            //await tcsStart1.Task;
-            //tcsStartAll.SetResult();
-
-            //tcs1.SetResult();
-            //tcs2.SetResult();
-
-            //await Task.WhenAll(t1, t2);
-            //var actJoined = string.Join("-", act.Select(i => i.ToString()));
-            //Assert.Equal("1-2-3-4", actJoined);
         }
 
         [Fact]
@@ -102,7 +51,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                     false,
                     TimeSpan.FromSeconds(1)),
                 null);
-            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"));
+            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"), null);
             object key = "1";
             var t1 = sut.LockAsync<object>(key, false, null, default);
             var t2 = sut.LockAsync<object>(key, false, null, default);
@@ -112,7 +61,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             Assert.Equal(TaskStatus.RanToCompletion, t2.Status);
             Assert.Equal(TaskStatus.RanToCompletion, t3.Status);
             var d1 = await t1;
-            Assert.Equal("1-1", d1.GetSyncById().GetItem().ToString());
+            Assert.Equal("1-1", d1.GetItem().ToString());
             (await t1).Dispose();
             (await t2).Dispose();
             (await t3).Dispose();
@@ -127,7 +76,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                     false,
                     TimeSpan.FromSeconds(1)),
                 null);
-            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"));
+            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"), null);
             object key = "1";
             var t1 = sut.LockAsync<object>(key, false, null, default);
             var t2 = sut.LockAsync<object>(key, false, null, default);
@@ -141,23 +90,23 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             Assert.Equal(TaskStatus.WaitingForActivation, t4.Status);
 
             var d1 = await t1;
-            Assert.Equal("1-1", d1.GetSyncById().GetItem().ToString());
+            Assert.Equal("1-1", d1.GetItem().ToString());
             var d2 = await t2;
-            Assert.Equal("1-1", d2.GetSyncById().GetItem().ToString());
+            Assert.Equal("1-1", d2.GetItem().ToString());
             d1.Dispose();
             d2.Dispose();
 
             Assert.Equal(TaskStatus.WaitingForActivation, t3.Status);
             Assert.Equal(TaskStatus.WaitingForActivation, t4.Status);
             var d3 = await t3;
-            Assert.Equal("1-1", d3.GetSyncById().GetItem().ToString());
+            Assert.Equal("1-1", d3.GetItem().ToString());
             d3.Dispose();
 
             Assert.Equal(TaskStatus.RanToCompletion, t3.Status);
             Assert.Equal(TaskStatus.WaitingForActivation, t4.Status);
 
             var d4 = await t4;
-            Assert.Equal("1-1", d4.GetSyncById().GetItem().ToString());
+            Assert.Equal("1-1", d4.GetItem().ToString());
             d4.Dispose();
             Assert.Equal(TaskStatus.RanToCompletion, t4.Status);
         }
@@ -170,15 +119,15 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                     false,
                     TimeSpan.FromSeconds(1)),
                 null);
-            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"));
+            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"), null);
             object key1 = "one";
             object key2 = "two";
             var t1 = sut.LockAsync<object>(key1, false, null, default);
             var t2 = sut.LockAsync<object>(key2, false, null, default);
             var d1 = await t1;
-            Assert.Equal("one-1", d1.GetSyncById().GetItem().ToString());
+            Assert.Equal("one-1", d1.GetItem().ToString());
             var d2 = await t2;
-            Assert.Equal("two-2", d2.GetSyncById().GetItem().ToString());
+            Assert.Equal("two-2", d2.GetItem().ToString());
         }
 
         [Fact]
@@ -190,7 +139,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                     false,
                     TimeSpan.FromSeconds(1)),
                 null);
-            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"));
+            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"), null);
             object key = "1";
 
             var tcsStartAll = new TaskCompletionSource();
@@ -247,7 +196,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                     false,
                     TimeSpan.FromSeconds(1)),
                 null);
-            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"));
+            sut.RegisterType<object>(new SyncItemFactoryFunction<object>((object id) => $"{id}-{idx++}"), null);
             object key = "1";
             var tlock1 = sut.LockAsync<object>(key, false, null, default);
             var tlock2 = sut.LockAsync<object>(key, false, null, default);
