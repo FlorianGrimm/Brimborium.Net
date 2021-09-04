@@ -24,6 +24,14 @@ steps:
     command: restore
     arguments: --configuration $(buildConfiguration)
     projects: $(SolutionPath)
+    #feedsToUse: 'select' # Options: select, config
+    #vstsFeed: # Required when feedsToUse == Select
+    #feedRestore: # Required when command == restore. projectName/feedName for project-scoped feed. FeedName only for organization-scoped feed.
+    #includeNuGetOrg: true # Required when feedsToUse == Select
+    #nugetConfigPath: # Required when feedsToUse == Config    
+    feedsToUse: 'config'
+    nugetConfigPath: 'nuget.config'
+    #vstsFeed: 'https://grimmuko.pkgs.visualstudio.com/Brimborium.Net/_packaging/Brimborium.Net/nuget/v3/index.json'
 
 - task: DotNetCoreCLI@2
   displayName: 'build $(ProjectName)'
