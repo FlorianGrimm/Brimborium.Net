@@ -11,9 +11,9 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
         private SyncGroupLock? _LastLock;
         private Queue<SyncGroupLock>? _Queue;
 
-        public readonly object Id;
+        public readonly IIdentity Id;
 
-        protected SyncById(SyncByType syncByType, object id) {
+        protected SyncById(SyncByType syncByType, IIdentity id) {
             this.SyncByType = syncByType;
             this.Id = id;
             this._CurrentLock = null;
@@ -90,12 +90,6 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                 }
             }
         }
-
-        public abstract void SetItemUntyped(object item);
-
-        public abstract bool IsItemSet();
-
-        public abstract object GetItemUntyped();
 
         protected virtual void Dispose(bool disposing) {
             if (!this._DisposedValue) {

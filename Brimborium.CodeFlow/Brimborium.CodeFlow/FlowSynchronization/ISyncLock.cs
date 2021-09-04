@@ -1,15 +1,13 @@
 ﻿using System;
 
 namespace Brimborium.CodeFlow.FlowSynchronization {
+    // convert to ISyncLock<T>
     public interface ISyncLock : IDisposable {
-        object GetItemUntyped();
-        bool IsItemSet();
-        void SetItemUntyped(object item);
     }
 
     public interface ISyncLock<T> : IDisposable {
-        T GetItem();
-        bool IsItemSet();
-        void SetItem(T item);
+        IState<T> GetState();
+        bool IsStateSet();
+        void SetState(IState<T> item);
     }
 }

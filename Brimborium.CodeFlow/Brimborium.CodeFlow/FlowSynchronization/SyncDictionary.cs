@@ -51,7 +51,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
         }
 
         public async Task<ISyncLock<T>> LockAsync<T>(
-            object id,
+            IIdentity id,
             bool exclusiveLock,
             SyncLockCollection? synLockCollection,
             CancellationToken cancellationToken = default) {
@@ -62,7 +62,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
 
         public Task<ISyncLock> LockByTypeAsync(
             Type type,
-            object id,
+            IIdentity id,
             bool exclusiveLock,
             SyncLockCollection? synLockCollection,
             CancellationToken cancellationToken = default) {

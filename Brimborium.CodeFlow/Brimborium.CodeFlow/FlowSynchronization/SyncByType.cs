@@ -43,7 +43,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
         }
 
         public Task<ISyncLock> LockAsync(
-            object id,
+            IIdentity id,
             bool exclusiveLock,
             SyncLockCollection? synLockCollection,
             CancellationToken cancellationToken = default) {
@@ -59,7 +59,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
 
         public Type ByType { get; }
 
-        public SyncById GetSyncById(object id) {
+        public SyncById GetSyncById(IIdentity id) {
             while (true) {
                 if (!this._SyncById.TryGetValue(id, out var result)) {
                     lock (this) {
@@ -76,7 +76,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             }
         }
 
-        protected abstract SyncById CreateSyncById(object id);
+        protected abstract SyncById CreateSyncById(IIdentity id);
 
         internal void StopTimeoutDispose(SyncById syncById) {
 #warning throw new NotImplementedException();

@@ -14,7 +14,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
 
         public ISyncItemFactory<T> SyncItemFactory => this._SyncItemFactory;
 
-        protected override SyncById CreateSyncById(object id) {
+        protected override SyncById CreateSyncById(IIdentity id) {
             return this.Factory.CreateSyncById<T>(this, id);
         }
     }

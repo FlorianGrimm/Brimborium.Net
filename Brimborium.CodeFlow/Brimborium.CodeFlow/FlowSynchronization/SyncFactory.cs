@@ -10,7 +10,7 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             return new SyncByType<T>(syncDictionary, byType, syncFactory);
         }
 
-        public virtual SyncById<T> CreateSyncById<T>(SyncByType<T> syncByType, object id) {
+        public virtual SyncById<T> CreateSyncById<T>(SyncByType<T> syncByType, IIdentity id) {
             return new SyncById<T>(syncByType, id);
         }
 
@@ -25,10 +25,10 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                 this._Type = type;
             }
 
-            public Task<object> CreateItem(object id) {
+            public Task<IState<object>> CreateStateItem(IIdentity id) {
                 object result = System.Activator.CreateInstance(this._Type)
                     ?? throw new InvalidOperationException();
-                return Task.FromResult<object>(result);
+                return Task.FromResult<IState<object>>(new State<object>(result));
             }
         }
     }

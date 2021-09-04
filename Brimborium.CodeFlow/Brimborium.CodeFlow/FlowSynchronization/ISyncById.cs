@@ -2,13 +2,10 @@
 
 namespace Brimborium.CodeFlow.FlowSynchronization {
     public interface ISyncById: IDisposable {
-        object GetItemUntyped();
-        bool IsItemSet();
-        void SetItemUntyped(object item);
     }
     public interface ISyncById<T> {
-        T GetItem();
-        bool IsItemSet();
-        void SetItem(T item);
+        IState<T> GetState();
+        bool IsStateSet();
+        void SetState(IState<T> state);
     }
 }

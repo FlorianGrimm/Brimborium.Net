@@ -8,6 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BluePrint1.cs" />
+    <Compile Remove="BluePrint2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="BluePrint1.cs" />
+    <None Include="BluePrint2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Brimborium.Registrator" Version="1.0.14-beta-ga769bb6dcc" />
     <PackageReference Include="Brimborium.Registrator.Abstractions" Version="1.0.14-beta-ga769bb6dcc" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />

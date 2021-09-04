@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.FlowSynchronization {
-    class Class1 {
-        
+    public interface IIdentity 
+        //: IEquatable<IIdentity> 
+        {
+
     }
 }

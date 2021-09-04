@@ -70,65 +70,39 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
-        public object GetItemUntyped() {
-            if (this._DisposedValue) {
-                throw new ObjectDisposedException("SyncLock");
-            } else {
-                return this._SyncById.GetItemUntyped();
-            }
-        }
-
-        public bool IsItemSet() {
-            if (this._DisposedValue) {
-                throw new ObjectDisposedException("SyncLock");
-            } else {
-                return this._SyncById.IsItemSet();
-
-            }
-        }
-
-        public void SetItemUntyped(object item) {
-            if (this._DisposedValue) {
-                throw new ObjectDisposedException("SyncLock");
-            } else if (this._SyncById.IsItemSet() && !this.ExclusiveLock) {
-                throw new InvalidOperationException("No ExclusiveLock");
-            } else {
-                this._SyncById.SetItemUntyped(item);
-            }
-        }
     }
 
     internal sealed class SyncLock<T> : SyncLock, ISyncLock<T>, IDisposable {
         internal SyncLock(ISyncById<T> syncById, bool exclusiveLock) : base((SyncById)syncById, exclusiveLock) { }
 
-        public T GetItem() {
+        public IState<T> GetState() {
             if (this._DisposedValue) {
                 throw new ObjectDisposedException("SyncLock");
             } else {
-                return ((ISyncById<T>)this._SyncById).GetItem();
+                return ((ISyncById<T>)this._SyncById).GetState();
             }
         }
 
-        public void SetItem(T item) {
+        public bool IsStateSet() {
             if (this._DisposedValue) {
                 throw new ObjectDisposedException("SyncLock");
-            } else if (this._SyncById.IsItemSet() && !this.ExclusiveLock){
+            } else {
+                return ((ISyncById<T>)this._SyncById).IsStateSet();
+
+            }
+        }
+
+        public void SetState(IState<T> state) {
+            if (this._DisposedValue) {
+                throw new ObjectDisposedException("SyncLock");
+            } else if (((ISyncById<T>)this._SyncById).IsStateSet() && !this.ExclusiveLock){
                 throw new InvalidOperationException("No ExclusiveLock");
             } else {
-                ((ISyncById<T>)this._SyncById).SetItem(item);
+                ((ISyncById<T>)this._SyncById).SetState(state);
             }
         }
 
         ~SyncLock() {
-            this.Dispose(disposing: false);
-        }
-    }
-
-    internal sealed class SyncLockUntyped : SyncLock, ISyncLock {
-        internal SyncLockUntyped(SyncById syncById, bool exclusiveLock) : base(syncById, exclusiveLock) { }
-
-        ~SyncLockUntyped() {
             this.Dispose(disposing: false);
         }
     }

@@ -4,32 +4,21 @@ using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.FlowSynchronization {
     public sealed class SyncById<T> : SyncById, ISyncById<T> {
-        private T? _Item;
+        private IState<T>? _Item;
         private bool _ItemIsSet;
 
-        public SyncById(SyncByType<T> syncByType, object id) : base(syncByType, id) { }
+        public SyncById(SyncByType<T> syncByType, IIdentity id) : base(syncByType, id) { }
 
         protected override SyncLock CreateSyncLock(bool exclusiveLock) => new SyncLock<T>(this, exclusiveLock);
 
-        public override bool IsItemSet() => this._ItemIsSet;
+        public bool IsStateSet() => this._ItemIsSet;
 
-        public void SetItem(T item) {
+        public void SetState(IState<T> item) {
             this._Item = item;
             this._ItemIsSet = true;
         }
 
-        public override void SetItemUntyped(object item) {
-            this.SetItem((T)item);
-        }
-
-        public override object GetItemUntyped() {
-            if (this._ItemIsSet) {
-                return _Item!;
-            } else {
-                throw new InvalidOperationException("Item is not set.");
-            }
-        }
-        public T GetItem() {
+        public IState<T> GetState() {
             if (this._ItemIsSet) {
                 return _Item!;
             } else {
@@ -42,8 +31,8 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
                 var syncByType = (SyncByType<T>)this.SyncByType;
                 Monitor.Enter(this);
                 try {
-                    var item = await syncByType.SyncItemFactory.CreateItem(this.Id);
-                    this.SetItem(item);
+                    var state = await syncByType.SyncItemFactory.CreateStateItem(this.Id);
+                    this.SetState(state);
                 } finally {
                     Monitor.Exit(this);
                 }
