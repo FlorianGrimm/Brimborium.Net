@@ -11,7 +11,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_SameInstanceDifferentInterface() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingleton>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA));
@@ -29,7 +29,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_Auto() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingleton>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA) && sd.ImplementationFactory is not null);
@@ -40,7 +40,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_ServiceTypeMode_Auto_IA() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2IAAttributeSingletonAutoIA>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA) && sd.ImplementationType is not null);
@@ -52,7 +52,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_ServiceTypeMode_IncludeSelf() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeSelf>().UsingAttributes();
             });
             Assert.DoesNotContain(services, sd => sd.ServiceType == typeof(IA));
@@ -63,7 +63,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_IncludeClasses() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeClasses>().UsingAttributes();
             });
             Assert.DoesNotContain(services, sd => sd.ServiceType == typeof(IA));
@@ -75,7 +75,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_IncludeClasses_ServiceType() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeClassesServiceType>().UsingAttributes();
             });
             Assert.DoesNotContain(services, sd => sd.ServiceType == typeof(IA));
@@ -88,7 +88,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_IncludeClasses_ServiceTypeIA() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeClassesServiceTypeIA>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA) && sd.ImplementationFactory is not null);
@@ -102,7 +102,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_IncludeInterfaces() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeInterfaces>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA) && sd.ImplementationFactory is not null);
@@ -114,7 +114,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_IncludeeInterfaces_ServiceType() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeInterfacesServiceType>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA) && sd.ImplementationFactory is not null);
@@ -126,7 +126,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_IncludeClassesAndInterfaces() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeClassesAndInterfaces>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA));
@@ -139,7 +139,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void UseAttribute_2_ServiceTypeMode_IncludeClassesAndInterfaces_ServiceType() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(a => {
+            services.AddServicesWithRegistrator(a => {
                 a.AddType<DummyImpl2AttributeSingletonIncludeClassesAndInterfacesServiceType>().UsingAttributes();
             });
             Assert.Contains(services, sd => sd.ServiceType == typeof(IA));
@@ -152,7 +152,7 @@ namespace Brimborium.Registrator.Test {
         public void UseAttributeTwoDifferentLifetiems() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
             Assert.Throws<InvalidOperationException>(() => {
-                services.AddRegistrator(a => {
+                services.AddServicesWithRegistrator(a => {
                     a.AddType<DummyImplAttributeSingletonTransient>().UsingAttributes();
                 });
             });

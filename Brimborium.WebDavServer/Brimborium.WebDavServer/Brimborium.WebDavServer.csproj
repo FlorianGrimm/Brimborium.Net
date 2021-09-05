@@ -25,9 +25,22 @@
     <None Include="Model\prop.cs" />
     <None Include="Model\webdav.cs" />
   </ItemGroup>
+
+  <ItemGroup >
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+  </ItemGroup>
+  <!--
+  <ItemGroup Condition="'$(SolutionName)' == 'Brimborium.Net'">
+    <PackageReference Include="Brimborium.Registrator" Version="1.0.14-beta-ga769bb6dcc" />
+    <PackageReference Include="Brimborium.Registrator.Abstractions" Version="1.0.14-beta-ga769bb6dcc" />
+  </ItemGroup>  
+  <ItemGroup Condition="'$(SolutionName)' == 'Brimborium.WebDavServer'">
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+  </ItemGroup>
+  -->
   <ItemGroup>
-    <PackageReference Include="Brimborium.Registrator" Version="1.0.9-beta-g1b710fe841" />
-    <PackageReference Include="Brimborium.Registrator.Abstractions" Version="1.0.9-beta-g1b710fe841" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

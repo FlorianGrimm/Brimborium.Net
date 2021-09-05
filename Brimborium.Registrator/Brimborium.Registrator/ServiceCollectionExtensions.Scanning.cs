@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection {
         /// <param name="actionAdd">The configuration action.</param>
         /// <exception cref="ArgumentNullException">If either the <paramref name="services"/>
         /// or <paramref name="actionAdd"/> arguments are <c>null</c>.</exception>
-        public static IServiceCollection AddRegistrator(
+        public static IServiceCollection AddServicesWithRegistrator(
             this IServiceCollection services,
             Action<ITypeSourceSelector>? actionAdd = default,
             Action<ISelectorTarget>? actionRevisit = default) {

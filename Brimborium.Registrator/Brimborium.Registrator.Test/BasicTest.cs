@@ -14,7 +14,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void AddClassesSelf() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(
+            services.AddServicesWithRegistrator(
                 a => {
                     a.FromAssemblyDependencies(DependencyContext.Default, typeof(BasicTest).Assembly, (assName) => (assName.Name ?? "").StartsWith("Brimborium"))
                         .AddClasses()
@@ -29,7 +29,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void AddClassesSelfWithoutAttribute() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(
+            services.AddServicesWithRegistrator(
                 a => {
                     a.FromAssemblyDependencies(DependencyContext.Default, typeof(BasicTest).Assembly, (assName) => (assName.Name ?? "").StartsWith("Brimborium"))
                         .AddClasses(classes => classes.WithoutAttribute<ServiceDescriptorAttribute>())
@@ -46,7 +46,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void AddClassesAsImplementedInterfaces() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(
+            services.AddServicesWithRegistrator(
                 a => {
                     a.FromAssemblyDependencies(DependencyContext.Default, typeof(BasicTest).Assembly, (assName) => (assName.Name ?? "").StartsWith("Brimborium"))
                         .AddClasses(classes => classes.WithAttribute<ServiceDescriptorAttribute>())
@@ -62,7 +62,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void AddClassesNever() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(
+            services.AddServicesWithRegistrator(
                 a => {
                     a.FromAssemblyDependencies(DependencyContext.Default, typeof(BasicTest).Assembly, (assName) => (assName.Name ?? "").StartsWith("Brimborium"))
                         .AddClasses(classes => classes.WithoutAttribute<ServiceDescriptorAttribute>().WithAttribute<ServiceDescriptorAttribute>())
@@ -76,7 +76,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void AddClassesAsMatchingInterfaceFalse() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(
+            services.AddServicesWithRegistrator(
                 a => {
                     a.FromAssemblyDependencies(DependencyContext.Default, typeof(BasicTest).Assembly, (assName) => (assName.Name ?? "").StartsWith("Brimborium"))
                         .AddClasses()
@@ -90,7 +90,7 @@ namespace Brimborium.Registrator.Test {
         [Fact]
         public void AddClassesAsInterface() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRegistrator(
+            services.AddServicesWithRegistrator(
                 a => {
                     a.FromAssemblyDependencies(DependencyContext.Default, typeof(BasicTest).Assembly, (assName) => (assName.Name ?? "").StartsWith("Brimborium"))
                         .AddClasses(classes => classes.WithoutAttribute<ServiceDescriptorAttribute>())

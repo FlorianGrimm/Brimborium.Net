@@ -16,21 +16,21 @@ namespace Brimborium.Registrator {
         /// </summary>
         /// <param name="services"></param>
         public static void AddAttributtedServices(this IServiceCollection services, Func<AssemblyName, bool>? predicate) {
-            services.AddRegistrator(scan => {
+            services.AddServicesWithRegistrator(scan => {
                 var implementationTypeSelector = scan.FromApplicationDependencies(DependencyContext.Default,predicate);
                 services.AddAttributtedServices(implementationTypeSelector);
             });
         }
 
         public static void AddAttributtedServices(this IServiceCollection services, params Assembly[] assemblies) {
-            services.AddRegistrator(scan => {
+            services.AddServicesWithRegistrator(scan => {
                 var implementationTypeSelector = scan.FromAssemblies(assemblies);
                 services.AddAttributtedServices(implementationTypeSelector);
             });
         }
 
         public static void AddAttributtedServices(this IServiceCollection services, IEnumerable<Assembly> assemblies) {
-            services.AddRegistrator(scan => {
+            services.AddServicesWithRegistrator(scan => {
                 var implementationTypeSelector = scan.FromAssemblies(assemblies);
                 services.AddAttributtedServices(implementationTypeSelector);
             });

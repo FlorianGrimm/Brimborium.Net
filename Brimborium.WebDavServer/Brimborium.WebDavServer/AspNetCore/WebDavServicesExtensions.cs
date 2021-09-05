@@ -71,7 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<WebDavExceptionFilter>()
                 .AddScoped<IWebDavOutputFormatter, WebDavXmlOutputFormatter>()
                 .AddSingleton<LockCleanupTask>();
-            services.Scan(
+            services.AddServicesWithRegistrator(
                 scan => scan
                     .FromAssemblyOf<IHandler>()
                     .AddClasses(classes => classes.AssignableToAny(typeof(IHandler), typeof(IWebDavClass)))

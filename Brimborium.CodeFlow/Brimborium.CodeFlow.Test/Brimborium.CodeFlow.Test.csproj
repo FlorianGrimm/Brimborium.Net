@@ -16,10 +16,17 @@
     <None Include="BluePrint1.cs" />
     <None Include="BluePrint2.cs" />
   </ItemGroup>
-
-  <ItemGroup>
+  
+  <!--
+  <ItemGroup Condition="'$(SolutionName)'=='Brimborium.Net'">
+        
+  </ItemGroup>
+  <ItemGroup Condition="'$(SolutionName)'=='Brimborium.CodeFlow'">
     <PackageReference Include="Brimborium.Registrator" Version="1.0.14-beta-ga769bb6dcc" />
     <PackageReference Include="Brimborium.Registrator.Abstractions" Version="1.0.14-beta-ga769bb6dcc" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -34,6 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
     <ProjectReference Include="..\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj" />
     <ProjectReference Include="..\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj" />
   </ItemGroup>

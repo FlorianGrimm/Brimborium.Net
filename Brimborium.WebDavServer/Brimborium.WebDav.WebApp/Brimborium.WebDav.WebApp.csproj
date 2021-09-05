@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,8 +10,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+  </ItemGroup>
+
+  <!--
+  <ItemGroup Condition="'$(SolutionName)' == 'Brimborium.Net'">
+    <PackageReference Include="Brimborium.Registrator" Version="1.0.14-beta-ga769bb6dcc" />
+    <PackageReference Include="Brimborium.Registrator.Abstractions" Version="1.0.14-beta-ga769bb6dcc" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(SolutionName)' == 'Brimborium.Net'">
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(SolutionName)' == 'Brimborium.WebDavServer'">
     <ProjectReference Include="..\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
     <ProjectReference Include="..\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+  </ItemGroup>
+-->
+  <ItemGroup>    
     <ProjectReference Include="..\Brimborium.WebDavServer.Model\Brimborium.WebDavServer.Model.csproj" />
     <ProjectReference Include="..\Brimborium.WebDavServer\Brimborium.WebDavServer.csproj" />
   </ItemGroup>
