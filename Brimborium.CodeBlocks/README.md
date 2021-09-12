@@ -19,3 +19,5 @@ dotnet run --project Brimborium.CodeBlocks -- install
 
 
 dotnet codeblocks
+
+config file
