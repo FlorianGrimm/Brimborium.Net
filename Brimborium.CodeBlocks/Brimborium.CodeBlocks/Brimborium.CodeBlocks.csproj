@@ -8,11 +8,16 @@
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnetcodeblocks</PackageId>
-    <Product>NuGet Package Explorer</Product>
-    <Description>Enables Validation of .NET Packages from the CLI</Description>
+    <Product>Brimborium.CodeBlocks</Product>
+    <Description>Brimborium.CodeBlocks from the CLI</Description>
     <ToolCommandName>codeblocks</ToolCommandName>
 
     <PackageOutputPath>../nupkg</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+  </ItemGroup>
+  
 </Project>

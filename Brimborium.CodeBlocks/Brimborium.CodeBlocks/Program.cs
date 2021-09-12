@@ -1,18 +1,44 @@
-﻿using System;
+﻿using CommandLine;
+using CommandLine.Text;
 
-namespace Brimborium.CodeBlocks
-{
-    class Program
-    {
-        static int Main(string[] args) {
-            if (args.Length == 1 && args[0]=="install") {
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Brimborium.CodeBlocks {
+    [Verb("install", Hidden = true, HelpText = "install the tool.")]
+    public class InstallOptions {
+        //normal options here
+    }
+    [Verb("uninstall", Hidden = true, HelpText = "uninstall the tool.")]
+    public class UninstallOptions {
+        //normal options here
+    }
+
+    [Verb("run", isDefault: true, HelpText = "run ")]
+    public class RunOptions {
+        //normal options here
+    }
+    [Verb("diff", HelpText = "dry run")]
+    public class DiffOptions {
+        //commit options here
+    }
+
+    public class Options {
+        [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
+        public bool Verbose { get; set; }
+    }
+
+    public class Program {
+        public static async Task<int> Main(string[] args) {
+            if (args.Length == 1 && args[0] == "install") {
                 Console.WriteLine($"Brimborium.CodeBlocks {ThisAssembly.AssemblyInformationalVersion}");
                 Console.WriteLine($"tool install");
 
-                var p =System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(
+                var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(
                     "dotnet.exe"
                     ) {
-                    ArgumentList = { 
+                    ArgumentList = {
                         "tool",
                         "install",
                         "--tool-path",
@@ -45,9 +71,27 @@ namespace Brimborium.CodeBlocks
                 p.WaitForExit();
                 return 0;
             }
-            Console.WriteLine($"Brimborium.CodeBlocks {ThisAssembly.AssemblyInformationalVersion}");
-            
-            Console.WriteLine("Hello World!");
+
+            var parserResult = CommandLine.Parser.Default.ParseArguments<RunOptions, DiffOptions>(args);
+
+            if (parserResult is Parsed<object> parsed) {
+                Console.WriteLine($"Brimborium.CodeBlocks {ThisAssembly.AssemblyInformationalVersion}");
+                return (parsed.Value) switch {
+                    RunOptions addOptions => await RunAsync(addOptions),
+                    DiffOptions commitOptions => await RunAsync(commitOptions),
+                    _ => 1
+                };
+            }
+            return 1;
+        }
+
+        private static async Task<int> RunAsync(RunOptions opts) {
+            await Task.CompletedTask;
+            return 0;
+        }
+
+        private static async Task<int> RunAsync(DiffOptions opts) {
+            await Task.CompletedTask;
             return 0;
         }
     }
