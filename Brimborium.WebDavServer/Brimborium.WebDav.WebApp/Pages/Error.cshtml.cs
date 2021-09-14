@@ -19,7 +19,8 @@ namespace WebApplication1.Pages {
         private readonly ILogger<ErrorModel> _logger;
 
         public ErrorModel(ILogger<ErrorModel> logger) {
-            _logger = logger;
+            this._logger = logger;
+            this.RequestId = string.Empty;
         }
 
         public void OnGet() {
