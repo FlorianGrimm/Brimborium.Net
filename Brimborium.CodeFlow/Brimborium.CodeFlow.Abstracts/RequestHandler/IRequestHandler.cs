@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public interface IRequestHandler<TRequest, TResponse> {
-        Task<TResponse> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default);
+    public interface IRequestHandler<TRequest, TResponse> : IRequestHandler {
+        Task<TResponse> ExecuteAsync(TRequest request, IRequestHandlerContext context, CancellationToken cancellationToken = default);
     }
 }
