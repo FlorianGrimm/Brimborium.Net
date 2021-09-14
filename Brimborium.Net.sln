@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.WebFlow.Test", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.WebFlow.Web", "Brimborium.WebFlow\Brimborium.WebFlow.Web\Brimborium.WebFlow.Web.csproj", "{3D98B61A-3BB0-4C36-9A17-B817AB8E2A13}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeFlow.WebApp", "Brimborium.CodeFlow\Brimborium.CodeFlow.WebApp\Brimborium.CodeFlow.WebApp.csproj", "{BC6632CF-2A55-4541-8503-BE161FD14949}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -208,6 +210,18 @@ Global
 		{3D98B61A-3BB0-4C36-9A17-B817AB8E2A13}.Release|x64.Build.0 = Release|Any CPU
 		{3D98B61A-3BB0-4C36-9A17-B817AB8E2A13}.Release|x86.ActiveCfg = Release|Any CPU
 		{3D98B61A-3BB0-4C36-9A17-B817AB8E2A13}.Release|x86.Build.0 = Release|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Debug|x64.Build.0 = Debug|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Debug|x86.Build.0 = Debug|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Release|x64.ActiveCfg = Release|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Release|x64.Build.0 = Release|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Release|x86.ActiveCfg = Release|Any CPU
+		{BC6632CF-2A55-4541-8503-BE161FD14949}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -226,6 +240,7 @@ Global
 		{9F75FBFB-B39C-44FC-9E91-C1B57537E6E3} = {E2595B08-E20A-46B5-92D1-3F69C958CE97}
 		{8F0E2F40-BAB1-4737-B58B-9DCE37605300} = {E2595B08-E20A-46B5-92D1-3F69C958CE97}
 		{3D98B61A-3BB0-4C36-9A17-B817AB8E2A13} = {E2595B08-E20A-46B5-92D1-3F69C958CE97}
+		{BC6632CF-2A55-4541-8503-BE161FD14949} = {C954A83B-6449-49F9-AFA1-9BEFFE298E69}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BAD26BF-BE30-446B-AE30-D5831F06251C}
