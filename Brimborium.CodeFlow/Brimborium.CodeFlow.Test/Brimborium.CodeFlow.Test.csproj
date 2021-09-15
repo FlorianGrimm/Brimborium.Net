@@ -6,16 +6,6 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>Brimborium.CodeFlow</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="BluePrint1.cs" />
-    <Compile Remove="BluePrint2.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="BluePrint1.cs" />
-    <None Include="BluePrint2.cs" />
-  </ItemGroup>
   
   <!--
   <ItemGroup Condition="'$(SolutionName)'=='Brimborium.Net'">

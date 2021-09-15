@@ -11,7 +11,7 @@ namespace Brimborium.CodeFlow.WebApp.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        private static readonly string[] _Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
@@ -31,7 +31,7 @@ namespace Brimborium.CodeFlow.WebApp.Controllers
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Summary = _Summaries[rng.Next(_Summaries.Length)]
             })
             .ToArray();
         }

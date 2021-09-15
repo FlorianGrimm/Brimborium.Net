@@ -5,8 +5,8 @@ using System.Collections.Concurrent;
 
 namespace Brimborium.CodeFlow.RequestHandler {
     public class GlobalRequestHandlerFactory : IGlobalRequestHandlerFactory {
-        private ConcurrentDictionary<Type, bool> _TypedRequestHandlerExists;
-        private ConcurrentDictionary<Type, object> _RequestHandlerFactoryByType;
+        private readonly ConcurrentDictionary<Type, bool> _TypedRequestHandlerExists;
+        private readonly ConcurrentDictionary<Type, object> _RequestHandlerFactoryByType;
         private readonly IServiceProvider _ServiceProvider;
 
         public GlobalRequestHandlerFactory(
@@ -44,25 +44,5 @@ namespace Brimborium.CodeFlow.RequestHandler {
                 return requestHandler;
             }
         }
-    }
-
-    public class ScopeRequestHandlerFactory : IScopeRequestHandlerFactory {
-        private readonly IGlobalRequestHandlerFactory _GlobalRequestHandlerFactory;
-        private readonly IServiceProvider _ScopedServiceProvider;
-
-        public ScopeRequestHandlerFactory(
-            IGlobalRequestHandlerFactory globalRequestHandlerFactory,
-            IServiceProvider scopedServiceProvider
-            ) {
-            this._GlobalRequestHandlerFactory = globalRequestHandlerFactory;
-            this._ScopedServiceProvider = scopedServiceProvider;
-        }
-
-        public TRequestHandler CreateRequestHandler<TRequestHandler>()
-            where TRequestHandler : notnull, IRequestHandler
-            => this._GlobalRequestHandlerFactory.CreateRequestHandler<TRequestHandler>(this._ScopedServiceProvider);
-
-        public IRequestHandlerRootContext GetRequestHandlerRootContext()
-            => this._ScopedServiceProvider.GetRequiredService<IRequestHandlerRootContext>();
     }
 }

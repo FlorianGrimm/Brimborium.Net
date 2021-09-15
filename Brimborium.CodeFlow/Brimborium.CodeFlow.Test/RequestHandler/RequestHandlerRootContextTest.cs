@@ -1,4 +1,4 @@
-﻿using Brimborium.CodeFlow.FluentIL;
+﻿using Brimborium.Registrator;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,10 +16,10 @@ namespace Brimborium.CodeFlow.RequestHandler {
         [Fact]
         public void RequestHandlerRootContext_01_Test() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRequestHandler();
+            services.AddRequestHandler((a) => a.FromAssemblyOf<RequestHandlerRootContextTest>(), true);
             services.AddScoped<GnaController>();
-            var globalSP = services.BuildServiceProvider();
-            using var scope = globalSP.CreateScope();
+            var globalServiceProvider = services.BuildServiceProvider();
+            using var scope = globalServiceProvider.CreateScope();
             var scopeServiceProvider = scope.ServiceProvider;
             var ctxt = scopeServiceProvider.GetRequiredService<IRequestHandlerRootContext>();
 
@@ -31,69 +31,65 @@ namespace Brimborium.CodeFlow.RequestHandler {
         [Fact]
         public async Task RequestHandlerRootContext_02_TestAsync() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddRequestHandler();
+            services.AddRequestHandler((a) => a.FromAssemblyOf<RequestHandlerRootContextTest>(), true);
             services.AddScoped<GnaController>();
-            var globalSP = services.BuildServiceProvider();
-            using var scope = globalSP.CreateScope();
+            var globalServiceProvider = services.BuildServiceProvider();
+            using var scope = globalServiceProvider.CreateScope();
             var scopeServiceProvider = scope.ServiceProvider;
             var gnaController = scopeServiceProvider.GetRequiredService<GnaController>();
-            await gnaController.PostAsync(1);
-            var ctxt = scopeServiceProvider.GetRequiredService<IRequestHandlerRootContext>();
-
-            Assert.True(ctxt is RequestHandlerRootContext);
-            Assert.NotNull(((RequestHandlerRootContext)ctxt).ScopedServiceProvider);
-            abc(1, ctxt);
+            var result = await gnaController.PostAsync(21);
+            Assert.Equal(42, result);
         }
 
         private static void abc(int a, IRequestHandlerContext ctxt) {
-            ctxt = ctxt.CreateChild();
+            ctxt = ctxt.CreateChild("");
             //ctxt.LogParameter(nameof(a), a);
         }
+    }
 
-        public record GnaReq {
-            public int Value { get; set; }
+    public record GnaReq {
+        public int Value { get; set; }
+    }
+
+    public record GnaResp {
+        public int Value { get; set; }
+    }
+
+    public class GnaController {
+        private readonly IScopeRequestHandlerFactory _RequestHandlerFactory;
+
+        public GnaController(
+            IScopeRequestHandlerFactory requestHandlerFactory) {
+            this._RequestHandlerFactory = requestHandlerFactory;
         }
 
-        public record GnaResp {
-            public int Value { get; set; }
+        public async Task<int> PostAsync(int value) {
+            await Task.CompletedTask;
+            var request = new GnaReq() { Value = value };
+            var context = this._RequestHandlerFactory.GetRequestHandlerRootContext();
+            var requestHandler = this._RequestHandlerFactory.CreateRequestHandler<IGnaRequestHandler>();
+            var response = await requestHandler.ExecuteAsync(request, context);
+            return response.Value;
         }
+    }
 
-        public class GnaController {
-            private readonly IScopeRequestHandlerFactory _RequestHandlerFactory;
+    public interface IGnaRequestHandler : IRequestHandler<GnaReq, GnaResp> { }
 
-            public GnaController(
-                IScopeRequestHandlerFactory requestHandlerFactory) {
-                this._RequestHandlerFactory = requestHandlerFactory;
-            }
+    public interface IGnaTypedRequestHandlerFactory : ITypedRequestHandlerFactory<IGnaRequestHandler> { }
 
-            public async Task<int> PostAsync(int value) {
-                await Task.CompletedTask;
-                var request = new GnaReq() { Value = value };
-                var context = this._RequestHandlerFactory.GetRequestHandlerRootContext();
-                var requestHandler = this._RequestHandlerFactory.CreateRequestHandler<IGnaRequestHandler>();
-                var response = await requestHandler.ExecuteAsync(request, context);
-                return response.Value;
-            }
+    public class GnaTypedRequestHandlerFactory : IGnaTypedRequestHandlerFactory {
+        public GnaTypedRequestHandlerFactory() { }
+        public IGnaRequestHandler CreateTypedRequestHandler(IServiceProvider scopedServiceProvider) {
+            return scopedServiceProvider.GetRequiredService<GnaRequestHandler>();
         }
+    }
 
-        public interface IGnaRequestHandler : IRequestHandler<GnaReq, GnaResp> { }
-
-        public interface IGnaTypedRequestHandlerFactory : ITypedRequestHandlerFactory<IGnaRequestHandler> { }
-
-        public class GnaTypedRequestHandlerFactory : IGnaTypedRequestHandlerFactory {
-            public GnaTypedRequestHandlerFactory() { }
-            public IGnaRequestHandler CreateTypedRequestHandler(IServiceProvider scopedServiceProvider) {
-                return scopedServiceProvider.GetRequiredService<GnaRequestHandler>();
-            }
-        }
-
-        public class GnaRequestHandler : IGnaRequestHandler {
-            public GnaRequestHandler() { }
-            public async Task<GnaResp> ExecuteAsync(GnaReq request, IRequestHandlerContext context, CancellationToken cancellationToken = default) {
-                await Task.CompletedTask;
-                var result = new GnaResp() { Value = request.Value };
-                return result;
-            }
+    public class GnaRequestHandler : IGnaRequestHandler {
+        public GnaRequestHandler() { }
+        public async Task<GnaResp> ExecuteAsync(GnaReq request, IRequestHandlerContext context, CancellationToken cancellationToken = default) {
+            await Task.CompletedTask;
+            var result = new GnaResp() { Value = request.Value * 2 };
+            return result;
         }
     }
 }

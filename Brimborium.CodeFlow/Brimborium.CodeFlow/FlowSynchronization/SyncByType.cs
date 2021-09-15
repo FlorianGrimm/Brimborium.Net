@@ -16,8 +16,8 @@ namespace Brimborium.CodeFlow.FlowSynchronization {
             this._SyncById = new ConcurrentDictionary<object, SyncById>();
         }
 
-#pragma warning disable IDE0060 // Remove unused parameter
 #pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0060 // Remove unused parameter
         private void Dispose(bool disposing) {
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression

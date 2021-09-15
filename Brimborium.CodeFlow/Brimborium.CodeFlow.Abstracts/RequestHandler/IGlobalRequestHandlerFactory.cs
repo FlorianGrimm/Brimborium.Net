@@ -7,18 +7,4 @@ namespace Brimborium.CodeFlow.RequestHandler {
             )
             where TRequestHandler : notnull, IRequestHandler;
     }
-
-    public interface IScopeRequestHandlerFactory {
-        TRequestHandler CreateRequestHandler<TRequestHandler>()
-            where TRequestHandler : notnull, IRequestHandler;
-
-        IRequestHandlerRootContext GetRequestHandlerRootContext();
-    }
-
-    public interface ITypedRequestHandlerFactory<TRequestHandler>
-        where TRequestHandler : notnull, IRequestHandler {
-        TRequestHandler CreateTypedRequestHandler(
-                IServiceProvider scopedServiceProvider
-            );
-    }
 }
