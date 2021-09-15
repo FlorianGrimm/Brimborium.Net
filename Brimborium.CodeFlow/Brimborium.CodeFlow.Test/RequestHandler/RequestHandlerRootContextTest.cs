@@ -16,6 +16,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
         [Fact]
         public void RequestHandlerRootContext_01_Test() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+
             services.AddRequestHandler();
             services.AddScoped<GnaController>();
             var globalSP = services.BuildServiceProvider();
@@ -37,12 +38,8 @@ namespace Brimborium.CodeFlow.RequestHandler {
             using var scope = globalSP.CreateScope();
             var scopeServiceProvider = scope.ServiceProvider;
             var gnaController = scopeServiceProvider.GetRequiredService<GnaController>();
-            await gnaController.PostAsync(1);
-            var ctxt = scopeServiceProvider.GetRequiredService<IRequestHandlerRootContext>();
-
-            Assert.True(ctxt is RequestHandlerRootContext);
-            Assert.NotNull(((RequestHandlerRootContext)ctxt).ScopedServiceProvider);
-            abc(1, ctxt);
+            var result = await gnaController.PostAsync(1);
+            Assert.Equal(42, result);
         }
 
         private static void abc(int a, IRequestHandlerContext ctxt) {
@@ -91,7 +88,8 @@ namespace Brimborium.CodeFlow.RequestHandler {
             public GnaRequestHandler() { }
             public async Task<GnaResp> ExecuteAsync(GnaReq request, IRequestHandlerContext context, CancellationToken cancellationToken = default) {
                 await Task.CompletedTask;
-                var result = new GnaResp() { Value = request.Value };
+
+                var result = new GnaResp() { Value = request.Value + 41};
                 return result;
             }
         }
