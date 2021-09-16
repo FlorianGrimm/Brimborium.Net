@@ -7,6 +7,12 @@ using System;
 
 namespace Microsoft.Extensions.DependencyInjection {
     public static partial class ServiceCollectionExtensions {
+        //public static RegistratorBuilder AddRegistrator(
+        //    this IServiceCollection services
+        //    ) {
+        //    return new RegistratorBuilder(services);
+        //}
+
         /// <summary>
         /// Adds registrations to the <paramref name="services"/> collection using
         /// conventions specified using the <paramref name="actionAdd"/>.
