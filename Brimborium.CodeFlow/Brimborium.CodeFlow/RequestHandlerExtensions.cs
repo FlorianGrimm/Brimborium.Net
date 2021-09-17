@@ -14,8 +14,8 @@ namespace Brimborium.CodeFlow.RequestHandler {
             Action<ISelectorTarget>? actionRevisit = default
             ) {
             services.TryAddSingleton<IGlobalRequestHandlerFactory, GlobalRequestHandlerFactory>();
-            services.TryAddScoped<IScopeRequestHandlerFactory, ScopeRequestHandlerFactory>();
-            services.TryAddScoped<IRequestHandlerContextHolder, RequestHandlerContextHolder>();
+            services.TryAddScoped<IRequestHandlerFactory, ScopeRequestHandlerFactory>();
+            services.TryAddScoped<IRequestHandlerContextBuilder, RequestHandlerContextBuilder>();
             services.TryAddScoped<IRequestHandlerRootContext, RequestHandlerRootContext>();
             services.TryAddScoped<IRequestHandlerContext, RequestHandlerRootContext>();
 

@@ -1,14 +1,11 @@
 using System;
 
-namespace Brimborium.CodeFlow.WebApp
-{
-    public class WeatherForecast
-    {
-        public WeatherForecast()
-        {
-            this.Summary=string.Empty;
+namespace Brimborium.CodeFlow.WebApp {
+    public class WeatherForecast {
+        public WeatherForecast() {
+            this.Summary = string.Empty;
         }
-        
+
         public DateTime Date { get; set; }
 
         public int TemperatureC { get; set; }

@@ -49,13 +49,9 @@ namespace Brimborium.WebFlow.Web {
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Brimborium.CodeFlow.WebApp v1"));
 
             // app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints => {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();

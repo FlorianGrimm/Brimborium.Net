@@ -1,5 +1,7 @@
 ﻿using Brimborium.CodeFlow.RequestHandler;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,8 +12,19 @@ namespace Brimborium.WebFlow.WebLogic {
     public record GnaQueryResponse(
             List<GnaModel> Items
         );
-    public interface IGnaQueryRequestHandler: IRequestHandler<GnaQueryRequest, GnaQueryResponse> {
-    }
+
+    public interface IGnaQueryRequestHandler : IRequestHandler<GnaQueryRequest, GnaQueryResponse> { }
+
+    public interface IGnaQueryRequestHandlerFactory : ITypedRequestHandlerFactory<IGnaQueryRequestHandler> { }
+
+    //public class GnaQueryRequestHandlerFactory 
+    //    : TypedRequestHandlerFactory<GnaQueryRequest, GnaQueryResponse, IGnaQueryRequestHandlerFactory>
+    //    , IGnaQueryRequestHandlerFactory {
+    //    //public IGnaQueryRequestHandler CreateTypedRequestHandler(IServiceProvider scopedServiceProvider) {
+    //    //    return scopedServiceProvider.GetRequiredService<IGnaQueryRequestHandler>();
+    //    //}
+    //}
+
 
     public class GnaQueryRequestHandler : IGnaQueryRequestHandler {
         private readonly GnaRepository _GnaRepository;
@@ -19,8 +32,9 @@ namespace Brimborium.WebFlow.WebLogic {
         public GnaQueryRequestHandler(GnaRepository gnaRepository) {
             this._GnaRepository = gnaRepository;
         }
+
         public async Task<GnaQueryResponse> ExecuteAsync(GnaQueryRequest request, IRequestHandlerContext context, CancellationToken cancellationToken = default) {
-            var items= await this._GnaRepository.QueryAsync(request.Pattern, context, cancellationToken);
+            var items = await this._GnaRepository.QueryAsync(request.Pattern, context, cancellationToken);
             return new GnaQueryResponse(items);
         }
     }

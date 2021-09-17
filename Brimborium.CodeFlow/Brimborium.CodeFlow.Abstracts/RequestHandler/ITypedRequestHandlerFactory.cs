@@ -1,7 +1,9 @@
 ﻿using System;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public interface ITypedRequestHandlerFactory { }
+    public interface ITypedRequestHandlerFactory { 
+    }
+    
     public interface ITypedRequestHandlerFactory<TRequestHandler>
         : ITypedRequestHandlerFactory
         where TRequestHandler : notnull, IRequestHandler {
@@ -9,4 +11,13 @@ namespace Brimborium.CodeFlow.RequestHandler {
                 IServiceProvider scopedServiceProvider
             );
     }
+
+    //public interface ITypedRequestHandlerFactory<TRequest, TResponse, TRequestHandler>
+    //    : ITypedRequestHandlerFactory
+    //    where TRequestHandler : notnull, IRequestHandler, IRequestHandler<TRequest, TResponse, TRequestHandler> {
+    //    TRequestHandler CreateTypedRequestHandler(
+    //            IServiceProvider scopedServiceProvider,
+    //            IRequestHandlerContext context
+    //        );
+    //}
 }

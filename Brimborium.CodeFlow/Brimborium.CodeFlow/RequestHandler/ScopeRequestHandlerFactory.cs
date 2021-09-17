@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public class ScopeRequestHandlerFactory : IScopeRequestHandlerFactory {
+    public class ScopeRequestHandlerFactory : IRequestHandlerFactory {
         private readonly IGlobalRequestHandlerFactory _GlobalRequestHandlerFactory;
         private readonly IServiceProvider _ScopedServiceProvider;
 
@@ -17,18 +17,19 @@ namespace Brimborium.CodeFlow.RequestHandler {
         }
 
         public TRequestHandler CreateRequestHandler<TRequestHandler>()
-            where TRequestHandler : notnull, IRequestHandler
-            => this._GlobalRequestHandlerFactory.CreateRequestHandler<TRequestHandler>(this._ScopedServiceProvider);
-
-        public IRequestHandlerRootContext GetRequestHandlerRootContext()
-            => this._ScopedServiceProvider.GetRequiredService<IRequestHandlerRootContext>();
-
-        public Func<TRequest, Task<TResponse>> CreateRequestHandlerFunc<TRequestHandler, TRequest, TResponse>(
-            IRequestHandlerContext context
-            ) where TRequestHandler : notnull, IRequestHandler, IRequestHandler<TRequest, TResponse> {
-            var requestHandler = this.CreateRequestHandler<TRequestHandler>();
-            var requestHandlerBound = new RequestHandlerClosure<TRequestHandler, TRequest, TResponse>(requestHandler, context);
-            return requestHandlerBound.ExecuteAsync;
+            where TRequestHandler : notnull, IRequestHandler { 
+            return this._GlobalRequestHandlerFactory.CreateRequestHandler<TRequestHandler>(this._ScopedServiceProvider);
         }
+
+        //public IRequestHandlerRootContext GetRequestHandlerRootContext()
+        //    => this._ScopedServiceProvider.GetRequiredService<IRequestHandlerRootContext>();
+
+        //public Func<TRequest, Task<TResponse>> CreateRequestHandlerFunc<TRequestHandler, TRequest, TResponse>(
+        //    IRequestHandlerContext context
+        //    ) where TRequestHandler : notnull, IRequestHandler, IRequestHandler<TRequest, TResponse> {
+        //    var requestHandler = this.CreateRequestHandler<TRequestHandler>();
+        //    var requestHandlerBound = new RequestHandlerClosure<TRequestHandler, TRequest, TResponse>(requestHandler, context);
+        //    return requestHandlerBound.ExecuteAsync;
+        //}
     }
 }

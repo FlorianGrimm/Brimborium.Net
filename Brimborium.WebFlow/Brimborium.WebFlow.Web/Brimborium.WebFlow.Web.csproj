@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj" />
     <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
     <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+    <ProjectReference Include="..\Brimborium.WebFlow.WebLogic\Brimborium.WebFlow.WebLogic.csproj" />
     <ProjectReference Include="..\Brimborium.WebFlow\Brimborium.WebFlow.csproj" />
   </ItemGroup>
 

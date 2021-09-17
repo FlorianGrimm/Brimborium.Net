@@ -15,16 +15,16 @@ namespace Brimborium.CodeFlow.RequestHandler {
     public static class ControllerBaseExtensions {
         static ActivitySource s_source = new ActivitySource("Sample.DistributedTracing");
 
-        public static IRequestHandlerContext GetRequestHandlerContext(
-            this ControllerBase controllerBase,
-            IRequestHandlerContextHolder requestHandlerContextHolder,
+        public static IRequestHandlerRootContext GetRequestHandlerRootContext(
+            this IRequestHandlerContextBuilder requestHandlerContextBuilder,
+            ControllerBase controllerBase,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
             ) {
             //var requestServices = controllerBase.HttpContext.RequestServices;
-            if (requestHandlerContextHolder.TryGetRequestHandlerContext(false, out var result)) {
+            if (requestHandlerContextBuilder.TryGetRequestHandlerRootContext(out var result)) {
                 return result;
             } else {
-                var requestServices = requestHandlerContextHolder.GetScopeServiceProvider();
+                var requestServices = requestHandlerContextBuilder.GetScopeServiceProvider();
 
                 //var a = System.Diagnostics.Activity.Current;
 #warning TODO https://docs.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-collection-walkthroughs
@@ -34,7 +34,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
                 //activity.Dispose(); 
 
                 result = new RequestHandlerRootContext(requestServices);
-                requestHandlerContextHolder.SetRequestHandlerContext(result);
+                requestHandlerContextBuilder.SetRequestHandlerContext(result);
                 return result;
             }
         }

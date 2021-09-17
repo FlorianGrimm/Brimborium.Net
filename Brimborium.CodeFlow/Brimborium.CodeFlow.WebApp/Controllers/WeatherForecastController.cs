@@ -1,39 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.CodeFlow.WebApp.Commands;
 
-namespace Brimborium.CodeFlow.WebApp.Controllers
-{
+using Microsoft.AspNetCore.Mvc;
+
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Brimborium.CodeFlow.WebApp.Controllers {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
-    {
-        private static readonly string[] _Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+    public class WeatherForecastController : ControllerBase {
+        private readonly IScopeRequestHandlerFactory _ScopeRequestHandlerFactory;
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
+        public WeatherForecastController(IScopeRequestHandlerFactory scopeRequestHandlerFactory) {
+            this._ScopeRequestHandlerFactory = scopeRequestHandlerFactory;
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
-        {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = _Summaries[rng.Next(_Summaries.Length)]
-            })
-            .ToArray();
+        public async Task<IEnumerable<WeatherForecast>> Get() {
+            var ctxt = new RequestHandlerRootContext(this.HttpContext.RequestServices);
+            var weatherForecastRequestHandler = this._ScopeRequestHandlerFactory.CreateRequestHandler<IWeatherForecastRequestHandler>();
+            var result = await weatherForecastRequestHandler.ExecuteAsync(new WeatherForecastRequest(), ctxt, this.HttpContext.RequestAborted);
+            return result.Items;
         }
     }
 }

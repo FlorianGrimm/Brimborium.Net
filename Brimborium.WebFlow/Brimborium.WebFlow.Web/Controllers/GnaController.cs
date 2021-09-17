@@ -4,31 +4,32 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow.WebLogic;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
 
 namespace Brimborium.WebFlow.Controllers {
     [ApiController]
     [Route("[controller]")]
     public class GnaController : ControllerBase {
-        private readonly IScopeRequestHandlerFactory _RequestHandlerFactory;
-        private readonly IRequestHandlerContextHolder _RequestHandlerContextHolder;
+        private readonly IRequestHandlerContextBuilder _RequestHandlerContextBuilder;
 
         public GnaController(
-            IScopeRequestHandlerFactory requestHandlerFactory,
-            IRequestHandlerContextHolder requestHandlerContextHolder
+            IRequestHandlerContextBuilder requestHandlerContextBuilder
             ) {
-            this._RequestHandlerFactory = requestHandlerFactory;
-            this._RequestHandlerContextHolder = requestHandlerContextHolder;
+            this._RequestHandlerContextBuilder = requestHandlerContextBuilder;
         }
 
         [HttpGet]
-        public IEnumerable<string> Get() {
-            var context = this.GetRequestHandlerContext(this._RequestHandlerContextHolder);
-            //var ctxt = this._RequestHandlerFactory.GetRequestHandlerRootContext
-            return "a,b".Split(',');
+        public async Task<IEnumerable<GnaModel>> GetAsync() {
+            using (var context = this._RequestHandlerContextBuilder.GetRequestHandlerRootContext(this)) {
+                var requestHandler = context.CreateRequestHandler<IGnaQueryRequestHandler>();
+                //requestHandler.GetRequestHandlerTypeInfo()
+                //var result2 = await context.CallRequestHandlerAsync<IGnaQueryRequestHandler>(new GnaQueryRequest(""));
+                var result = await requestHandler.ExecuteAsync(new GnaQueryRequest(""), context, this.HttpContext.RequestAborted);
+                return result.Items;
+            }
         }
     }
 }

@@ -4,7 +4,8 @@ using System;
 using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public abstract class RequestHandlerContextBase : IRequestHandlerContext {
+    public abstract class RequestHandlerContextBase : IRequestHandlerContext, IDisposable {
+        private bool _IsDisposed;
 
         public RequestHandlerContextBase() {
         }
@@ -14,11 +15,35 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
         protected internal abstract RequestHandlerRootContext GetRoot();
 
-        protected internal abstract RequestHandlerContextBase GetParent();
 
         public abstract IRequestHandlerContext CreateChild(ContextId id);
 
-        public abstract IScopeRequestHandlerFactory GetRequestHandlerFactory();
+        public abstract IRequestHandlerFactory GetRequestHandlerFactory();
+
+        public abstract TRequestHandler CreateRequestHandler<TRequestHandler>()
+            where TRequestHandler : notnull, IRequestHandler;
+
+        protected virtual bool Dispose(bool disposing) {
+            if (this._IsDisposed) {
+                return false;
+            } else {
+                this._IsDisposed = true;
+                if (disposing) {
+                } else { 
+                }
+                return true;
+            }
+
+        }
+
+        ~RequestHandlerContextBase() {
+            this.Dispose(disposing: false);
+        }
+
+        public void Dispose() {
+            this.Dispose(disposing: true);
+            System.GC.SuppressFinalize(this);
+        }
     }
 
     public class RequestHandlerContext : RequestHandlerContextBase, IRequestHandlerContext {
@@ -30,27 +55,37 @@ namespace Brimborium.CodeFlow.RequestHandler {
             this._Parent = parent;
             this._Id = id;
         }
+        ~RequestHandlerContext() {
+            this.Dispose(disposing: false);
+        }
 
         protected override ContextId GetId() => this._Id;
 
         protected internal override RequestHandlerRootContext GetRoot() => this._Parent.GetRoot();
 
-        protected internal override RequestHandlerContextBase GetParent() => this._Parent;
-
         public override IRequestHandlerContext CreateChild(ContextId id) {
             return new RequestHandlerContext(this, id);
         }
 
-        public override IScopeRequestHandlerFactory GetRequestHandlerFactory() {
+        public override IRequestHandlerFactory GetRequestHandlerFactory() {
             return this.GetRoot().GetRequestHandlerFactory();
+        }
+
+        public override TRequestHandler CreateRequestHandler<TRequestHandler>() {
+            TRequestHandler result = this.GetRoot().GetRequestHandlerFactory().CreateRequestHandler<TRequestHandler>();
+            return result;
         }
     }
 
     public class RequestHandlerRootContext : RequestHandlerContextBase, IRequestHandlerRootContext {
-        private IScopeRequestHandlerFactory? _RequestHandlerFactory;
+        private IRequestHandlerFactory? _RequestHandlerFactory;
 
         public RequestHandlerRootContext(IServiceProvider scopedServiceProvider) {
             this.ScopedServiceProvider = scopedServiceProvider;
+        }
+
+        ~RequestHandlerRootContext() {
+            this.Dispose(disposing: false);
         }
 
         public IServiceProvider ScopedServiceProvider { get; }
@@ -59,13 +94,11 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
         protected internal override RequestHandlerRootContext GetRoot() => this;
 
-        protected internal override RequestHandlerContextBase GetParent() => this;
-
         public override IRequestHandlerContext CreateChild(ContextId id) {
             return new RequestHandlerContext(this, id);
         }
 
-        public IScopeRequestHandlerFactory RequestHandlerFactory {
+        public IRequestHandlerFactory RequestHandlerFactory {
             get {
                 return this.GetRequestHandlerFactory();
             }
@@ -74,8 +107,12 @@ namespace Brimborium.CodeFlow.RequestHandler {
             }
         }
 
-        public override IScopeRequestHandlerFactory GetRequestHandlerFactory() {
-            return _RequestHandlerFactory ??= this.ScopedServiceProvider.GetRequiredService<IScopeRequestHandlerFactory>();
+        public override IRequestHandlerFactory GetRequestHandlerFactory() {
+            return _RequestHandlerFactory ??= this.ScopedServiceProvider.GetRequiredService<IRequestHandlerFactory>();
+        }
+
+        public override TRequestHandler CreateRequestHandler<TRequestHandler>() {
+            return this.GetRequestHandlerFactory().CreateRequestHandler<TRequestHandler>();
         }
     }
 
