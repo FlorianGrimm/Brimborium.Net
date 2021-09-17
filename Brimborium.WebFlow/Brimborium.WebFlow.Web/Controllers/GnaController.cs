@@ -13,23 +13,50 @@ namespace Brimborium.WebFlow.Controllers {
     [ApiController]
     [Route("[controller]")]
     public class GnaController : ControllerBase {
-        private readonly IRequestHandlerContextBuilder _RequestHandlerContextBuilder;
+        private readonly IRequestHandlerSupport _RequestHandlerSupport;
 
         public GnaController(
-            IRequestHandlerContextBuilder requestHandlerContextBuilder
+            IRequestHandlerSupport requestHandlerSupport
             ) {
-            this._RequestHandlerContextBuilder = requestHandlerContextBuilder;
+            this._RequestHandlerSupport = requestHandlerSupport;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<GnaModel>> GetAsync() {
-            using (var context = this._RequestHandlerContextBuilder.GetRequestHandlerRootContext(this)) {
-                var requestHandler = context.CreateRequestHandler<IGnaQueryRequestHandler>();
-                //requestHandler.GetRequestHandlerTypeInfo()
-                //var result2 = await context.CallRequestHandlerAsync<IGnaQueryRequestHandler>(new GnaQueryRequest(""));
-                var result = await requestHandler.ExecuteAsync(new GnaQueryRequest(""), context, this.HttpContext.RequestAborted);
-                return result.Items;
+        public async Task<ActionResult<IEnumerable<GnaModel>>> GetAsync(string? pattern) {
+            var (context, cancellationToken, responseConverter) = this._RequestHandlerSupport.GetRequestHandlerRootContext(this);
+            var requestHandler = context.CreateRequestHandler<IGnaQueryRequestHandler>();
+            var request = new GnaQueryRequest(pattern ?? string.Empty);
+            var response = await requestHandler.ExecuteAsync(request, context, cancellationToken);
+
+            return responseConverter.Convert(this, response, convertResponse);
+            //return this.ConvertToActionResult(response, convertResponse);
+
+            static IEnumerable<GnaModel> convertResponse(GnaQueryResponse response) {
+                return response.Items;
             }
+
+            //return this.ConvertToActionResult<GnaQueryResponse, IEnumerable<GnaModel>>(response, (r)=>r.Items);
+            //return this.ConvertToActionResult(response, (r)=>(IEnumerable<GnaModel>)r.Items);
+
+            //if (response.TryGetValue(out var value) {
+            //    return value.Items;
+            //} else {
+            //    if (response.Result is RequestResultOK requestResultOk) {
+            //        if (requestResultOk.Value is GnaQueryResponse responseValue) {
+            //            return responseValue.Items;
+            //        }
+            //    }
+            //    if (response.Result is RequestResultFailed requestResultFailed) {
+            //        if (requestResultFailed.Exception is not null && requestResultFailed.Status == -1) { 
+            //            throw requestResultFailed.Exception;
+            //        }
+            //        return this.Problem(
+            //            detail: requestResultFailed.Message,
+            //            statusCode: requestResultFailed.Status,
+            //            title: requestResultFailed.Scope
+            //            );
+            //    }
+            //}
         }
     }
 }

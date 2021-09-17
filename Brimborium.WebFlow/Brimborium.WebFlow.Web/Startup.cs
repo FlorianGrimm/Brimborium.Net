@@ -24,9 +24,10 @@ namespace Brimborium.WebFlow.Web {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddRequestHandler();
+            services.AddWebFlowServices();
             services.AddServicesWithRegistrator((a) => {
                 var assemblies = a.FromAssemblyOf<Startup>();
-                RequestHandlerExtensions.AddRequestHandlerServices(assemblies);
+                CodeFlowExtensions.AddRequestHandlerServices(assemblies);
                 assemblies.AddClasses().UsingAttributes();
             });
             services.AddRazorPages();

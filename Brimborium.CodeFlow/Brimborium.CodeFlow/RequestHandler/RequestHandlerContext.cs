@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public abstract class RequestHandlerContextBase : IRequestHandlerContext, IDisposable {
-        private bool _IsDisposed;
+    public abstract class RequestHandlerContextBase : IRequestHandlerContext {
 
         public RequestHandlerContextBase() {
         }
@@ -23,27 +23,6 @@ namespace Brimborium.CodeFlow.RequestHandler {
         public abstract TRequestHandler CreateRequestHandler<TRequestHandler>()
             where TRequestHandler : notnull, IRequestHandler;
 
-        protected virtual bool Dispose(bool disposing) {
-            if (this._IsDisposed) {
-                return false;
-            } else {
-                this._IsDisposed = true;
-                if (disposing) {
-                } else { 
-                }
-                return true;
-            }
-
-        }
-
-        ~RequestHandlerContextBase() {
-            this.Dispose(disposing: false);
-        }
-
-        public void Dispose() {
-            this.Dispose(disposing: true);
-            System.GC.SuppressFinalize(this);
-        }
     }
 
     public class RequestHandlerContext : RequestHandlerContextBase, IRequestHandlerContext {
@@ -54,9 +33,6 @@ namespace Brimborium.CodeFlow.RequestHandler {
         public RequestHandlerContext(RequestHandlerContextBase parent, ContextId id) {
             this._Parent = parent;
             this._Id = id;
-        }
-        ~RequestHandlerContext() {
-            this.Dispose(disposing: false);
         }
 
         protected override ContextId GetId() => this._Id;
@@ -79,13 +55,14 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
     public class RequestHandlerRootContext : RequestHandlerContextBase, IRequestHandlerRootContext {
         private IRequestHandlerFactory? _RequestHandlerFactory;
+        private Nullable<CancellationToken> _CancellationToken;
 
+        [Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructor]
         public RequestHandlerRootContext(IServiceProvider scopedServiceProvider) {
             this.ScopedServiceProvider = scopedServiceProvider;
         }
-
-        ~RequestHandlerRootContext() {
-            this.Dispose(disposing: false);
+        public RequestHandlerRootContext(IServiceProvider scopedServiceProvider) {
+            this.ScopedServiceProvider = scopedServiceProvider;
         }
 
         public IServiceProvider ScopedServiceProvider { get; }
@@ -114,6 +91,14 @@ namespace Brimborium.CodeFlow.RequestHandler {
         public override TRequestHandler CreateRequestHandler<TRequestHandler>() {
             return this.GetRequestHandlerFactory().CreateRequestHandler<TRequestHandler>();
         }
+        public void SetGetCancellationToken(CancellationToken value) {
+            this._CancellationToken = value;
+        }
+        public CancellationToken? GetCancellationToken() { return this._CancellationToken; }
+
+        //public IResponseConverter GetResponseConverter() {
+        //    throw new NotImplementedException();
+        //}
     }
 
     //public static class IRequestHandlerContextExtensions {

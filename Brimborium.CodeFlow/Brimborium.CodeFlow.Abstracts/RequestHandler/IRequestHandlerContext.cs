@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public interface IRequestHandlerContext : IDisposable {
+    public interface IRequestHandlerContext {
         ContextId Id { get; }
 
         IRequestHandlerContext CreateChild(ContextId id);
@@ -22,7 +22,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
     //    Task<TResponse> CallRequestHandlerAsync(TRequest request);
     //}
 
-    public interface IRequestHandlerContextBuilder {
+    public interface IRequestHandlerSupport {
         IServiceProvider GetScopeServiceProvider();
         bool TryGetRequestHandlerRootContext([MaybeNullWhen(false)] out IRequestHandlerRootContext context);
         void SetRequestHandlerContext(IRequestHandlerRootContext value);

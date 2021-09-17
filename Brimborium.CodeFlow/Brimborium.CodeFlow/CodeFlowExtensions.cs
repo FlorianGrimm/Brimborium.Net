@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public static class RequestHandlerExtensions {
+    public static class CodeFlowExtensions {
         public static IServiceCollection AddRequestHandler(
             this IServiceCollection services,
             Func<ITypeSourceSelector, IImplementationTypeSelector>? fromAssemblies = null,
@@ -15,9 +15,9 @@ namespace Brimborium.CodeFlow.RequestHandler {
             ) {
             services.TryAddSingleton<IGlobalRequestHandlerFactory, GlobalRequestHandlerFactory>();
             services.TryAddScoped<IRequestHandlerFactory, ScopeRequestHandlerFactory>();
-            services.TryAddScoped<IRequestHandlerContextBuilder, RequestHandlerContextBuilder>();
-            services.TryAddScoped<IRequestHandlerRootContext, RequestHandlerRootContext>();
-            services.TryAddScoped<IRequestHandlerContext, RequestHandlerRootContext>();
+            services.TryAddScoped<IRequestHandlerSupport, RequestHandlerContextBuilder>();
+            // services.TryAddScoped<IRequestHandlerRootContext, RequestHandlerRootContext>();
+            // services.TryAddScoped<IRequestHandlerContext, RequestHandlerRootContext>();
 
             if (fromAssemblies is not null) {
                 services.AddServicesWithRegistrator((a) => {

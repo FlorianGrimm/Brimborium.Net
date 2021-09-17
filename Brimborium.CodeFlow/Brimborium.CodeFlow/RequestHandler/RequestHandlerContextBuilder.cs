@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 namespace Brimborium.CodeFlow.RequestHandler {
-    public sealed class RequestHandlerContextBuilder : IRequestHandlerContextBuilder {
+    public sealed class RequestHandlerContextBuilder : IRequestHandlerSupport {
         private readonly IServiceProvider _ScopeServiceProvider;
         private IRequestHandlerRootContext? _RequestHandlerRootContext;
 
