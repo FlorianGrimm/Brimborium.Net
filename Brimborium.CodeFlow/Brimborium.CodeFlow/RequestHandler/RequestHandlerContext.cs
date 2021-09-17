@@ -57,10 +57,6 @@ namespace Brimborium.CodeFlow.RequestHandler {
         private IRequestHandlerFactory? _RequestHandlerFactory;
         private Nullable<CancellationToken> _CancellationToken;
 
-        [Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructor]
-        public RequestHandlerRootContext(IServiceProvider scopedServiceProvider) {
-            this.ScopedServiceProvider = scopedServiceProvider;
-        }
         public RequestHandlerRootContext(IServiceProvider scopedServiceProvider) {
             this.ScopedServiceProvider = scopedServiceProvider;
         }
