@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow.WebLogic;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
@@ -25,8 +22,10 @@ namespace Brimborium.WebFlow.Web {
         public void ConfigureServices(IServiceCollection services) {
             services.AddRequestHandler();
             services.AddWebFlowServices();
+            services.AddWebFlowLogicServices();
             services.AddServicesWithRegistrator((a) => {
-                var assemblies = a.FromAssemblyOf<Startup>();
+                //var assemblies = a.FromAssembliesOf(typeof(Startup), typeof(GnaRepository));
+                var assemblies = a.FromDependencyContext(DependencyContext.Default);
                 CodeFlowExtensions.AddRequestHandlerServices(assemblies);
                 assemblies.AddClasses().UsingAttributes();
             });

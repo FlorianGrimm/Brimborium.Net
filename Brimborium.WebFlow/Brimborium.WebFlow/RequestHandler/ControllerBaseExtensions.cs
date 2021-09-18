@@ -1,86 +1,75 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Brimborium.CodeFlow.RequestHandler;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
-// namespace Brimborium.WebFlow.RequestHandler
+using System.Security.Claims;
+using System.Threading;
 
 namespace Brimborium.CodeFlow.RequestHandler {
     public static class ControllerBaseExtensions {
-        //static ActivitySource s_source = new ActivitySource("Sample.DistributedTracing");
 
         public static GetRequestHandlerRootContextResult GetRequestHandlerRootContext(
             this IRequestHandlerSupport requestHandlerSupport,
             ControllerBase controllerBase,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
             ) {
-            if (requestHandlerSupport.TryGetRequestHandlerRootContext(out var context)) {
-                CancellationToken cancellationToken = (context as RequestHandlerRootContext)?.GetCancellationToken() ?? CancellationToken.None;
-                //(context as RequestHandlerRootContext) ?.GetResponseConverter()
-                var requestServices = requestHandlerSupport.GetScopeServiceProvider();
-                var responseConverter = requestServices.GetRequiredService<IRequestHandlerResultConverter>();
-                return new GetRequestHandlerRootContextResult(context, cancellationToken, responseConverter);
-            } else {
-                var requestServices = requestHandlerSupport.GetScopeServiceProvider();
-
+            var requestServices = requestHandlerSupport.GetScopeServiceProvider();
+            //
+            {
+                if (requestHandlerSupport.TryGetRequestHandlerRootContext(out var context)) {
+                    var rootContext = context as IRequestHandlerRootContextInternal;
+                    CancellationToken cancellationToken = rootContext?.GetCancellationToken() ?? CancellationToken.None;
+                    var user = (rootContext?.GetUser()) ?? (new ClaimsPrincipal());
+                    var responseConverter = requestServices.GetRequiredService<IRequestResultConverter>();
+                    return new GetRequestHandlerRootContextResult(context, user, cancellationToken, responseConverter);
+                }
+            }
+            {
+                //static ActivitySource s_source = new ActivitySource("Sample.DistributedTracing");
                 //var a = System.Diagnostics.Activity.Current;
 #warning TODO https://docs.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-collection-walkthroughs
 
                 //var name = $"{controllerBase.GetType().FullName}.{memberName}";
                 //Activity? activity = s_source.StartActivity(name, ActivityKind.Server)!;
                 //activity.Dispose(); 
-                CancellationToken cancellationToken = (controllerBase.HttpContext?.RequestAborted) ?? CancellationToken.None;
-                var responseConverter = requestServices.GetRequiredService<IRequestHandlerResultConverter>();
-                context = new RequestHandlerRootContext(requestServices, cancellationToken);
-                requestHandlerSupport.SetRequestHandlerContext(context);
-                return new GetRequestHandlerRootContextResult(context, cancellationToken, responseConverter);
+                //var rootContext = new RequestHandlerRootContext(requestServices);
+                var rootContext = (IRequestHandlerRootContextInternal)requestServices.GetRequiredService<IRequestHandlerRootContext>();
+                Microsoft.AspNetCore.Http.HttpContext? httpContext = controllerBase.HttpContext;
+                CancellationToken cancellationToken = (httpContext?.RequestAborted) ?? (CancellationToken.None);
+                ClaimsPrincipal user = (httpContext?.User) ?? (new ClaimsPrincipal());
+                rootContext.SetCancellationToken(cancellationToken);
+                var responseConverter = requestServices.GetRequiredService<IRequestResultConverter>();
+                requestHandlerSupport.SetRequestHandlerContext(rootContext);
+                return new GetRequestHandlerRootContextResult(rootContext, user, cancellationToken, responseConverter);
             }
         }
-
-        //public static ActionResult<TResult> ConvertToActionResult<TResponse, TResult>(
-        //    this ControllerBase controllerBase,
-        //    RequestHandlerResult<TResponse> responseResult,
-        //    Func<TResponse, TResult> extractValue
-        //    ) {
-        //    if (responseResult.TryGetValue(out var value)) {
-        //        return extractValue(value);
-        //    }
-        //    if (responseResult.TryGetResult(out var result)) {
-        //        if (result is RequestHandlerResulttOK requestResultOK) {
-        //            if (requestResultOK.Value is TResponse response) {
-        //                return extractValue(response);
-        //            }
-        //        }
-        //        var responseConverter = controllerBase.HttpContext.RequestServices.GetRequiredService<IRequestHandlerResultConverter>();
-        //        return responseConverter.Convert<TResult>(controllerBase, responseResult);
-        //    }
-        //    return controllerBase.BadRequest();
-        //}
     }
+
     public struct GetRequestHandlerRootContextResult {
         public readonly IRequestHandlerRootContext Context;
+        public readonly ClaimsPrincipal User;
         public readonly CancellationToken CancellationToken;
-        public readonly IRequestHandlerResultConverter ResponseConverter;
+        public readonly IRequestResultConverter ResponseConverter;
 
-        public GetRequestHandlerRootContextResult(IRequestHandlerRootContext context, CancellationToken cancellationToken, IRequestHandlerResultConverter responseConverter) {
+        public GetRequestHandlerRootContextResult(
+            IRequestHandlerRootContext context,
+            ClaimsPrincipal user,
+            CancellationToken cancellationToken,
+            IRequestResultConverter responseConverter) {
             this.Context = context;
+            this.User = user;
             this.CancellationToken = cancellationToken;
             this.ResponseConverter = responseConverter;
         }
 
-        public void Deconstruct(out IRequestHandlerRootContext context, out CancellationToken cancellationToken, out IRequestHandlerResultConverter responseConverter) {
+        public void Deconstruct(
+            out IRequestHandlerRootContext context,
+            out ClaimsPrincipal user,
+            out CancellationToken cancellationToken,
+            out IRequestResultConverter responseConverter) {
             context = this.Context;
+            user = this.User;
             cancellationToken = this.CancellationToken;
             responseConverter = this.ResponseConverter;
         }
     }
-
 }

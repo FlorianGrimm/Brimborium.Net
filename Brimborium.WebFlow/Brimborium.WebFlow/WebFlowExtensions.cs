@@ -10,7 +10,7 @@ namespace Brimborium.WebFlow
     public static class WebFlowExtensions {
         public static IServiceCollection AddWebFlowServices(
             this IServiceCollection services) {
-            services.AddSingleton<IRequestHandlerResultConverter, ConverterRequestHandlerResult>();
+            services.AddSingleton<IRequestResultConverter, ConverterRequestHandlerResult>();
             return services;
         }
     }

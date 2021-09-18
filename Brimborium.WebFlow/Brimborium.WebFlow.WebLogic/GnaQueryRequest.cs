@@ -4,19 +4,21 @@ using Microsoft.Extensions.DependencyInjection;
 
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.WebFlow.WebLogic {
     public record GnaQueryRequest(
-        string Pattern
-        );
+        string Pattern,
+        ClaimsPrincipal User
+    );
 
     public record GnaQueryResponse(
-            List<GnaModel> Items
-        );
+        List<GnaModel> Items
+    );
 
-    public interface IGnaQueryRequestHandler : IRequestHandler<GnaQueryRequest, RequestHandlerResult<GnaQueryResponse>> { }
+    public interface IGnaQueryRequestHandler : IRequestHandler<GnaQueryRequest, RequestResult<GnaQueryResponse>> { }
 
     public interface IGnaQueryRequestHandlerFactory : ITypedRequestHandlerFactory<IGnaQueryRequestHandler> { }
 
@@ -27,9 +29,12 @@ namespace Brimborium.WebFlow.WebLogic {
             this._GnaRepository = gnaRepository;
         }
 
-        public async Task<RequestHandlerResult<GnaQueryResponse>> ExecuteAsync(GnaQueryRequest request, IRequestHandlerContext context, CancellationToken cancellationToken = default) {
+        public async Task<RequestResult<GnaQueryResponse>> ExecuteAsync(GnaQueryRequest request, IRequestHandlerContext context, CancellationToken cancellationToken = default) {
             if (request.Pattern == "*") {
-                return new RequestHandlerResultFailed("Pattern cannot be *", "Pattern");
+                return new RequestResultErrorDetails(400) {
+                    Title = "Pattern",
+                    Detail = "Pattern cannot be *"
+                };
             }
             try {
                 if (request.Pattern == "fail") {
@@ -40,10 +45,13 @@ namespace Brimborium.WebFlow.WebLogic {
                 }
                 var items = await this._GnaRepository.QueryAsync(request.Pattern, context, cancellationToken);
                 return new GnaQueryResponse(items);
-            } catch (ArgumentException error) {
-                return new RequestHandlerResultFailed("Pattern is fail", "Pattern", error, 500);
-            } catch (InvalidOperationException error){
-                return new RequestHandlerResultFailed("Pattern is rethrow", "Pattern", error, -1);
+            } catch (ArgumentException) {
+                return new RequestResultErrorDetails(400) {
+                    Title = "Pattern",
+                    Detail = "Pattern is fail"
+                };
+            } catch (InvalidOperationException error) {
+                return new RequestResultException(null, error) { Rethrow = true};
             }
         }
     }

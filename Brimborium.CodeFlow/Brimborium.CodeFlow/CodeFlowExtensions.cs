@@ -16,7 +16,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
             services.TryAddSingleton<IGlobalRequestHandlerFactory, GlobalRequestHandlerFactory>();
             services.TryAddScoped<IRequestHandlerFactory, ScopeRequestHandlerFactory>();
             services.TryAddScoped<IRequestHandlerSupport, RequestHandlerContextBuilder>();
-            // services.TryAddScoped<IRequestHandlerRootContext, RequestHandlerRootContext>();
+            services.TryAddScoped<IRequestHandlerRootContext, RequestHandlerRootContext>();
             // services.TryAddScoped<IRequestHandlerContext, RequestHandlerRootContext>();
 
             if (fromAssemblies is not null) {

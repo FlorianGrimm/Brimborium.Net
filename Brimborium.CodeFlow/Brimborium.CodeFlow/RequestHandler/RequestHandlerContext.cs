@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using System;
+using System.Security.Claims;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Brimborium.CodeFlow.RequestHandler {
     public abstract class RequestHandlerContextBase : IRequestHandlerContext {
@@ -13,8 +13,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
         protected abstract ContextId GetId();
 
-        protected internal abstract RequestHandlerRootContext GetRoot();
-
+        public abstract IRequestHandlerRootContextInternal GetRequestHandlerRootContext();
 
         public abstract IRequestHandlerContext CreateChild(ContextId id);
 
@@ -25,7 +24,10 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
     }
 
-    public class RequestHandlerContext : RequestHandlerContextBase, IRequestHandlerContext {
+    public class RequestHandlerContext 
+        : RequestHandlerContextBase
+        , IRequestHandlerContext 
+        , IRequestHandlerContextInternal {
         private readonly RequestHandlerContextBase _Parent;
 
         private readonly ContextId _Id;
@@ -37,24 +39,29 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
         protected override ContextId GetId() => this._Id;
 
-        protected internal override RequestHandlerRootContext GetRoot() => this._Parent.GetRoot();
+        public override IRequestHandlerRootContextInternal GetRequestHandlerRootContext() => this._Parent.GetRequestHandlerRootContext();
 
         public override IRequestHandlerContext CreateChild(ContextId id) {
             return new RequestHandlerContext(this, id);
         }
 
         public override IRequestHandlerFactory GetRequestHandlerFactory() {
-            return this.GetRoot().GetRequestHandlerFactory();
+            return this.GetRequestHandlerRootContext().GetRequestHandlerFactory();
         }
 
         public override TRequestHandler CreateRequestHandler<TRequestHandler>() {
-            TRequestHandler result = this.GetRoot().GetRequestHandlerFactory().CreateRequestHandler<TRequestHandler>();
+            TRequestHandler result = this.GetRequestHandlerRootContext().GetRequestHandlerFactory().CreateRequestHandler<TRequestHandler>();
             return result;
         }
     }
 
-    public class RequestHandlerRootContext : RequestHandlerContextBase, IRequestHandlerRootContext {
+    public class RequestHandlerRootContext 
+        : RequestHandlerContextBase
+        , IRequestHandlerContextInternal
+        , IRequestHandlerRootContext 
+        , IRequestHandlerRootContextInternal {
         private IRequestHandlerFactory? _RequestHandlerFactory;
+        private ClaimsPrincipal? _User;
         private Nullable<CancellationToken> _CancellationToken;
 
         public RequestHandlerRootContext(IServiceProvider scopedServiceProvider) {
@@ -65,7 +72,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
         protected override ContextId GetId() => new ContextId(string.Empty, null);
 
-        protected internal override RequestHandlerRootContext GetRoot() => this;
+        public override IRequestHandlerRootContextInternal GetRequestHandlerRootContext() => this;
 
         public override IRequestHandlerContext CreateChild(ContextId id) {
             return new RequestHandlerContext(this, id);
@@ -87,14 +94,12 @@ namespace Brimborium.CodeFlow.RequestHandler {
         public override TRequestHandler CreateRequestHandler<TRequestHandler>() {
             return this.GetRequestHandlerFactory().CreateRequestHandler<TRequestHandler>();
         }
-        public void SetGetCancellationToken(CancellationToken value) {
-            this._CancellationToken = value;
-        }
-        public CancellationToken? GetCancellationToken() { return this._CancellationToken; }
 
-        //public IResponseConverter GetResponseConverter() {
-        //    throw new NotImplementedException();
-        //}
+        public ClaimsPrincipal? GetUser() => this._User;
+        public void SetUser(ClaimsPrincipal value) { this._User = value; }
+
+        public CancellationToken? GetCancellationToken() => this._CancellationToken;
+        public void SetCancellationToken(CancellationToken value) { this._CancellationToken = value; }
     }
 
     //public static class IRequestHandlerContextExtensions {
