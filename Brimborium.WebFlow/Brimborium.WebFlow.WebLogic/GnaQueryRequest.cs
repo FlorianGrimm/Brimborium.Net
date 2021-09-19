@@ -23,9 +23,9 @@ namespace Brimborium.WebFlow.WebLogic {
     public interface IGnaQueryRequestHandlerFactory : ITypedRequestHandlerFactory<IGnaQueryRequestHandler> { }
 
     public class GnaQueryRequestHandler : IGnaQueryRequestHandler {
-        private readonly GnaRepository _GnaRepository;
+        private readonly IGnaRepository _GnaRepository;
 
-        public GnaQueryRequestHandler(GnaRepository gnaRepository) {
+        public GnaQueryRequestHandler(IGnaRepository gnaRepository) {
             this._GnaRepository = gnaRepository;
         }
 

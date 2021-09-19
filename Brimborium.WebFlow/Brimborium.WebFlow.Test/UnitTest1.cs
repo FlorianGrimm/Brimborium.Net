@@ -8,7 +8,9 @@ namespace Brimborium.WebFlow.Test
         [Fact]
         public void Test1()
         {
-
+            var x = ^1;
+            Assert.Equal(0, ^1);
+            Assert.Equal(1, ^1);
         }
     }
 }

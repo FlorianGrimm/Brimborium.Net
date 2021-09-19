@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.WebFlow.WebLogic {
-    public sealed class GnaRepository {
+    public sealed class GnaRepository : IGnaRepository {
         public List<GnaModel> Items { get; }
 
         public GnaRepository() {

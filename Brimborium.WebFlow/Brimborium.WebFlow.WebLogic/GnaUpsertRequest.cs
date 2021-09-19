@@ -20,9 +20,9 @@ namespace Brimborium.WebFlow.WebLogic {
     }
 
     public class GnaUpsertRequestHandler : IGnaUpsertRequestHandler {
-        private readonly GnaRepository _GnaRepository;
+        private readonly IGnaRepository _GnaRepository;
 
-        public GnaUpsertRequestHandler(GnaRepository gnaRepository) {
+        public GnaUpsertRequestHandler(IGnaRepository gnaRepository) {
             this._GnaRepository = gnaRepository;
         }
 
