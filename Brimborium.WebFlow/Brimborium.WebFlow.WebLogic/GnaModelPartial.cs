@@ -1,11 +1,6 @@
 ﻿using Brimborium.CodeFlow.Model;
 
 namespace Brimborium.WebFlow.WebLogic {
-    public record GnaModel(
-        string Name,
-        bool Done);
-
-   
     public class GnaModelPartial {
         private PartialValue<string> _Name;
         private PartialValue<bool> _Done;

@@ -8,19 +8,20 @@ namespace Brimborium.CodeFlow.RequestHandler {
     public static class ControllerBaseExtensions {
 
         public static GetRequestHandlerRootContextResult GetRequestHandlerRootContext(
-            this IRequestHandlerSupport requestHandlerSupport,
-            ControllerBase controllerBase,
-            [System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
-            ) {
+                this IRequestHandlerSupport requestHandlerSupport,
+                ControllerBase controllerBase,
+                [System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
+                ) {
             var requestServices = requestHandlerSupport.GetScopeServiceProvider();
             //
             {
                 if (requestHandlerSupport.TryGetRequestHandlerRootContext(out var context)) {
-                    var rootContext = context as IRequestHandlerRootContextInternal;
-                    CancellationToken cancellationToken = rootContext?.GetCancellationToken() ?? CancellationToken.None;
-                    var user = (rootContext?.GetUser()) ?? (new ClaimsPrincipal());
+                    var rootContext = (context as IRequestHandlerRootContextInternal)
+                        ?? ((IRequestHandlerContextInternal) context).GetRequestHandlerRootContext();
+                    CancellationToken cancellationToken = (rootContext.GetCancellationToken()) ?? CancellationToken.None;
+                    var user = (rootContext.GetUser()) ?? (new ClaimsPrincipal());
                     var responseConverter = requestServices.GetRequiredService<IRequestResultConverter>();
-                    return new GetRequestHandlerRootContextResult(context, user, cancellationToken, responseConverter);
+                    return new GetRequestHandlerRootContextResult(rootContext, user, cancellationToken, responseConverter);
                 }
             }
             {

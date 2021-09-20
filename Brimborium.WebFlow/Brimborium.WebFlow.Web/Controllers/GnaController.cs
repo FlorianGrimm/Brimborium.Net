@@ -1,4 +1,6 @@
 ﻿using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow.Web.Communication;
+using Brimborium.WebFlow.Web.Model;
 using Brimborium.WebFlow.WebLogic;
 
 using Microsoft.AspNetCore.Mvc;
@@ -18,13 +20,13 @@ namespace Brimborium.WebFlow.Controllers {
             this._RequestHandlerSupport = requestHandlerSupport;
         }
 
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GnaModel>>> GetAsync(string? pattern) {
             var (context, user, cancellationToken, responseConverter) = this._RequestHandlerSupport.GetRequestHandlerRootContext(this);
-            var requestHandler = context.CreateRequestHandler<IGnaQueryRequestHandler>();
-            var request = new GnaQueryRequest(pattern ?? string.Empty, user);
-            var response = await requestHandler.ExecuteAsync(request, context, cancellationToken);
-
+            var gnaService = new GnaService(context, user);
+            var request = new GnaQueryRequest(pattern ?? string.Empty);
+            var response = await gnaService.GnaQueryAsync(request, cancellationToken);
             return responseConverter.ConvertToActionResultOfT(this, response, convertResponse);
 
             static IEnumerable<GnaModel> convertResponse(GnaQueryResponse response) {
@@ -37,10 +39,9 @@ namespace Brimborium.WebFlow.Controllers {
             GnaModel value
             ) {
             var (context, user, cancellationToken, responseConverter) = this._RequestHandlerSupport.GetRequestHandlerRootContext(this);
-            var requestHandler = context.CreateRequestHandler<IGnaUpsertRequestHandler>();
-            var request = new GnaUpsertRequest(value.Name, value.Done, user);
-            var response = await requestHandler.ExecuteAsync(request, context, cancellationToken);
-
+            var gnaService = new GnaService(context, user);
+            var request = new GnaUpsertRequest(value.Name, value.Done);
+            var response = await gnaService.GnaUpsertAsync(request, cancellationToken);
             return responseConverter.ConvertToActionResult(this, response, (responseT) => new OkResult());
         }
 
@@ -50,16 +51,10 @@ namespace Brimborium.WebFlow.Controllers {
             bool Done
             ) {
             var (context, user, cancellationToken, responseConverter) = this._RequestHandlerSupport.GetRequestHandlerRootContext(this);
-            var requestHandler = context.CreateRequestHandler<IGnaUpsertRequestHandler>();
-            var request = new GnaUpsertRequest(Name, Done, user);
-            var response = await requestHandler.ExecuteAsync(request, context, cancellationToken);
-
+            var gnaService = new GnaService(context, user);
+            var request = new GnaUpsertRequest(Name, Done);
+            var response = await gnaService.GnaUpsertAsync(request, cancellationToken);
             return responseConverter.ConvertToActionResult(this, response, (responseT) => new OkResult());
         }
-
-        //[NonAction]
-        //private ActionResult ConvertGnaUpsertResponse(GnaUpsertResponse response) {
-        //        return new OkResult();
-        //}
     }
 }

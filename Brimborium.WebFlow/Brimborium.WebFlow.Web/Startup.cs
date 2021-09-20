@@ -1,5 +1,7 @@
 
+using Brimborium.CodeFlow.FlowSynchronization;
 using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow.FlowSynchronization;
 using Brimborium.WebFlow.WebLogic;
 
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +31,8 @@ namespace Brimborium.WebFlow.Web {
                 CodeFlowExtensions.AddRequestHandlerServices(assemblies);
                 assemblies.AddClasses().UsingAttributes();
             });
+            services.AddSingleton<ISyncTimerHostedService>((serviceProvider) => serviceProvider.GetRequiredService<SyncTimerHostedService>());
+            services.AddHostedService<SyncTimerHostedService>();
             services.AddRazorPages();
             services.AddControllers();
             services.AddSwaggerGen(c => {
@@ -58,4 +62,6 @@ namespace Brimborium.WebFlow.Web {
             });
         }
     }
+
+    // public static class ControllerBaseExtensions { }
 }

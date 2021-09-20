@@ -20,6 +20,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
     }
 
     public interface IRequestHandlerRootContext : IRequestHandlerContext {
+        IServiceProvider ScopedServiceProvider { get; }
     }
 
     public interface IRequestHandlerRootContextInternal : IRequestHandlerRootContext {
@@ -29,11 +30,6 @@ namespace Brimborium.CodeFlow.RequestHandler {
         CancellationToken? GetCancellationToken();
         void SetCancellationToken(CancellationToken value);
     }
-
-    //public interface IRequestHandlerContext<TRequest, TResponse, TRequestHandler>
-    //    where TRequestHandler : IRequestHandler<TRequest, TResponse, TRequestHandler> {
-    //    Task<TResponse> CallRequestHandlerAsync(TRequest request);
-    //}
 
     public interface IRequestHandlerSupport {
         IServiceProvider GetScopeServiceProvider();

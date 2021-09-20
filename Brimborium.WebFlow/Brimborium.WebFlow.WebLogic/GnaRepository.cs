@@ -1,4 +1,5 @@
 ﻿using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow.Web.Model;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +17,9 @@ namespace Brimborium.WebFlow.WebLogic {
         public async Task<List<GnaModel>> QueryAsync(string pattern, IRequestHandlerContext context, CancellationToken cancellationToken) {
             pattern = pattern.Trim();
             await Task.CompletedTask;
-            lock (this) {
-                var result = this.Items.Where(item => item.Name.Contains(pattern)).ToList();
-                return result;
-            }
+            lock (this) { }
+            var result = this.Items.Where(item => item.Name.Contains(pattern)).ToList();
+            return result;
         }
 
         public async Task<bool> UpsertAsync(GnaModel value) {

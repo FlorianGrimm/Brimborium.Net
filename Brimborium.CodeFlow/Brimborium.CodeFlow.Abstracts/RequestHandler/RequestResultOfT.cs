@@ -31,5 +31,4 @@ namespace Brimborium.CodeFlow.RequestHandler {
         public static implicit operator RequestResult<TValue>(TValue value) => new RequestResult<TValue>(value);
         public static implicit operator RequestResult<TValue>(RequestResult result) => new RequestResult<TValue>(result);
     }
-
 }

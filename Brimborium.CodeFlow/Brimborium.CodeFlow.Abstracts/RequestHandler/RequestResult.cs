@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 
 namespace Brimborium.CodeFlow.RequestHandler {
@@ -30,21 +31,6 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
         public RequestResultFailed(int? status) : base(status) {
         }
-    }
-
-    public class RequestResultException : RequestResultFailed {
-        public RequestResultException() {
-        }
-
-        public RequestResultException(int? status) : base(status) {
-        }
-
-        public RequestResultException(int? status, Exception? exception) : base(status) {
-            this.Exception = exception;
-        }
-
-        public bool Rethrow { get; init; }
-        public Exception? Exception { get; init; }
     }
 
     public sealed class RequestResultErrorDetails : RequestResultFailed {

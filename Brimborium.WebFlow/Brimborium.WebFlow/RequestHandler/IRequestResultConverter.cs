@@ -12,13 +12,6 @@ namespace Brimborium.CodeFlow.RequestHandler {
             ControllerBase controllerBase,
             RequestResult<TResponse> responseResultOfT,
             Func<TResponse, TResult> extractValue);
-
-        /*
-        ActionResult<TResult> Format<TResponse, TResult>(
-            ControllerBase controllerBase,
-            RequestResult<TResponse> responseResult,
-            Func<TResponse, TResult> extractValue);
-        */
     }
 
     public interface IRequestResultConverterSpecialized {

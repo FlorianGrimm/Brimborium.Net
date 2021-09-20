@@ -9,6 +9,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
 
         public RequestHandlerContextBase() {
         }
+
         public ContextId Id => this.GetId();
 
         protected abstract ContextId GetId();

@@ -1,4 +1,5 @@
 ﻿using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow.Web.Model;
 
 using System.Collections.Generic;
 using System.Threading;
@@ -9,4 +10,8 @@ namespace Brimborium.WebFlow.WebLogic {
         Task<List<GnaModel>> QueryAsync(string pattern, IRequestHandlerContext context, CancellationToken cancellationToken);
         Task<bool> UpsertAsync(GnaModel value);
     }
+
+    // public interface IRequestHandlerSupport: IRequestHandlerSupport<IRequestHandlerRootContext> { }
+
+    //public interface IRequestHandlerSupport : IRequestHandlerSupport<IRequestHandlerContext> { }
 }
