@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Demo</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Communication\EbbesQuery.cs" />
+    <Compile Remove="Communication\EbbesUpsert.cs" />
+    <Compile Remove="Communication\GnaQuery.cs" />
+    <Compile Remove="Communication\GnaUpsert.cs" />
+    <Compile Remove="Communication\IEbbesService.cs" />
+    <Compile Remove="Communication\IGnaService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Communication\EbbesQuery.cs" />
+    <None Include="Communication\EbbesUpsert.cs" />
+    <None Include="Communication\GnaQuery.cs" />
+    <None Include="Communication\GnaUpsert.cs" />
+    <None Include="Communication\IEbbesService.cs" />
+    <None Include="Communication\IGnaService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj" />
+    <ProjectReference Include="..\..\Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
+    <ProjectReference Include="..\Demo.Abstracts\Demo.Abstracts.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,5 @@
 ﻿using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow.Web.API;
 using Brimborium.WebFlow.Web.Communication;
 using Brimborium.WebFlow.Web.Model;
 using Brimborium.WebFlow.WebLogic;
@@ -6,12 +7,13 @@ using Brimborium.WebFlow.WebLogic;
 using Microsoft.AspNetCore.Mvc;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Brimborium.WebFlow.Controllers {
     [ApiController]
     [Route("api/[controller]")]
-    public class GnaController : ControllerBase {
+    public class GnaController : ControllerBase, IGnaController {
         private readonly IRequestHandlerSupport _RequestHandlerSupport;
 
         public GnaController(
@@ -22,15 +24,15 @@ namespace Brimborium.WebFlow.Controllers {
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GnaModel>>> GetAsync(string? pattern) {
+        public async Task<ActionResult<IEnumerable<Gna>>> GetAsync(string? pattern) {
             var (context, user, cancellationToken, responseConverter) = this._RequestHandlerSupport.GetRequestHandlerRootContext(this);
             var gnaService = new GnaService(context, user);
             var request = new GnaQueryRequest(pattern ?? string.Empty);
             var response = await gnaService.GnaQueryAsync(request, cancellationToken);
             return responseConverter.ConvertToActionResultOfT(this, response, convertResponse);
 
-            static IEnumerable<GnaModel> convertResponse(GnaQueryResponse response) {
-                return response.Items;
+            static IEnumerable<Gna> convertResponse(GnaQueryResponse response) {
+                return response.Items.Select(i=>new Gna(i.Name, i.Done));
             }
         }
 

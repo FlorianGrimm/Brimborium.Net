@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Mvc;
 namespace Brimborium.CodeFlow.RequestHandler {
     public interface IRequestResultConverter {
+        
         ActionResult ConvertToActionResult<TResponse>(
             ControllerBase controllerBase,
             RequestResult<TResponse> responseResultOfT,
@@ -12,6 +13,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
             ControllerBase controllerBase,
             RequestResult<TResponse> responseResultOfT,
             Func<TResponse, TResult> extractValue);
+
     }
 
     public interface IRequestResultConverterSpecialized {

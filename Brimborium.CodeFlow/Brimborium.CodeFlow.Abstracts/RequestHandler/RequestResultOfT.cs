@@ -26,7 +26,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
             return !(this._ValueIsUsed);
         }
 
-        public RequestResult Result => (!this._ValueIsUsed) ? (this._Result!) : new RequestHandlerResulttOK(this._Value, 200);
+        public RequestResult Result => (!this._ValueIsUsed) ? (this._Result!) : new RequestResultOK(this._Value, 200);
 
         public static implicit operator RequestResult<TValue>(TValue value) => new RequestResult<TValue>(value);
         public static implicit operator RequestResult<TValue>(RequestResult result) => new RequestResult<TValue>(result);

@@ -27,7 +27,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
 #warning TODO convert success value??
 
             var requestResult = responseResultOfT.Result;
-            if (requestResult is RequestHandlerResulttOK requestResultOK) {
+            if (requestResult is RequestResultOK requestResultOK) {
                 if ((requestResultOK.Value is TResponse responseOKValue)) {
                     return ConvertTypedOk(responseOKValue);
                 }
@@ -84,7 +84,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
 #warning TODO convert success value??
 
             var requestResult = requestHandlerResultT.Result;
-            if (requestResult is RequestHandlerResulttOK requestResultOK) {
+            if (requestResult is RequestResultOK requestResultOK) {
                 if ((requestResultOK.Value is TResponse responseOKValue)) {
                     return ConvertTypedOk(responseOKValue);
                 }

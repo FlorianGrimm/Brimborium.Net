@@ -67,9 +67,12 @@ namespace Brimborium.Registrator {
     public class ServiceDescriptorAttribute : Attribute {
         public ServiceDescriptorAttribute() : this(null) { }
 
-        public ServiceDescriptorAttribute(Type? serviceType) : this(serviceType, ServiceLifetime.Transient) { }
+        public ServiceDescriptorAttribute(Type? serviceType) : this(serviceType, ServiceLifetime.Transient) {
+            Mode = ServiceTypeMode.IncludeSelfAndInterfaces;
+        }
 
         public ServiceDescriptorAttribute(Type? serviceType, ServiceLifetime lifetime) {
+            Mode = ServiceTypeMode.IncludeSelfAndInterfaces;
             ServiceType = serviceType;
             Lifetime = lifetime;
         }

@@ -13,12 +13,12 @@ namespace Brimborium.CodeFlow.RequestHandler {
         public int? Status { get; init; }
     }
 
-    public class RequestHandlerResulttOK : RequestResult {
-        public RequestHandlerResulttOK(object? value) : base(200) {
+    public class RequestResultOK : RequestResult {
+        public RequestResultOK(object? value) : base(200) {
             this.Value = value;
         }
 
-        public RequestHandlerResulttOK(object? value, int? status) : base(status) {
+        public RequestResultOK(object? value, int? status) : base(status) {
             this.Value = value;
         }
 
