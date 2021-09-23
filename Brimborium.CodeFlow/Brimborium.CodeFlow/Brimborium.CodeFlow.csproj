@@ -6,6 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="RequestHandler\RequestHandlerClosure.cs" />
+    <Compile Remove="RequestHandler\RequestHandlerContext.cs" />
+    <Compile Remove="RequestHandler\RequestHandlerContextBuilder.cs" />
+    <Compile Remove="RequestHandler\RequestHandlerContextExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="RequestHandler\RequestHandlerClosure.cs" />
+    <None Include="RequestHandler\RequestHandlerContext.cs" />
+    <None Include="RequestHandler\RequestHandlerContextBuilder.cs" />
+    <None Include="RequestHandler\RequestHandlerContextExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
   </ItemGroup>
