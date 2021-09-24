@@ -30,13 +30,6 @@ namespace Brimborium.CodeBlocks {
 
     public class Program {
         public static async Task<int> Main(string[] args) {
-            if (args.Length == 1 && args[0] == "install") {
-              
-            }
-            if (args.Length == 1 && args[0] == "uninstall") {
-             
-            }
-
             var parserResult = CommandLine.Parser.Default.ParseArguments<InstallOptions, UninstallOptions, RunOptions, DiffOptions>(args);
 
             if (parserResult is Parsed<object> parsed) {
@@ -95,6 +88,16 @@ namespace Brimborium.CodeBlocks {
         }
         private static async Task<int> RunAsync(RunOptions opts) {
             await Task.CompletedTask;
+            /*
+             
+            read
+
+            transform
+
+            write
+            
+             
+            */
             return 0;
         }
 
