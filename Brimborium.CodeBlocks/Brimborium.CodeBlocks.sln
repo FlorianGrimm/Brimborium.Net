@@ -13,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeBlocks", "Brimborium.CodeBlocks\Brimborium.CodeBlocks.csproj", "{47445CA5-1F21-4D8C-9A02-880223F064D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brimborium.CodeBlocks.Library", "Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj", "{17A2F8C4-303F-44D2-A736-DCCDB5BDB956}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeBlocks.Library", "Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj", "{17A2F8C4-303F-44D2-A736-DCCDB5BDB956}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brimborium.CodeBlocks.Library.Test", "Brimborium.CodeBlocks.Library.Test\Brimborium.CodeBlocks.Library.Test.csproj", "{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,18 @@ Global
 		{17A2F8C4-303F-44D2-A736-DCCDB5BDB956}.Release|x64.Build.0 = Release|Any CPU
 		{17A2F8C4-303F-44D2-A736-DCCDB5BDB956}.Release|x86.ActiveCfg = Release|Any CPU
 		{17A2F8C4-303F-44D2-A736-DCCDB5BDB956}.Release|x86.Build.0 = Release|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Debug|x64.Build.0 = Debug|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Debug|x86.Build.0 = Debug|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Release|x64.ActiveCfg = Release|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Release|x64.Build.0 = Release|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Release|x86.ActiveCfg = Release|Any CPU
+		{DE75DA55-6FAD-4F86-8ADF-826BEE1969A2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

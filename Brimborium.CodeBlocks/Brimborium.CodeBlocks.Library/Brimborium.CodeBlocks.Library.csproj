@@ -5,4 +5,8 @@
     <RootNamespace>Brimborium.CodeBlocks</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Eto.Parse" Version="1.6.0" />
+  </ItemGroup>
+
 </Project>
