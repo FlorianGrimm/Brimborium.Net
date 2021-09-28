@@ -10,17 +10,16 @@ namespace Brimborium.CodeFlow.WebApp.Controllers {
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase {
-        private readonly IScopeRequestHandlerFactory _ScopeRequestHandlerFactory;
+        private readonly IRequestHandlerFactory _RequestHandlerFactory;
 
-        public WeatherForecastController(IScopeRequestHandlerFactory scopeRequestHandlerFactory) {
-            this._ScopeRequestHandlerFactory = scopeRequestHandlerFactory;
+        public WeatherForecastController(IRequestHandlerFactory requestHandlerFactory) {
+            this._RequestHandlerFactory = requestHandlerFactory;
         }
 
         [HttpGet]
         public async Task<IEnumerable<WeatherForecast>> Get() {
-            var ctxt = new RequestHandlerRootContext(this.HttpContext.RequestServices);
-            var weatherForecastRequestHandler = this._ScopeRequestHandlerFactory.CreateRequestHandler<IWeatherForecastRequestHandler>();
-            var result = await weatherForecastRequestHandler.ExecuteAsync(new WeatherForecastRequest(), ctxt, this.HttpContext.RequestAborted);
+            var weatherForecastRequestHandler = this._RequestHandlerFactory.CreateRequestHandler<IWeatherForecastRequestHandler>();
+            var result = await weatherForecastRequestHandler.ExecuteAsync(new WeatherForecastRequest(), this.HttpContext.RequestAborted);
             return result.Items;
         }
     }

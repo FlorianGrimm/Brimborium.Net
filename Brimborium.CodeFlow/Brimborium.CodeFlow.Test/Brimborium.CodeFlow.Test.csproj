@@ -6,6 +6,14 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>Brimborium.CodeFlow</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="RequestHandler\RequestHandlerRootContextTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="RequestHandler\RequestHandlerRootContextTest.cs" />
+  </ItemGroup>
   
   <!--
   <ItemGroup Condition="'$(SolutionName)'=='Brimborium.Net'">

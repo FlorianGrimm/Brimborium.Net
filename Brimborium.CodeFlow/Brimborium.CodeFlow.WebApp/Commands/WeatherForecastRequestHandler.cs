@@ -24,7 +24,7 @@ namespace Brimborium.CodeFlow.WebApp.Commands {
         public WeatherForecastRequestHandler() {
         }
 
-        public async Task<WeatherForecastResponse> ExecuteAsync(WeatherForecastRequest request, IRequestHandlerContext context, CancellationToken cancellationToken = default) {
+        public async Task<WeatherForecastResponse> ExecuteAsync(WeatherForecastRequest request, CancellationToken cancellationToken = default) {
             await Task.CompletedTask;
             var rng = new Random();
             var items = Enumerable.Range(1, 5).Select(index => new WeatherForecast {
