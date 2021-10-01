@@ -1,9 +1,10 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Brimborium.CodeBlocks {
+namespace Brimborium.CodeBlocks.Library {
     public class CBCopyReplacer {
         public CBCopyReplacer() {
         }
@@ -20,12 +21,12 @@ namespace Brimborium.CodeBlocks {
             var oldTokens = parser.Tokenize(oldCode);
             var oldAst = parser.Parse(oldTokens);
 
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             var (newAst, _) = this.BuildAst(nextAst, oldAst, true);
             this.BuildCode(newAst, result);
             return result.ToString();
         }
-        
+
 
         private (CBAstNode result, bool ok) BuildAst(CBAstNode nextAst, CBAstNode oldAst, bool preferNext) {
             var nextKind = nextAst.GetKind();
@@ -47,12 +48,12 @@ namespace Brimborium.CodeBlocks {
                         //    return (oldAst, true);
                         //} else {
                         //}
-                            return (nextAst, true);
+                        return (nextAst, true);
                     } else {
-                        if ((oldAst.ContentToken is not null)
-                            && (string.IsNullOrEmpty(oldAst.ContentToken.Text))) {
+                        if (oldAst.ContentToken is not null
+                            && string.IsNullOrEmpty(oldAst.ContentToken.Text)) {
                             return (nextAst, true);
-                        } else { 
+                        } else {
                             return (oldAst, true);
                         }
                     }
@@ -79,38 +80,38 @@ namespace Brimborium.CodeBlocks {
         private (CBAstNode result, bool ok) BuildAstItems(CBAstNode nextAst, CBAstNode oldAst, CBAstNode result, bool preferNext) {
             var lstOldReplacement = new List<IndexNode>();
             {
-                for (int idxOld = 0; idxOld<oldAst.Items.Count;idxOld++) {
+                for (var idxOld = 0; idxOld < oldAst.Items.Count; idxOld++) {
                     var oldItem = oldAst.Items[idxOld];
                     if (oldItem.GetKind() == CBAstNodeKind.Replacement) {
-                        lstOldReplacement.Add( new IndexNode(idxOld, oldItem) );
+                        lstOldReplacement.Add(new IndexNode(idxOld, oldItem));
                     }
                 }
             }
             {
-                int idxNext = 0;
-                int idxOld = 0;
-                bool itemsOk = true;
+                var idxNext = 0;
+                var idxOld = 0;
+                var itemsOk = true;
                 while (idxNext < nextAst.Items.Count) {
-                    CBAstNode nextItem = nextAst.Items[idxNext];
+                    var nextItem = nextAst.Items[idxNext];
                     var nextItemKind = nextItem.GetKind();
 
-                    CBAstNode oldItem = (idxOld < oldAst.Items.Count) ? oldAst.Items[idxOld] : CBAstNode.Empty;
+                    var oldItem = idxOld < oldAst.Items.Count ? oldAst.Items[idxOld] : CBAstNode.Empty;
 
                     //var oldItemKind = oldItem.GetKind();
 
                     if (nextItemKind == CBAstNodeKind.Replacement) {
-                        IndexNode? foundIndexAndName=null;
-                        IndexNode? foundNameOnly=null;
-                        for (int idx = 0; idx < lstOldReplacement.Count; idx++) {
+                        IndexNode? foundIndexAndName = null;
+                        IndexNode? foundNameOnly = null;
+                        for (var idx = 0; idx < lstOldReplacement.Count; idx++) {
                             var oldIndexReplacement = lstOldReplacement[idx];
                             if (CBAstNodeTextName.GetInstance().Compare(nextItem, oldIndexReplacement.Node) == 0) {
                                 if (oldIndexReplacement.Index == idxOld) {
                                     foundIndexAndName = oldIndexReplacement;
                                     break;
-                                } else { 
+                                } else {
                                     foundNameOnly = oldIndexReplacement;
                                 }
-                            } 
+                            }
                         }
                         if (foundIndexAndName is not null) {
                             oldItem = foundIndexAndName.Node;
@@ -125,8 +126,8 @@ namespace Brimborium.CodeBlocks {
 
                     var (resultItem, resultOk) = this.BuildAst(nextItem, oldItem, preferNext);
                     result.Add(resultItem);
-                        idxNext++;
-                        idxOld++;
+                    idxNext++;
+                    idxOld++;
                     if (resultOk) {
                         continue;
                     } else {
@@ -138,7 +139,7 @@ namespace Brimborium.CodeBlocks {
                     idxNext++;
                 }
                 return (result, itemsOk);
-            } 
+            }
         }
 
         private void BuildCode(CBAstNode newAst, StringBuilder result) {

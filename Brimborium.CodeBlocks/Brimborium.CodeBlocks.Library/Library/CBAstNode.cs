@@ -1,10 +1,11 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 
-namespace Brimborium.CodeBlocks {
+namespace Brimborium.CodeBlocks.Library {
     public sealed class CBAstNode {
         public static CBAstNode? _Empty;
-        public static CBAstNode Empty => (_Empty ??= new CBAstNode());
+        public static CBAstNode Empty => _Empty ??= new CBAstNode();
 
         public CBAstNode() {
             this.Items = new List<CBAstNode>();
@@ -22,20 +23,20 @@ namespace Brimborium.CodeBlocks {
             if (this.StartToken is null && this.ContentToken is not null && this.FinishToken is null) {
                 return this.ContentToken.ToString();
             }
-            var s = (this.StartToken?.ToString() ?? string.Empty) ;
-            var c = (this.ContentToken?.ToString() ?? string.Empty);
-            var f = (this.FinishToken?.ToString() ?? string.Empty);
+            var s = this.StartToken?.ToString() ?? string.Empty;
+            var c = this.ContentToken?.ToString() ?? string.Empty;
+            var f = this.FinishToken?.ToString() ?? string.Empty;
             return $"#{this.Items.Count} {s}{c}{f}";
         }
 
         public CBAstNodeKind GetKind() {
-            if ((this.StartToken is not null) && (this.ContentToken is null) && (this.FinishToken is not null) && ((this.Items.Count >= 0))) {
+            if (this.StartToken is not null && this.ContentToken is null && this.FinishToken is not null && this.Items.Count >= 0) {
                 return CBAstNodeKind.Replacement;
             }
-            if ((this.StartToken is null) && (this.ContentToken is not null) && (this.FinishToken is null) && ((this.Items.Count == 0))) {
-                return CBAstNodeKind.Content ;
+            if (this.StartToken is null && this.ContentToken is not null && this.FinishToken is null && this.Items.Count == 0) {
+                return CBAstNodeKind.Content;
             }
-            if ((this.StartToken is null) && (this.ContentToken is null) && (this.FinishToken is null) && ((this.Items.Count >= 0))) {
+            if (this.StartToken is null && this.ContentToken is null && this.FinishToken is null && this.Items.Count >= 0) {
                 return CBAstNodeKind.Items;
             }
             return CBAstNodeKind.Faulted;
@@ -44,7 +45,7 @@ namespace Brimborium.CodeBlocks {
 
     public enum CBAstNodeKind { Replacement, Content, Items, Faulted }
 
-    
+
     public sealed class CBAstNodeTextName : IComparer<CBAstNode> {
         private static CBAstNodeTextName? _Instance;
         public static CBAstNodeTextName GetInstance() => _Instance ??= new CBAstNodeTextName();
@@ -59,7 +60,7 @@ namespace Brimborium.CodeBlocks {
                 && y.StartToken.Kind == CBParserResultKind.Replacement
                 ) {
                 var result = StringComparer.OrdinalIgnoreCase.Compare(x.StartToken.Text, y.StartToken.Text);
-                if (result == 0) { 
+                if (result == 0) {
                     result = StringComparer.OrdinalIgnoreCase.Compare(x.StartToken.Name, y.StartToken.Name);
                 }
                 return result;

@@ -1,6 +1,7 @@
-﻿using System;
+﻿
+using System;
 
-namespace Brimborium.CodeBlocks {
+namespace Brimborium.CodeBlocks.Library {
     public sealed class CBToken : IEquatable<CBToken> {
         public static CBToken Fixed(string value) => new CBToken() { Kind = CBParserResultKind.Fixed, Text = value };
         public static CBToken Replacement(string value) => new CBToken() { Kind = CBParserResultKind.Replacement, Text = value };
@@ -26,10 +27,10 @@ namespace Brimborium.CodeBlocks {
             if (ReferenceEquals(this, other)) { return true; }
             if (other is null) { return false; }
 
-            return (string.Equals(this.Text, other.Text))
-                && (string.Equals(this.Name, other.Name))
-                && (this.Start == other.Start)
-                && (this.Finish == other.Finish)
+            return string.Equals(this.Text, other.Text)
+                && string.Equals(this.Name, other.Name)
+                && this.Start == other.Start
+                && this.Finish == other.Finish
                 ;
         }
         public override int GetHashCode() {

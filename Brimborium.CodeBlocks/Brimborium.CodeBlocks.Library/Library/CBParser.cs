@@ -1,8 +1,9 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Brimborium.CodeBlocks {
+namespace Brimborium.CodeBlocks.Library {
     public sealed class CBParser {
         private static Regex? _RegexTemplate;
 
@@ -11,9 +12,9 @@ namespace Brimborium.CodeBlocks {
         }
         public List<CBToken> Tokenize(string txtTemplate) {
             var result = new List<CBToken>();
-            var regex = (_RegexTemplate ??= new Regex(
+            var regex = _RegexTemplate ??= new Regex(
                 "(?:/\\*)(?:(?<s1>\\<\\<)|(?<s2>--))\\s*(?<n>[^->:]+)\\s*(?:\\:\\s*(?<m>[^->]+)\\s*)?(?:(?<f2>--)|(?<f1>\\>\\>))(?:\\*/)",
-                RegexOptions.Multiline | RegexOptions.ExplicitCapture));
+                RegexOptions.Multiline | RegexOptions.ExplicitCapture);
             var match = regex.Match(txtTemplate);
             var iPosStart = 0;
             while (match.Success) {
@@ -49,20 +50,20 @@ namespace Brimborium.CodeBlocks {
                 match = match.NextMatch();
             }
 
-            if (iPosStart != (txtTemplate.Length - 1)) {
+            if (iPosStart != txtTemplate.Length - 1) {
                 var text = txtTemplate.Substring(iPosStart);
                 result.Add(CBToken.Fixed(text));
             }
-            for(int idx = 1; idx < result.Count-1; idx++) {
+            for (var idx = 1; idx < result.Count - 1; idx++) {
                 var replacement = result[idx];
                 if (replacement.Kind == CBParserResultKind.Replacement) {
-                    if (replacement.Start) { 
-                        var tokenBefore = result[idx-1];
-                        var txtMatch=tokenBefore.Text;
-                        int iPosEnd = txtMatch.Length - 1;
-                        int iPosWordEnd = iPosEnd;
-                        for (int iPos = iPosEnd; iPos >= 0; iPos--) {
-                            if ((txtMatch[iPos] == ' ') || (txtMatch[iPos] == '\t')) {
+                    if (replacement.Start) {
+                        var tokenBefore = result[idx - 1];
+                        var txtMatch = tokenBefore.Text;
+                        var iPosEnd = txtMatch.Length - 1;
+                        var iPosWordEnd = iPosEnd;
+                        for (var iPos = iPosEnd; iPos >= 0; iPos--) {
+                            if (txtMatch[iPos] == ' ' || txtMatch[iPos] == '\t') {
                                 iPosWordEnd = iPos;
                                 continue;
                             }
@@ -72,21 +73,21 @@ namespace Brimborium.CodeBlocks {
                             replacement.IndentWS = txtMatch.Substring(iPosWordEnd);
                         }
                     }
-                    if (replacement.Finish) { 
-                        var tokenAfter = result[idx+1];
+                    if (replacement.Finish) {
+                        var tokenAfter = result[idx + 1];
                         var txtMatch = tokenAfter.Text;
-                        int iPosEnd = txtMatch.Length;
-                        int iPosWordStart = 0;
-                        int iPos = 0;
+                        var iPosEnd = txtMatch.Length;
+                        var iPosWordStart = 0;
+                        var iPos = 0;
                         for (iPos = 0; iPos < iPosEnd; iPos++) {
-                            if ((txtMatch[iPos] == ' ') || (txtMatch[iPos] == '\t')) {
+                            if (txtMatch[iPos] == ' ' || txtMatch[iPos] == '\t') {
                                 iPosWordStart = iPos;
                                 continue;
                             }
                             break;
                         }
                         for (iPos = 0; iPos < iPosEnd; iPos++) {
-                            if ((txtMatch[iPos] == '\r') || (txtMatch[iPos] == '\n')) {
+                            if (txtMatch[iPos] == '\r' || txtMatch[iPos] == '\n') {
                                 iPosWordStart = iPos;
                                 continue;
                             }
