@@ -65,18 +65,4 @@ namespace Brimborium.CodeBlocks.Library {
 
         protected override void SetValueT(T value) { this._Value = value; }
     }
-
-    /*
-    public class CBValueFunction1<T> : CBValue<T>{
-        public CBValueFunction1(string name, Func<T> func): base(name) {
-        }
-    }
-    */
-
-    //public class CBExpressionValue<T> : CBValue {
-    //    public CBExpressionValue() :base() {
-    //    }
-    //    public CBExpressionValue(string name): base(name) {
-    //    }
-    //}
 }

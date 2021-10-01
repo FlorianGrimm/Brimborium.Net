@@ -3,7 +3,7 @@ using System;
 using Xunit;
 
 namespace Brimborium.Typing.Test {
-    public class UnitTest1 {
+    public class Test001_Typing {
         [Fact]
         public void Test1() {
             //var typingRepository = new TypingRepository();
