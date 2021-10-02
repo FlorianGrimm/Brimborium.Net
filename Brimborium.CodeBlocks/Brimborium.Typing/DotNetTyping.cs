@@ -17,7 +17,7 @@ namespace Brimborium.Typing {
             }
         }
         public MetaType ScanType(Type type) {
-            this.TypingRepository
+            //this.TypingRepository
             // type.Namespace
             // type.Name
             var assemblyName = type.Assembly.GetName().Name;

@@ -35,6 +35,9 @@ namespace Brimborium.CodeBlocks {
 
         [Option('g', "generateonly ", Required = false, HelpText = "generate only do not copy")]
         public bool GenerateOnly { get; set; }
+
+        [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
+        public bool Verbose { get; set; }
     }
 
     [Verb("diff", HelpText = "dry run")]
