@@ -7,7 +7,4 @@ namespace Demo.CodeGen {
         public Startup() {
         }
     }
-
-    public class CodeGenTask1 : ICodeGenTask { }
-    public class CodeGenTask2 : ICodeGenTask { }
 }

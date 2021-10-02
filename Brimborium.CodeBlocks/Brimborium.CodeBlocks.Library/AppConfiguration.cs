@@ -8,7 +8,7 @@ namespace Brimborium.CodeBlocks {
     /// <summary>
     /// codegen.json
     /// </summary>
-    public class Configuration {
+    public class AppConfiguration {
         /// <summary>
         /// BaseFolder root for relative path
         /// </summary>

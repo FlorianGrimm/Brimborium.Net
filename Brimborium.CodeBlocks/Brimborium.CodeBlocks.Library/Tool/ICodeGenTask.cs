@@ -1,7 +1,7 @@
 ﻿namespace Brimborium.CodeBlocks.Tool {
     public interface ICodeGenTask {
-        public int GetOrder() { return 100; }
+        int GetStepOrder();
 
-        void Execute() { }
+        void Execute();
     }
 }

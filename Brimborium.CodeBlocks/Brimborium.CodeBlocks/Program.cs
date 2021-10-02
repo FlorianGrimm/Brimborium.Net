@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
 using Brimborium.CodeBlocks.Tool;
 using Brimborium.Registrator;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Brimborium.CodeBlocks {
     [Verb("install", Hidden = true, HelpText = "install the tool.")]
@@ -120,7 +123,7 @@ namespace Brimborium.CodeBlocks {
         }
 
         private static async Task<int> RunAsync(RunOptions opts) {
-            Configuration configuration;
+            AppConfiguration configuration;
             try {
                 configuration = await GetConfigurationAsync(opts.ConfigurationFullPath);
             } catch (System.Exception error) {
@@ -188,7 +191,12 @@ namespace Brimborium.CodeBlocks {
 
                 var serviceCollection = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
                 var typeStartup = assembly.GetTypes().FirstOrDefault(type => string.Equals(type.FullName, classNameStartup, StringComparison.OrdinalIgnoreCase));
-
+                serviceCollection.TryAddEnumerable(
+                    ServiceDescriptor.Singleton<IConfigureOptions<LoggerFilterOptions>>(
+              new DefaultLoggerLevelConfigureOptions(LogLevel.Information)));
+                serviceCollection.AddLogging((loggingBuider) => {
+                    loggingBuider.AddConsole();
+                });
 
                 if (string.IsNullOrEmpty(configuration.BaseFolder)) {
                     Console.Error.WriteLine($"configuration BaseFolder is not set.");
@@ -205,7 +213,7 @@ namespace Brimborium.CodeBlocks {
                 if (typeStartup is not null) {
                     serviceCollection.AddSingleton(typeStartup);
                 }
-                serviceCollection.AddSingleton<Configuration>(configuration);
+                serviceCollection.AddSingleton<AppConfiguration>(configuration);
                 serviceCollection.AddSingleton<ToolService>(toolService);
                 serviceCollection.AddServicesWithRegistrator(a => {
                     a.FromAssemblyDependencies(dependencyContext, assembly)
@@ -228,7 +236,7 @@ namespace Brimborium.CodeBlocks {
                     using var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     var codeGenTasks = serviceProvider.GetServices<ICodeGenTask>()
-                        .OrderBy(t => t.GetOrder()).ToList();
+                        .OrderBy(t => t.GetStepOrder()).ToList();
 
                     if (codeGenTasks.Count == 0) {
                         Console.Error.WriteLine("Cannot find any ICodeGenTask s");
@@ -260,7 +268,7 @@ namespace Brimborium.CodeBlocks {
             }
         }
 
-        private static async Task<Configuration> GetConfigurationAsync(string? configurationFullPath) {
+        private static async Task<AppConfiguration> GetConfigurationAsync(string? configurationFullPath) {
             System.IO.FileInfo? fiConfiguration = null;
             if (!string.IsNullOrEmpty(configurationFullPath)) {
                 fiConfiguration = new System.IO.FileInfo(configurationFullPath);
@@ -271,16 +279,16 @@ namespace Brimborium.CodeBlocks {
             if (fiConfiguration is null) {
                 fiConfiguration = new System.IO.FileInfo("codegen.json");
             }
-            Configuration configuration = new Configuration();
+            AppConfiguration configuration = new AppConfiguration();
             if (fiConfiguration is not null && fiConfiguration.Exists) {
                 using var stream = fiConfiguration.OpenRead();
 
-                configuration = await System.Text.Json.JsonSerializer.DeserializeAsync<Brimborium.CodeBlocks.Configuration>(
+                configuration = await System.Text.Json.JsonSerializer.DeserializeAsync<Brimborium.CodeBlocks.AppConfiguration>(
                     stream,
                     new System.Text.Json.JsonSerializerOptions() {
                         AllowTrailingCommas = true,
                         ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip
-                    }) ?? new Configuration();
+                    }) ?? new AppConfiguration();
             }
             var configurationFile = fiConfiguration!.FullName;
             configuration.ConfigurationFile = configurationFile;
