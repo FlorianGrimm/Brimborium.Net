@@ -243,7 +243,7 @@ namespace Brimborium.CodeBlocks {
 
                 {
                     using var serviceProvider = serviceCollection.BuildServiceProvider();
-
+                    var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
                     var codeGenTasks = serviceProvider.GetServices<ICodeGenTask>()
                         .OrderBy(t => t.GetStep()).ToList();
 
@@ -252,22 +252,19 @@ namespace Brimborium.CodeBlocks {
                         return 1;
                     } else {
                         foreach (var codeGenTask in codeGenTasks) {
-                            Console.Out.WriteLine(codeGenTask.GetType().Name);
+                            logger.LogInformation("Step {step}",codeGenTask.GetType().Name);
                             try {
-                                
                                 codeGenTask.Execute();
                             } catch (System.Exception otherError) {
-                                Console.Error.WriteLine($"Failed");
-                                Console.Error.WriteLine(otherError.ToString());
+                                logger.LogError(otherError, "Step {step} failed", codeGenTask.GetType().Name);
                             }
-                            Console.Out.WriteLine(codeGenTask.GetType().Name);
                         }
                     }
 
                     if (opts.GenerateOnly) {
-                        Console.Out.WriteLine("GenerateOnly -- skip CopyReplace");
+                        logger.LogInformation("GenerateOnly -- skip CopyReplace");
                     } else {
-                        Console.Out.WriteLine("CopyReplace");
+                        logger.LogInformation("CopyReplace");
                         tempFileSystem.CopyReplace();
                     }
                 }
