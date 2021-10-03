@@ -1,14 +1,23 @@
 ﻿
 using Brimborium.CodeBlocks.Tool;
 
+using Microsoft.Extensions.Logging;
+
 namespace Demo.CodeGen {
     public class CodeGenTask2 : ICodeGenTask {
-        public CodeGenTask2() {
+        private readonly ILogger<CodeGenTask2> _Logger;
+
+        public CodeGenTask2(
+            ILogger<CodeGenTask2> logger
+            ) {
+            this._Logger = logger;
         }
 
-        public int GetStepOrder() => 200;
+        public int GetStep() => 200;
 
         public void Execute() {
+            this._Logger.LogDebug("2D");
+            this._Logger.LogInformation("2I");
         }
     }
 }

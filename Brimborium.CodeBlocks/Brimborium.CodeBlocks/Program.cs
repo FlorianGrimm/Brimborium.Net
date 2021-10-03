@@ -13,6 +13,7 @@ using Brimborium.Registrator;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Configuration;
 
 namespace Brimborium.CodeBlocks {
     [Verb("install", Hidden = true, HelpText = "install the tool.")]
@@ -123,28 +124,28 @@ namespace Brimborium.CodeBlocks {
         }
 
         private static async Task<int> RunAsync(RunOptions opts) {
-            AppConfiguration configuration;
+            AppConfiguration appConfiguration;
             try {
-                configuration = await GetConfigurationAsync(opts.ConfigurationFullPath);
+                appConfiguration = await GetConfigurationAsync(opts.ConfigurationFullPath);
             } catch (System.Exception error) {
                 Console.Error.WriteLine(error.Message);
                 Console.Error.WriteLine(error.ToString());
                 return 1;
             }
 
-            Console.Out.WriteLine($"configurationFile : {configuration.ConfigurationFile}");
-            Console.Out.WriteLine($"BaseFolder        : {configuration.BaseFolder}");
-            Console.Out.WriteLine($"Project           : {configuration.Project}");
-            Console.Out.WriteLine($"Assembly          : {configuration.Assembly}");
+            Console.Out.WriteLine($"configurationFile : {appConfiguration.ConfigurationFile}");
+            Console.Out.WriteLine($"BaseFolder        : {appConfiguration.BaseFolder}");
+            Console.Out.WriteLine($"Project           : {appConfiguration.Project}");
+            Console.Out.WriteLine($"Assembly          : {appConfiguration.Assembly}");
 
             if (opts.Build) {
-                if (string.IsNullOrEmpty(configuration.Project)) {
+                if (string.IsNullOrEmpty(appConfiguration.Project)) {
                     Console.Error.WriteLine("Project is not specified or empty.");
                 } else {
                     var psi = new ProcessStartInfo();
                     psi.FileName = "dotnet";
                     psi.ArgumentList.Add("build");
-                    psi.ArgumentList.Add(configuration.Project);
+                    psi.ArgumentList.Add(appConfiguration.Project);
                     var process = System.Diagnostics.Process.Start(psi);
                     if (process is null) {
                         // TODO
@@ -164,13 +165,13 @@ namespace Brimborium.CodeBlocks {
                 }
             }
 
-            if (string.IsNullOrEmpty(configuration.Assembly)) {
+            if (string.IsNullOrEmpty(appConfiguration.Assembly)) {
                 Console.Error.WriteLine("Assembly is not specified or empty.");
                 return 1;
             }
-            var fiAssembly = new System.IO.FileInfo(configuration.Assembly);
+            var fiAssembly = new System.IO.FileInfo(appConfiguration.Assembly);
             if (!fiAssembly.Exists) {
-                Console.Error.WriteLine($"Assembly file {configuration.Assembly} does not exists.");
+                Console.Error.WriteLine($"Assembly file {appConfiguration.Assembly} does not exists.");
                 return 1;
             }
 
@@ -178,7 +179,7 @@ namespace Brimborium.CodeBlocks {
 
                 System.Reflection.Assembly assembly;
                 try {
-                    assembly = System.Reflection.Assembly.LoadFrom(configuration.Assembly);
+                    assembly = System.Reflection.Assembly.LoadFrom(appConfiguration.Assembly);
                 } catch (System.Exception error) {
                     Console.Error.WriteLine(error.Message);
                     return 1;
@@ -189,31 +190,39 @@ namespace Brimborium.CodeBlocks {
                 //loader.Load(assembly);
                 var classNameStartup = $"{assembly.GetName().Name}.Startup";
 
+                var builder = new ConfigurationBuilder();
+                var appsettingsJson = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(appConfiguration.Assembly!)!, "appsettings.json");
+                builder.AddJsonFile(appsettingsJson, optional: true, reloadOnChange: false);
+                var dictConfiguration = new Dictionary<string, string>();
+                dictConfiguration["Logging:LogLevel:Default"] = opts.Verbose ? nameof(LogLevel.Debug) : nameof(LogLevel.Information);
+                builder.AddInMemoryCollection(dictConfiguration);
+
+                var configuration = builder.Build();
+
                 var serviceCollection = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
                 var typeStartup = assembly.GetTypes().FirstOrDefault(type => string.Equals(type.FullName, classNameStartup, StringComparison.OrdinalIgnoreCase));
-                serviceCollection.TryAddEnumerable(
-                    ServiceDescriptor.Singleton<IConfigureOptions<LoggerFilterOptions>>(
-              new DefaultLoggerLevelConfigureOptions(LogLevel.Information)));
+
                 serviceCollection.AddLogging((loggingBuider) => {
+                    loggingBuider.AddConfiguration(configuration.GetSection("Logging"));
                     loggingBuider.AddConsole();
                 });
 
-                if (string.IsNullOrEmpty(configuration.BaseFolder)) {
+                if (string.IsNullOrEmpty(appConfiguration.BaseFolder)) {
                     Console.Error.WriteLine($"configuration BaseFolder is not set.");
                     return 1;
                 }
-                if (string.IsNullOrEmpty(configuration.TempFolder)) {
+                if (string.IsNullOrEmpty(appConfiguration.TempFolder)) {
                     Console.Error.WriteLine($"configuration TempFolder is not set.");
                     return 1;
                 }
-                var baseFileSystem = new FileSystemService(configuration.BaseFolder!);
-                var tempFileSystem = new FileSystemService(configuration.TempFolder!);
+                var baseFileSystem = new FileSystemService(appConfiguration.BaseFolder!);
+                var tempFileSystem = new FileSystemService(appConfiguration.TempFolder!);
                 tempFileSystem.CreateDirectory("");
                 var toolService = new ToolService(baseFileSystem, tempFileSystem);
                 if (typeStartup is not null) {
                     serviceCollection.AddSingleton(typeStartup);
                 }
-                serviceCollection.AddSingleton<AppConfiguration>(configuration);
+                serviceCollection.AddSingleton<AppConfiguration>(appConfiguration);
                 serviceCollection.AddSingleton<ToolService>(toolService);
                 serviceCollection.AddServicesWithRegistrator(a => {
                     a.FromAssemblyDependencies(dependencyContext, assembly)
@@ -236,7 +245,7 @@ namespace Brimborium.CodeBlocks {
                     using var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     var codeGenTasks = serviceProvider.GetServices<ICodeGenTask>()
-                        .OrderBy(t => t.GetStepOrder()).ToList();
+                        .OrderBy(t => t.GetStep()).ToList();
 
                     if (codeGenTasks.Count == 0) {
                         Console.Error.WriteLine("Cannot find any ICodeGenTask s");
@@ -245,11 +254,13 @@ namespace Brimborium.CodeBlocks {
                         foreach (var codeGenTask in codeGenTasks) {
                             Console.Out.WriteLine(codeGenTask.GetType().Name);
                             try {
+                                
                                 codeGenTask.Execute();
                             } catch (System.Exception otherError) {
                                 Console.Error.WriteLine($"Failed");
                                 Console.Error.WriteLine(otherError.ToString());
                             }
+                            Console.Out.WriteLine(codeGenTask.GetType().Name);
                         }
                     }
 

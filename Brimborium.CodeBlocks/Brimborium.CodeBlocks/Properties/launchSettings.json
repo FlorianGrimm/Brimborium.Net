@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Brimborium.CodeBlocks": {
+      "commandName": "Project",
+      "commandLineArgs": "-c ..\\Demo.CodeGen\\codegen.json -g -v",
+      "workingDirectory": "G:\\github\\FlorianGrimm\\Brimborium.Net\\Brimborium.CodeBlocks\\Brimborium.CodeBlocks\\"
+    }
+  }
+}
