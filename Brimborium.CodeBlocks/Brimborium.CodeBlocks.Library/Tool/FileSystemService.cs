@@ -31,29 +31,28 @@ namespace Brimborium.CodeBlocks.Tool {
             this.Items.Add(fileContent);
             var fileName = System.IO.Path.Combine(this.RootPath, fileContent.FileName);
             var fi = new System.IO.FileInfo(fileName);
+            bool result;
             if (fi.Exists) {
                 string oldConent;
                 using (StreamReader sr = new StreamReader(fi.OpenRead(), System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true)) {
                     oldConent = sr.ReadToEnd();
                 }
-                var result = StringComparer.Ordinal.Equals(oldConent, fileContent);
+                result = StringComparer.Ordinal.Equals(oldConent, fileContent);
                 this._Logger.LogDebug("{fileName} changes: {result}", fileName, result);
-                if (result) {
-                    CreateDirectory(System.IO.Path.GetDirectoryName(fileContent.FileName)!);
-                    using (StreamWriter sw = new StreamWriter(fi.OpenWrite(), System.Text.Encoding.UTF8)) {
-                        sw.Write(fileContent.Content);
-                    }
-                }
-                return result;
             } else {
                 this._Logger.LogDebug("{fileName} new content.", fileName);
-                return true;
+                result = true;
             }
+            if (result) {
+                CreateDirectory(System.IO.Path.GetDirectoryName(fileContent.FileName)!);
+                using (StreamWriter sw = new StreamWriter(fi.OpenWrite(), System.Text.Encoding.UTF8)) {
+                    sw.Write(fileContent.Content);
+                }
+            }
+            return result;
         }
-
 
         public void CopyReplace() {
         }
-
     }
 }

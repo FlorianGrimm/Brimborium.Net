@@ -32,8 +32,8 @@ namespace Brimborium.CodeBlocks.Tool {
         }
 
         public bool SetFileContent(CBFileContent fileContent) {
-            this.Items.Add(fileContent);
             var result = this.TempFileSystem.SetFileContent(fileContent);
+            this.Items.Add(fileContent);
             fileContent.TempModified = result;
             return result;
         }
