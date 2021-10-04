@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Brimborium.CodeFlow.Server;
+using Brimborium.CodeBlocks.Library;
 
 namespace Demo.CodeGen {
     public class CodeGenTask1 : ICodeGenTask {
@@ -25,6 +26,7 @@ namespace Demo.CodeGen {
                 //typeServerAPI.GetMethods
                 return typeServerAPI;
             }).ToList();
+            this._ToolService.SetFileContent(new CBFileContent($@"Demo.Logic\Server\GnaServerAPI.cs", "//GnaServerAPI"));
         }
     }
 }

@@ -215,15 +215,18 @@ namespace Brimborium.CodeBlocks {
                     Console.Error.WriteLine($"configuration TempFolder is not set.");
                     return 1;
                 }
-                var baseFileSystem = new FileSystemService(appConfiguration.BaseFolder!);
-                var tempFileSystem = new FileSystemService(appConfiguration.TempFolder!);
-                tempFileSystem.CreateDirectory("");
-                var toolService = new ToolService(baseFileSystem, tempFileSystem);
+                
                 if (typeStartup is not null) {
                     serviceCollection.AddSingleton(typeStartup);
                 }
                 serviceCollection.AddSingleton<AppConfiguration>(appConfiguration);
-                serviceCollection.AddSingleton<ToolService>(toolService);
+                serviceCollection.AddSingleton<ToolService>((sp)=> {
+                    var baseFileSystem = new FileSystemService(appConfiguration.BaseFolder!, sp.GetRequiredService<ILoggerFactory>().CreateLogger("BaseFolder"));
+                    var tempFileSystem = new FileSystemService(appConfiguration.TempFolder!, sp.GetRequiredService<ILoggerFactory>().CreateLogger("TempFolder"));
+                    tempFileSystem.CreateDirectory("");
+                    var toolService = new ToolService(baseFileSystem, tempFileSystem, sp.GetRequiredService<ILoggerFactory>().CreateLogger("ToolService"));
+                    return toolService;
+                });
                 serviceCollection.AddServicesWithRegistrator(a => {
                     a.FromAssemblyDependencies(dependencyContext, assembly)
                         .AddClasses()
@@ -265,7 +268,7 @@ namespace Brimborium.CodeBlocks {
                         logger.LogInformation("GenerateOnly -- skip CopyReplace");
                     } else {
                         logger.LogInformation("CopyReplace");
-                        tempFileSystem.CopyReplace();
+                        serviceProvider.GetRequiredService<ToolService>().CopyReplace();
                     }
                 }
                 return 0;

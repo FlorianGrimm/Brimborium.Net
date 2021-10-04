@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj" />
+    <ProjectReference Include="..\..\Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj" />
     <ProjectReference Include="..\Demo.Abstracts\Demo.Abstracts.csproj" />
   </ItemGroup>
 
