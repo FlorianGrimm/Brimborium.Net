@@ -2,8 +2,8 @@
   "profiles": {
     "Brimborium.CodeBlocks": {
       "commandName": "Project",
-      "commandLineArgs": "-c ..\\Demo.CodeGen\\codegen.json -g -v -b",
-      "workingDirectory": "G:\\github\\FlorianGrimm\\Brimborium.Net\\Brimborium.CodeBlocks\\Brimborium.CodeBlocks\\"
+      "commandLineArgs": "-c ..\\Demo.CodeGen\\codegen.json -v",
+      "workingDirectory": "C:\\github\\FlorianGrimm\\Brimborium.Net\\Brimborium.CodeBlocks\\Brimborium.CodeBlocks\\"
     }
   }
 }

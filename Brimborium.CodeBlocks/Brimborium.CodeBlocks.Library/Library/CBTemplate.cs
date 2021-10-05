@@ -9,7 +9,7 @@ namespace Brimborium.CodeBlocks.Library {
         public abstract Type GetRenderType();
 
         public virtual bool CanRenderType(Type type, string name) {
-            return (type == this.GetRenderType());
+            return (this.GetRenderType().IsAssignableFrom(type));
         }
 
         public abstract void Render(object? value, CBRenderContext ctxt);
@@ -32,7 +32,26 @@ namespace Brimborium.CodeBlocks.Library {
         public abstract void RenderT(T value, CBRenderContext ctxt);
     }
 
-    public sealed record CBNamedTemplate(string Name, CBTemplate Template) {
+    public interface ICBNamedTemplate {
+        public string Language { get; }
+        public string Name { get; }
+    }
+    public abstract class CBNamedTemplate<T> : CBTemplate<T>, ICBNamedTemplate {
+        public CBNamedTemplate() {
+            this.Language = string.Empty;
+            this.Name = string.Empty;
+        }
+
+        public CBNamedTemplate(string language, string name) {
+            this.Language = language;
+            this.Name = name;
+        }
+
+        public string Language { get; init; }
+        public string Name { get; init; }
+    }
+
+    public sealed record CBRegisterTemplate(string Language, string Name, CBTemplate Template) {
         public bool CanRenderType(Type type, string name) {
             if (this.Template.CanRenderType(type, name)) {
                 return StringComparer.Ordinal.Equals(this.Name, name);

@@ -16,10 +16,11 @@ namespace Demo.WebApplication.Pages {
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-        private readonly ILogger<ErrorModel> _logger;
+        private readonly ILogger<ErrorModel> _Logger;
 
         public ErrorModel(ILogger<ErrorModel> logger) {
-            _logger = logger;
+            this._Logger = logger;
+            this.RequestId = string.Empty;
         }
 
         public void OnGet() {

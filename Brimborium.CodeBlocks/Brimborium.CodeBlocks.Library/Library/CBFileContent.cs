@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Brimborium.CodeBlocks.Library {
-    public class CBFileContent {
+﻿namespace Brimborium.CodeBlocks.Library {
+    public sealed class CBFileContent {
         public CBFileContent(string fileName, string content) {
             this.FileName = fileName;
             this.Content = content;

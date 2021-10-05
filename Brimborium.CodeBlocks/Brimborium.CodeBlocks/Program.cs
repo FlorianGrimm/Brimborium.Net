@@ -1,19 +1,19 @@
-﻿using CommandLine;
-using CommandLine.Text;
+﻿#pragma warning disable IDE0060 // Remove unused parameter
+
+using Brimborium.CodeBlocks.Library;
+using Brimborium.CodeBlocks.Tool;
+
+using CommandLine;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using System.Threading;
-using Brimborium.CodeBlocks.Tool;
-using Brimborium.Registrator;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 namespace Brimborium.CodeBlocks {
     [Verb("install", Hidden = true, HelpText = "install the tool.")]
@@ -140,7 +140,15 @@ namespace Brimborium.CodeBlocks {
 
             if (opts.Build) {
                 if (string.IsNullOrEmpty(appConfiguration.Project)) {
+                    Console.Error.WriteLine("");
                     Console.Error.WriteLine("Project is not specified or empty.");
+                    var di = new System.IO.DirectoryInfo(appConfiguration.BaseFolder!);
+                    var lstcsproj = di.GetFiles("*.csproj", System.IO.SearchOption.AllDirectories);
+                    foreach (var fi in lstcsproj) {
+                        var relativePath = System.IO.Path.GetRelativePath(appConfiguration.BaseFolder!, fi.FullName);
+                        Console.Error.WriteLine($"\"Project\": \"{relativePath}\",");
+                    }
+                    return 1;
                 } else {
                     var psi = new ProcessStartInfo();
                     psi.FileName = "dotnet";
@@ -148,14 +156,14 @@ namespace Brimborium.CodeBlocks {
                     psi.ArgumentList.Add(appConfiguration.Project);
                     var process = System.Diagnostics.Process.Start(psi);
                     if (process is null) {
-                        // TODO
-                        Console.Error.WriteLine("TODO process");
+                        Console.Error.WriteLine("Cannot start dotnet build");
                         return 1;
                     } else {
                         await process.WaitForExitAsync();
                         var exitCode = process.ExitCode;
                         if (exitCode == 0) {
                             // OK 
+                            Console.Out.WriteLine("dotnet build ends successfully.");
                         } else {
                             // TODO
                             Console.Error.WriteLine($"dotnet build returns {exitCode}");
@@ -184,10 +192,10 @@ namespace Brimborium.CodeBlocks {
                     Console.Error.WriteLine(error.Message);
                     return 1;
                 }
+                Console.Out.WriteLine($"Assembly {appConfiguration.Assembly} loaded.");
+
 
                 var dependencyContext = Microsoft.Extensions.DependencyModel.DependencyContext.Load(assembly);
-                //var loader = new Microsoft.Extensions.DependencyModel.DependencyContextLoader();
-                //loader.Load(assembly);
                 var classNameStartup = $"{assembly.GetName().Name}.Startup";
 
                 var builder = new ConfigurationBuilder();
@@ -199,6 +207,7 @@ namespace Brimborium.CodeBlocks {
 
                 var configuration = builder.Build();
 
+                var templateProvider = new CBTemplateProvider();
                 var serviceCollection = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
                 var typeStartup = assembly.GetTypes().FirstOrDefault(type => string.Equals(type.FullName, classNameStartup, StringComparison.OrdinalIgnoreCase));
 
@@ -215,12 +224,13 @@ namespace Brimborium.CodeBlocks {
                     Console.Error.WriteLine($"configuration TempFolder is not set.");
                     return 1;
                 }
-                
+
                 if (typeStartup is not null) {
                     serviceCollection.AddSingleton(typeStartup);
                 }
+                serviceCollection.AddSingleton<CBTemplateProvider>(templateProvider);
                 serviceCollection.AddSingleton<AppConfiguration>(appConfiguration);
-                serviceCollection.AddSingleton<ToolService>((sp)=> {
+                serviceCollection.AddSingleton<ToolService>((sp) => {
                     var baseFileSystem = new FileSystemService(appConfiguration.BaseFolder!, sp.GetRequiredService<ILoggerFactory>().CreateLogger("BaseFolder"));
                     var tempFileSystem = new FileSystemService(appConfiguration.TempFolder!, sp.GetRequiredService<ILoggerFactory>().CreateLogger("TempFolder"));
                     tempFileSystem.CreateDirectory("");
@@ -235,6 +245,10 @@ namespace Brimborium.CodeBlocks {
                         .AddClasses(a => a.Where(c => typeof(ICodeGenTask).IsAssignableFrom(c)))
                         .AsSelfWithInterfaces()
                         .WithTransientLifetime();
+                    a.FromAssemblyDependencies(dependencyContext, assembly)
+                        .AddClasses(a => a.Where(c => typeof(ICBNamedTemplate).IsAssignableFrom(c)))
+                        .AsSelfWithInterfaces()
+                        .WithTransientLifetime();
                 });
 
                 if (typeStartup is not null) {
@@ -246,6 +260,13 @@ namespace Brimborium.CodeBlocks {
 
                 {
                     using var serviceProvider = serviceCollection.BuildServiceProvider();
+                    var lstNamedTemplate = serviceProvider.GetServices<ICBNamedTemplate>();
+                    foreach (var namedTemplate in lstNamedTemplate) {
+                        if (namedTemplate is CBTemplate template) {
+                            templateProvider.AddTemplate(template, namedTemplate.Language, namedTemplate.Name);
+                        }
+                    }
+
                     var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
                     var codeGenTasks = serviceProvider.GetServices<ICodeGenTask>()
                         .OrderBy(t => t.GetStep()).ToList();
@@ -255,7 +276,7 @@ namespace Brimborium.CodeBlocks {
                         return 1;
                     } else {
                         foreach (var codeGenTask in codeGenTasks) {
-                            logger.LogInformation("Step {step}",codeGenTask.GetType().Name);
+                            logger.LogInformation("Step {step}", codeGenTask.GetType().Name);
                             try {
                                 codeGenTask.Execute();
                             } catch (System.Exception otherError) {
@@ -264,12 +285,8 @@ namespace Brimborium.CodeBlocks {
                         }
                     }
 
-                    if (opts.GenerateOnly) {
-                        logger.LogInformation("GenerateOnly -- skip CopyReplace");
-                    } else {
-                        logger.LogInformation("CopyReplace");
-                        serviceProvider.GetRequiredService<ToolService>().CopyReplace();
-                    }
+                    serviceProvider.GetRequiredService<ToolService>().CopyReplace(opts.GenerateOnly);
+                    logger.LogInformation("Done");
                 }
                 return 0;
             } catch (System.Exception error) {

@@ -1,14 +1,17 @@
+using Brimborium.CodeFlow.FlowSynchronization;
+using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.WebFlow;
+using Brimborium.WebFlow.FlowSynchronization;
+
+using Demo.Logic;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Hosting;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.OpenApi.Models;
 
 namespace Demo.WebApplication {
     public class Startup {
@@ -20,7 +23,22 @@ namespace Demo.WebApplication {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddRequestHandler();
+            services.AddWebFlowServices();
+            services.AddWebFlowLogicServices();
+            services.AddServicesWithRegistrator((a) => {
+                //var assemblies = a.FromAssembliesOf(typeof(Startup), typeof(GnaRepository));
+                var assemblies = a.FromDependencyContext(DependencyContext.Default);
+                CodeFlowExtensions.AddRequestHandlerServices(assemblies);
+                assemblies.AddClasses().UsingAttributes();
+            });
+            services.AddSingleton<ISyncTimerHostedService>((serviceProvider) => serviceProvider.GetRequiredService<SyncTimerHostedService>());
+            services.AddHostedService<SyncTimerHostedService>();
             services.AddRazorPages();
+            services.AddControllers();
+            services.AddSwaggerGen(c => {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Brimborium.WebFlow.WebApp", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -32,16 +50,16 @@ namespace Demo.WebApplication {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Brimborium.CodeFlow.WebApp v1"));
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints => {
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }

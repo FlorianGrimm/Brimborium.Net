@@ -6,7 +6,7 @@
     public sealed class ResponseVoid : IResponseVoid {
         private static ResponseVoid? _Instance;
 
-        public static ResponseVoid GetInstance() => (_Instance ?? new ResponseVoid());
+        public static ResponseVoid GetInstance() => (_Instance ??= new ResponseVoid());
 
         public ResponseVoid() {
         }

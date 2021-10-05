@@ -42,19 +42,5 @@ namespace Demo.Server {
         public Task<RequestResult<GnaServerUpsertResponse>> UpsertAsync(GnaServerUpsertRequest request, CancellationToken cancellationToken) {
             throw new NotImplementedException();
         }
-        //public async Task<RequestResult<IEnumerable<Gna>>> GetAsync(GnaServerGetRequest request, CancellationToken cancellationToken) {
-        //    IGlobalRequestHandlerFactory globalRequestHandlerFactory = this._RequestServices.GetRequiredService<IGlobalRequestHandlerFactory>();
-        //    var requestHandler = globalRequestHandlerFactory.CreateRequestHandler<IGnaQueryRequestHandler>(this._RequestServices);
-        //    request.Deconstruct(out var Pattern, out var User);
-        //    var logicRequest = new GnaQueryRequest(Pattern ?? string.Empty, User);
-        //    var logicResponse = await requestHandler.ExecuteAsync(logicRequest, cancellationToken);
-        //    IEnumerable<Gna> resultValue = logicResponse.Value.Result.Select(i => new Gna(i.Name, i.Done)).ToList();
-        //    return new RequestResult<IEnumerable<Gna>>(resultValue);
-        //}
-
-        //public Task<RequestResult<GnaServerUpsertResponse>> UpsertAsync(GnaServerUpsertRequest request, CancellationToken cancellationToken) {
-        //    throw new NotImplementedException();
-        //}
-
     }
 }

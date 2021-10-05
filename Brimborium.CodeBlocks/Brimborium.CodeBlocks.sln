@@ -12,6 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeBlocks", "Brimborium.CodeBlocks\Brimborium.CodeBlocks.csproj", "{47445CA5-1F21-4D8C-9A02-880223F064D9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{42376DB5-9DE6-437C-823F-D4B3DCCAEE04} = {42376DB5-9DE6-437C-823F-D4B3DCCAEE04}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeBlocks.Library", "Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj", "{17A2F8C4-303F-44D2-A736-DCCDB5BDB956}"
 EndProject
@@ -23,13 +26,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Typing.Test", "B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{BF378801-F5E8-46ED-9DED-A01EFEA6E34A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.Abstracts", "Demo.Abstracts\Demo.Abstracts.csproj", "{4C837289-C0A6-4B66-965E-F0D8F58D155B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Abstracts", "Demo.Abstracts\Demo.Abstracts.csproj", "{4C837289-C0A6-4B66-965E-F0D8F58D155B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.WebApplication", "Demo.WebApplication\Demo.WebApplication.csproj", "{712D91E6-996C-4D64-A59A-5ADFDD5DAEA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.WebApplication", "Demo.WebApplication\Demo.WebApplication.csproj", "{712D91E6-996C-4D64-A59A-5ADFDD5DAEA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.Logic", "Demo.Logic\Demo.Logic.csproj", "{779EBEBA-415B-47D6-9C33-77E1DFA7C2C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.Logic", "Demo.Logic\Demo.Logic.csproj", "{779EBEBA-415B-47D6-9C33-77E1DFA7C2C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.CodeGen", "Demo.CodeGen\Demo.CodeGen.csproj", "{42376DB5-9DE6-437C-823F-D4B3DCCAEE04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo.CodeGen", "Demo.CodeGen\Demo.CodeGen.csproj", "{42376DB5-9DE6-437C-823F-D4B3DCCAEE04}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeFlow.Abstracts", "..\Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj", "{4CB0311C-9AF7-4EAA-9F4C-B32FC94E8F69}"
 EndProject

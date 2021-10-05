@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace Brimborium.CodeBlocks.Tool {
@@ -27,32 +28,55 @@ namespace Brimborium.CodeBlocks.Tool {
             }
         }
 
+        public bool TryGetFileContent(CBFileContent fileContent, [MaybeNullWhen(false)] out CBFileContent read) {
+            var fileName = System.IO.Path.Combine(this.RootPath, fileContent.FileName);
+            var fi = new System.IO.FileInfo(fileName);
+            if (fi.Exists) {
+                string oldConent;
+                using (StreamReader sr = new StreamReader(fi.OpenRead(), System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true)) {
+                    oldConent = sr.ReadToEnd();
+                }
+                read = new CBFileContent(fileContent.FileName, oldConent);
+                return true;
+            } else {
+                read = default;
+                return false;
+            }
+        }
+
         public bool SetFileContent(CBFileContent fileContent) {
             this.Items.Add(fileContent);
             var fileName = System.IO.Path.Combine(this.RootPath, fileContent.FileName);
             var fi = new System.IO.FileInfo(fileName);
             bool result;
             if (fi.Exists) {
-                string oldConent;
+                string oldContent;
                 using (StreamReader sr = new StreamReader(fi.OpenRead(), System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true)) {
-                    oldConent = sr.ReadToEnd();
+                    oldContent = sr.ReadToEnd();
                 }
-                result = StringComparer.Ordinal.Equals(oldConent, fileContent);
-                this._Logger.LogDebug("{fileName} changes: {result}", fileName, result);
+                result = StringComparer.Ordinal.Equals(oldContent, fileContent.Content);
+                this._Logger.LogDebug("{fileName} changed: {result}", fileContent.FileName, result);
             } else {
-                this._Logger.LogDebug("{fileName} new content.", fileName);
+                this._Logger.LogDebug("{fileName} new content.", fileContent.FileName);
                 result = true;
             }
             if (result) {
-                CreateDirectory(System.IO.Path.GetDirectoryName(fileContent.FileName)!);
-                using (StreamWriter sw = new StreamWriter(fi.OpenWrite(), System.Text.Encoding.UTF8)) {
-                    sw.Write(fileContent.Content);
-                }
+                CreateDirectory(System.IO.Path.GetDirectoryName(fileName)!);
+                System.IO.File.WriteAllText(fileName, fileContent.Content, System.Text.Encoding.UTF8);
             }
             return result;
         }
 
-        public void CopyReplace() {
+        public bool SetFileContent(CBFileContent current, string nextContent, bool testOnly) {
+            string fileName = System.IO.Path.Combine(this.RootPath, current.FileName);
+            bool changed = !StringComparer.Ordinal.Equals(current.Content, nextContent);
+            this._Logger.LogDebug("{fileName} changed: {changed}", current.FileName, changed);
+
+            if (changed && !testOnly) {
+                CreateDirectory(System.IO.Path.GetDirectoryName(fileName)!);
+                System.IO.File.WriteAllText(fileName, nextContent, System.Text.Encoding.UTF8);
+            }
+            return changed;
         }
     }
 }

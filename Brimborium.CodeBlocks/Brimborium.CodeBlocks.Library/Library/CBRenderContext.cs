@@ -1,7 +1,8 @@
-﻿using System.CodeDom.Compiler;
+﻿using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.NetworkInformation;
-using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Brimborium.CodeBlocks.Library {
     public sealed class CBRenderContext {
@@ -11,6 +12,7 @@ namespace Brimborium.CodeBlocks.Library {
         }
 
         public CBTemplateProvider TemplateProvider { get; }
+
         public IndentedTextWriter Writer { get; }
 
         public int Indent { get => this.Writer.Indent; set => this.Writer.Indent = value; }
@@ -46,18 +48,28 @@ namespace Brimborium.CodeBlocks.Library {
             return this;
         }
 
-        public CBRenderContext CallTemplateDynamic([AllowNull] object value) {
+        public CBRenderContext CallTemplateDynamic<T>([AllowNull] T value, string? name = default) {
             if (value is null) {
-                //
+                //CBTemplate template = this.TemplateProvider.GetTemplate(typeof(T), typeof(T), name ?? string.Empty);
+                //if (template is CBTemplate<T> templateT) {
+                //    templateT.RenderT(value!, this);
+                //} else {
+                //    template.Render(value, this);
+                //}
             } else {
-                CBTemplate template = this.TemplateProvider.GetTemplate(value.GetType(), string.Empty);
-                template.Render(value, this);
+                CBTemplate template = this.TemplateProvider.GetTemplate(value.GetType(), typeof(T), name ?? string.Empty);
+                if (template is CBTemplate<T> templateT) {
+                    templateT.RenderT(value, this);
+                } else {
+                    template.Render(value, this);
+                }
             }
             return this;
         }
 
-        public CBRenderContext CallTemplate<T>(T value) {
-            CBTemplate template = this.TemplateProvider.GetTemplate(typeof(T), string.Empty);
+
+        public CBRenderContext CallTemplate<T>(T value, string? name = default) {
+            CBTemplate template = this.TemplateProvider.GetTemplate(typeof(T), name ?? string.Empty);
             if (template is CBTemplate<T> templateT) {
                 templateT.RenderT(value, this);
             } else {
@@ -66,38 +78,35 @@ namespace Brimborium.CodeBlocks.Library {
             return this;
         }
 
-        public CBRenderContext CallTemplate<T>(T value, string name) {
-            CBTemplate template = this.TemplateProvider.GetTemplate(typeof(T), name);
-            if (template is CBTemplate<T> templateT) {
-                templateT.RenderT(value, this);
+        public CBRenderContext If(bool condition, Action<CBRenderContext> Then, Action<CBRenderContext>? Else = default) {
+            if (condition) {
+                Then(this);
             } else {
-                template.Render(value, this);
+                if (Else is not null) {
+                    Else(this);
+                }
             }
             return this;
         }
 
-        public static CBRenderContext operator +(CBRenderContext that, string? text) {
-            if (text is not null) {
-                that.Write(text);
-            }
-            return that;
-        }
-
-        public static CBRenderContext operator -(CBRenderContext that, int diffIndent) {
-            that.Writer.WriteLine();
-            if (diffIndent == 0) {
+        public CBRenderContext Foreach<T>(
+            IEnumerable<T> items,
+            Action<IteratedValue<T>, CBRenderContext> eachItem,
+            Action<CBRenderContext>? isEmpty=default) {
+            var lastIndex = items.Count() - 1;
+            if (lastIndex < 0) {
+                if (isEmpty is not null) {
+                    isEmpty(this);
+                }
             } else {
-                that.Writer.Indent += diffIndent;
+                var iteratedValues = items.Select((item, index) => new IteratedValue<T>(item, index == 0, index == lastIndex, index));
+                foreach (var iteratedValue in iteratedValues) {
+                    eachItem(iteratedValue, this);
+                }
             }
-            return that;
-        }
-        public static CBRenderContext operator /(CBRenderContext that, int diffIndent) {
-            that.Writer.WriteLine();
-            if (diffIndent == 0) {
-            } else {
-                that.Writer.Indent += diffIndent;
-            }
-            return that;
+            return this;
         }
     }
+
+    public record IteratedValue<T>(T Value, bool IsFirst, bool IsLast, int Index);
 }

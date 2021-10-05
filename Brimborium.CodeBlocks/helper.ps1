@@ -27,7 +27,7 @@
         $b=$infos[$idx]
         $a.diffIndent = $b.indent - $a.indent
     } 
-    $infos
+    # $infos
     $infos | % {
         $info = $_
         
@@ -39,13 +39,13 @@
         
         $inLine = $inLine.Replace('"', '\\"')
         
-        #$outLine += '.Write("'
+        $outLine += '.Write("'
 
-        $outLine += '.Write('
-        $outLine += '/*' + $indentText + '*/ "'
+        #$outLine += '.Write('
+        #$outLine += '/*' + $indentText + '*/ "'
 
         $outLine += $inLine
-        $outLine += '");'
+        $outLine += '")'
         
         if ($diffIndent -eq 0){
             $outLine += ".WriteLine();"
@@ -64,4 +64,4 @@ $text.GetType().FullName
 
 #>
 
-convert2CS $text
+convert2CS $text | Set-Clipboard

@@ -38,8 +38,17 @@ namespace Brimborium.CodeBlocks.Tool {
             return result;
         }
 
-        public void CopyReplace() {
-            this._Logger.LogInformation("TODO CopyReplace");
+        public void CopyReplace(bool testOnly) {
+            var cbCopyReplacer = new CBCopyReplacer();
+            foreach (var item in this.Items) {
+                if (this.BaseFileSystem.TryGetFileContent(item, out var current)) {
+                    var next = cbCopyReplacer.ContentCopyReplace(item.Content, current.Content);
+                    this.BaseFileSystem.SetFileContent(current, next, testOnly);
+                } else {
+                    current = new CBFileContent(item.FileName, string.Empty);
+                    this.BaseFileSystem.SetFileContent(current, item.Content, testOnly);
+                }
+            }
         }
     }
 }

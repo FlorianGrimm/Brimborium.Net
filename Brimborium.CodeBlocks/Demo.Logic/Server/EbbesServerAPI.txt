@@ -1,0 +1,47 @@
+﻿using Brimborium.CodeFlow.RequestHandler;
+using Brimborium.CodeFlow.Server;
+using Brimborium.Registrator;
+
+using Demo.API;
+using Demo.Logic;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Demo.Server {
+    [Brimborium.Registrator.Scoped]
+    public class EbbesServerAPI
+         : Demo.Server.IEbbesServerAPI {
+        private  System.IServiceProvider _RequestServices;
+        
+        public  EbbesServerAPI(
+            System.IServiceProvider requestServices) {
+        }
+        
+        
+        public async Task<RequestResult<Demo.Server.EbbesServerGetResponse>> GetAsync(Demo.Server.EbbesServerGetRequest request, CancellationToken cancellationToken) {
+            IGlobalRequestHandlerFactory globalRequestHandlerFactory = this._RequestServices.GetRequiredService<IGlobalRequestHandlerFactory>();
+             requestHandler = globalRequestHandlerFactory.CreateRequestHandler<>(this._RequestServices);
+            request.Deconstruct(out var Pattern, out var User);
+            Demo.Server.EbbesServerGetRequest logicRequest = new GnaQueryRequest(Pattern ?? string.Empty, User);
+            RequestResult<Demo.Server.EbbesServerGetResponse> logicResponse = await requestHandler.ExecuteAsync(logicRequest, cancellationToken);
+            IServerRequestResultConverter serverRequestResultConverter = this._RequestServices.GetRequiredService<IServerRequestResultConverter>();
+            return serverRequestResultConverter.ConvertToServerResultOfT<Demo.Server.EbbesServerGetResponse, Demo.Server.EbbesServerGetResponse>(logicResponse);
+        }
+        public async Task<RequestResult<Demo.Server.EbbesServerUpsertResponse>> UpsertAsync(Demo.Server.EbbesServerUpsertRequest request, CancellationToken cancellationToken) {
+            IGlobalRequestHandlerFactory globalRequestHandlerFactory = this._RequestServices.GetRequiredService<IGlobalRequestHandlerFactory>();
+             requestHandler = globalRequestHandlerFactory.CreateRequestHandler<>(this._RequestServices);
+            request.Deconstruct(out var Pattern, out var User);
+            Demo.Server.EbbesServerUpsertRequest logicRequest = new GnaQueryRequest(Pattern ?? string.Empty, User);
+            RequestResult<Demo.Server.EbbesServerUpsertResponse> logicResponse = await requestHandler.ExecuteAsync(logicRequest, cancellationToken);
+            IServerRequestResultConverter serverRequestResultConverter = this._RequestServices.GetRequiredService<IServerRequestResultConverter>();
+            return serverRequestResultConverter.ConvertToServerResultOfT<Demo.Server.EbbesServerUpsertResponse, Demo.Server.EbbesServerUpsertResponse>(logicResponse);
+        }
+        
+    }
+}
