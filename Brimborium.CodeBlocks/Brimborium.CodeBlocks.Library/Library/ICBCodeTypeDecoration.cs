@@ -16,9 +16,9 @@ namespace Brimborium.CodeBlocks.Library {
         public IEnumerable<ICBCodeElement> GetChildren() => new ICBCodeElement[] { this.TypeReference };
     }
 
-    public sealed class CBTemplateCSharpTypeAttribute : CBNamedTemplate<CBCodeTypeAttribute> {
-        public CBTemplateCSharpTypeAttribute()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpTypeAttributeDeclaration : CBNamedTemplate<CBCodeTypeAttribute> {
+        public CBTemplateCSharpTypeAttributeDeclaration()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeTypeAttribute value, CBRenderContext ctxt) {

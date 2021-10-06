@@ -76,7 +76,7 @@ namespace Demo.CodeGen {
                         }
                     }));
 
-            codeFileClass.Generate(this._ToolService, this._TemplateProvider);
+            codeFileClass.Generate(this._ToolService, this._TemplateProvider, CBTemplateProvider.Declaration);
         }
     }
 }

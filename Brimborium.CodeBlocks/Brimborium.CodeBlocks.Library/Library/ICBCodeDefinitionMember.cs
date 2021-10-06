@@ -43,14 +43,14 @@ namespace Brimborium.CodeBlocks.Library {
 
     }
 
-    public sealed class CBTemplateCSharpDefinitionField : CBNamedTemplate<CBCodeDefinitionField> {
-        public CBTemplateCSharpDefinitionField()
+    public sealed class CBTemplateCSharpDefinitionFieldDeclaration : CBNamedTemplate<CBCodeDefinitionField> {
+        public CBTemplateCSharpDefinitionFieldDeclaration()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeDefinitionField value, CBRenderContext ctxt) {
-            ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ")
-                .CallTemplateDynamic(value.Type).Write(" ")
+            ctxt.CallTemplateDynamic(value.AccessibilityLevel)
+                .CallTemplateDynamic(value.Type, CBTemplateProvider.TypeName).Write(" ")
                 .Write(value.Name).Write(";")
                 .WriteLine();
         }
@@ -109,13 +109,13 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpDefinitionConstructor : CBNamedTemplate<CBCodeDefinitionConstructor> {
-        public CBTemplateCSharpDefinitionConstructor()
+    public sealed class CBTemplateCSharpDefinitionConstructorDeclaration : CBNamedTemplate<CBCodeDefinitionConstructor> {
+        public CBTemplateCSharpDefinitionConstructorDeclaration()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeDefinitionConstructor value, CBRenderContext ctxt) {
-            ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ")
+            ctxt.CallTemplateDynamic(value.AccessibilityLevel)
                 .Write(value.Name).Write("(").IndentIncr()
                 .Foreach(
                     value.Parameters,
@@ -181,8 +181,8 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpDefinitionMethod : CBNamedTemplate<CBCodeDefinitionMethod> {
-        public CBTemplateCSharpDefinitionMethod()
+    public sealed class CBTemplateCSharpDefinitionMethodDeclaration : CBNamedTemplate<CBCodeDefinitionMethod> {
+        public CBTemplateCSharpDefinitionMethodDeclaration()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 

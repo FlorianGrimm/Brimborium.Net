@@ -27,8 +27,8 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpTypeNameReference : CBNamedTemplate<CBCodeTypeNameReference> {
-        public CBTemplateCSharpTypeNameReference()
+    public sealed class CBTemplateCSharpTypeNameReferenceTypeName : CBNamedTemplate<CBCodeTypeNameReference> {
+        public CBTemplateCSharpTypeNameReferenceTypeName()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.TypeName) {
         }
 
@@ -37,22 +37,24 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpAttributeTypeNameReference : CBNamedTemplate<CBCodeTypeNameReference> {
-        public CBTemplateCSharpAttributeTypeNameReference()
+    public sealed class CBTemplateCSharpAttributeTypeNameReferenceAttribute : CBNamedTemplate<CBCodeTypeNameReference> {
+        public CBTemplateCSharpAttributeTypeNameReferenceAttribute()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Attribute) {
         }
 
         public override void RenderT(CBCodeTypeNameReference value, CBRenderContext ctxt) {
+#warning TODO
             ctxt.Write(CSharpUtility.WihoutAttribute(value.CodeTypeName));
         }
     }
 
-    public sealed class CBTemplateCSharpAttributeClrTypeReference : CBNamedTemplate<CBCodeClrTypeReference> {
-        public CBTemplateCSharpAttributeClrTypeReference()
+    public sealed class CBTemplateCSharpAttributeClrTypeReferenceAttribute : CBNamedTemplate<CBCodeClrTypeReference> {
+        public CBTemplateCSharpAttributeClrTypeReferenceAttribute()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Attribute) {
         }
 
         public override void RenderT(CBCodeClrTypeReference value, CBRenderContext ctxt) {
+#warning TODO
             ctxt.Write(CSharpUtility.WihoutAttribute(value));
         }
     }

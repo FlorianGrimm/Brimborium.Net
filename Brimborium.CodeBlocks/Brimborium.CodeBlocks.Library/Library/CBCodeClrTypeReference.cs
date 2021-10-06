@@ -143,8 +143,8 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpClrTypeReference : CBNamedTemplate<CBCodeClrTypeReference> {
-        public CBTemplateCSharpClrTypeReference()
+    public sealed class CBTemplateCSharpClrTypeReferenceTypeName : CBNamedTemplate<CBCodeClrTypeReference> {
+        public CBTemplateCSharpClrTypeReferenceTypeName()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.TypeName) {
         }
 

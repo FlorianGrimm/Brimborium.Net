@@ -11,9 +11,9 @@ namespace Brimborium.CodeBlocks.Library {
         public IEnumerable<ICBCodeElement> GetChildren() => new ICBCodeElement[0];
     }
 
-    public sealed class CBTemplateCSharpConst : CBNamedTemplate<CBCodeConst> {
-        public CBTemplateCSharpConst()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpConstCommon : CBNamedTemplate<CBCodeConst> {
+        public CBTemplateCSharpConstCommon()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Common) {
         }
 
         public override void RenderT(CBCodeConst value, CBRenderContext ctxt) {

@@ -40,9 +40,9 @@ namespace Brimborium.CodeBlocks.Library {
         public IEnumerable<ICBCodeElement> GetChildren() => this.Expressions;
     }
 
-    public sealed class CBTemplateCSharpAssignment : CBNamedTemplate<CBCodeAssignment> {
-        public CBTemplateCSharpAssignment()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpAssignmentExpression : CBNamedTemplate<CBCodeAssignment> {
+        public CBTemplateCSharpAssignmentExpression()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Expression) {
         }
 
         public override void RenderT(CBCodeAssignment value, CBRenderContext ctxt) {
@@ -71,9 +71,9 @@ namespace Brimborium.CodeBlocks.Library {
         public IEnumerable<ICBCodeElement> GetChildren() => new ICBCodeElement[0];
     }
 
-    public sealed class CBTemplateCSharpStatement : CBNamedTemplate<CBCodeStatement> {
-        public CBTemplateCSharpStatement()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpStatementExpression : CBNamedTemplate<CBCodeStatement> {
+        public CBTemplateCSharpStatementExpression()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Expression) {
         }
 
         public override void RenderT(CBCodeStatement value, CBRenderContext ctxt) {

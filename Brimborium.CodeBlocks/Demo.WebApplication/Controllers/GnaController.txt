@@ -10,10 +10,12 @@ namespace Brimborium.WebFlow.Server {
     [ApiController]
     [Route("api/[controller]")]
     public class GnaController {
-        private  System.IServiceProvider _RequestServices;
+        private System.IServiceProvider _RequestServices;
+        private Microsoft.Extensions.Logging.ILogger<Brimborium.WebFlow.Server.GnaController> _Logger;
         
-        public  GnaController(
-            System.IServiceProvider requestServices) {
+        public GnaController(
+            System.IServiceProvider requestServices,
+            Microsoft.Extensions.Logging.ILogger<Brimborium.WebFlow.Server.GnaController> logger) {
         }
         
         

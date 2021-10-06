@@ -1,9 +1,9 @@
 ﻿namespace Brimborium.CodeBlocks.Library {
     public enum CBCodeAccessibilityLevel { NotSpecified, Public, Protected, Internal, ProtectedInternal, Private }
 
-    public sealed class CBTemplateCSharpAccessibilityLevel : CBNamedTemplate<CBCodeAccessibilityLevel> {
-        public CBTemplateCSharpAccessibilityLevel()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpAccessibilityLevelCommon : CBNamedTemplate<CBCodeAccessibilityLevel> {
+        public CBTemplateCSharpAccessibilityLevelCommon()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Common) {
         }
 
         public override void RenderT(CBCodeAccessibilityLevel value, CBRenderContext ctxt) {

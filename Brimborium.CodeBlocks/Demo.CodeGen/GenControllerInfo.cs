@@ -44,7 +44,7 @@ namespace Demo.CodeGen {
 
     public sealed class CBTemplateCSharpControllerMethodInfo : CBNamedTemplate<ControllerMethodInfo> {
         public CBTemplateCSharpControllerMethodInfo()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(ControllerMethodInfo value, CBRenderContext ctxt) {

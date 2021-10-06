@@ -11,8 +11,8 @@ namespace Brimborium.CodeBlocks.Library {
         public bool IsPartial { get; set; }
     }
 
-    public sealed class CBTemplateCSharpInterface : CBNamedTemplate<CBCodeInterface> {
-        public CBTemplateCSharpInterface()
+    public sealed class CBTemplateCSharpInterfaceDeclaration : CBNamedTemplate<CBCodeInterface> {
+        public CBTemplateCSharpInterfaceDeclaration()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 

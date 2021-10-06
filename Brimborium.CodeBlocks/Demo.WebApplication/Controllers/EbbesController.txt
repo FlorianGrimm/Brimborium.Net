@@ -10,10 +10,12 @@ namespace Brimborium.WebFlow.Server {
     [ApiController]
     [Route("api/[controller]")]
     public class EbbesController {
-        private  System.IServiceProvider _RequestServices;
+        private System.IServiceProvider _RequestServices;
+        private Microsoft.Extensions.Logging.ILogger<Brimborium.WebFlow.Server.EbbesController> _Logger;
         
-        public  EbbesController(
-            System.IServiceProvider requestServices) {
+        public EbbesController(
+            System.IServiceProvider requestServices,
+            Microsoft.Extensions.Logging.ILogger<Brimborium.WebFlow.Server.EbbesController> logger) {
         }
         
         
