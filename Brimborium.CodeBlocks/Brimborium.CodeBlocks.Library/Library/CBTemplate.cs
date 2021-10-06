@@ -12,6 +12,8 @@ namespace Brimborium.CodeBlocks.Library {
             return (this.GetRenderType().IsAssignableFrom(type));
         }
 
+        public virtual bool GetCallForNullShouldBeBlocked() => true;
+
         public abstract void Render(object? value, CBRenderContext ctxt);
     }
 

@@ -31,7 +31,8 @@ c
             var ctxt = new CBRenderContext(templateProvider, writer);
             var data = new VM2(new VM1("a", "b"), new VM1("c", "d"));
             templateProvider.AddTemplate(new TemplateVM2());
-            ctxt.TemplateProvider.GetTemplate<VM2>().RenderT(data, ctxt);
+            Assert.True(ctxt.TemplateProvider.TryGetTemplate<VM2>("", true, out var template));
+            (template as CBTemplate<VM2>)?.RenderT(data, ctxt);
             Assert.Equal(@"a
 c
 ", sb.ToString());
@@ -42,16 +43,16 @@ c
             var sb = new StringBuilder();
             var templateProvider = new CBTemplateProvider();
             templateProvider.AddTemplateFromFunction<VM2>((v, c) => {
-                c.CallTemplate(v.Left);
-                c.CallTemplate(v.Right, "=");
+                c.CallTemplateStrict(v.Left);
+                c.CallTemplateStrict(v.Right, "=");
             });
-            templateProvider.AddTemplateFromFunction<VM1>((v, c) => c.WriteLine($"{v.Name}: {v.Value}"),"");
-            templateProvider.AddTemplateFromFunction<VM1>((v, c) => c.WriteLine($"{v.Name}= {v.Value}"),"=");
+            templateProvider.AddTemplateFromFunction<VM1>((v, c) => c.WriteLine($"{v.Name}: {v.Value}"), "");
+            templateProvider.AddTemplateFromFunction<VM1>((v, c) => c.WriteLine($"{v.Name}= {v.Value}"), "=");
             //
             var writer = new IndentedTextWriter(new StringWriter(sb), "  ");
             var ctxt = new CBRenderContext(templateProvider, writer);
             var data = new VM2(new VM1("a", "b"), new VM1("c", "d"));
-            ctxt.CallTemplate(new VM2(new VM1("a", "b"), new VM1("c", "d")));
+            ctxt.CallTemplateStrict(new VM2(new VM1("a", "b"), new VM1("c", "d")));
             Assert.Equal(@"a: b
 c= d
 ", sb.ToString());
@@ -62,8 +63,8 @@ c= d
             var sb = new StringBuilder();
             var templateProvider = new CBTemplateProvider();
             templateProvider.AddTemplateFromFunction<VM2>((v, c) => {
-                c.CallTemplate(v.Left, ":");
-                c.CallTemplate(v.Right, "=");
+                c.CallTemplateStrict(v.Left, ":");
+                c.CallTemplateStrict(v.Right, "=");
             });
             templateProvider.AddTemplateFromFunction<VM1>((v, c) => c.WriteLine($"{v.Name}: {v.Value}"), "");
             templateProvider.AddTemplateFromFunction<VM1>((v, c) => c.WriteLine($"{v.Name}= {v.Value}"), "=");
@@ -71,7 +72,7 @@ c= d
             var writer = new IndentedTextWriter(new StringWriter(sb), "  ");
             var ctxt = new CBRenderContext(templateProvider, writer);
             var data = new VM2(new VM1("a", "b"), new VM1("c", "d"));
-            ctxt.CallTemplate(new VM2(new VM1("a", "b"), new VM1("c", "d")));
+            ctxt.CallTemplateStrict(new VM2(new VM1("a", "b"), new VM1("c", "d")));
             Assert.Equal(@"a: b
 c= d
 ", sb.ToString());

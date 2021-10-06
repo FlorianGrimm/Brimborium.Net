@@ -45,7 +45,7 @@ namespace Brimborium.CodeBlocks.Library {
 
     public sealed class CBTemplateCSharpDefinitionField : CBNamedTemplate<CBCodeDefinitionField> {
         public CBTemplateCSharpDefinitionField()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeDefinitionField value, CBRenderContext ctxt) {
@@ -68,7 +68,7 @@ namespace Brimborium.CodeBlocks.Library {
         public CBList<ICBCodeParameter> Parameters { get; }
 
         public string Name {
-            get => this.Parent switch { CBTypeDefinition typeDefinition => typeDefinition.TypeName, _ => string.Empty };
+            get => this.Parent switch { CBCodeTypeDefinition typeDefinition => typeDefinition.TypeName, _ => string.Empty };
             set => throw new System.NotSupportedException();
         }
 
@@ -98,7 +98,7 @@ namespace Brimborium.CodeBlocks.Library {
                 Name = "_" + name.Substring(0, 1).ToUpperInvariant() + name.Substring(1), 
                 Type = type,
                 AccessibilityLevel = CBCodeAccessibilityLevel.Private };
-            if (that.Parent is CBTypeDefinition typeDefinition) {
+            if (that.Parent is CBCodeTypeDefinition typeDefinition) {
                 typeDefinition.Members.Add(f);
             }
             if (that.Code is null) { that.Code = new CBCodeBlock(); }
@@ -111,7 +111,7 @@ namespace Brimborium.CodeBlocks.Library {
 
     public sealed class CBTemplateCSharpDefinitionConstructor : CBNamedTemplate<CBCodeDefinitionConstructor> {
         public CBTemplateCSharpDefinitionConstructor()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeDefinitionConstructor value, CBRenderContext ctxt) {
@@ -183,7 +183,7 @@ namespace Brimborium.CodeBlocks.Library {
 
     public sealed class CBTemplateCSharpDefinitionMethod : CBNamedTemplate<CBCodeDefinitionMethod> {
         public CBTemplateCSharpDefinitionMethod()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeDefinitionMethod value, CBRenderContext ctxt) {

@@ -1,0 +1,13 @@
+﻿using Brimborium.WebFlow.Controllers;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Brimborium.WebFlow.Controllers {
+    public interface IEbbesServerAPI {
+        GetAsyncUpsertAsync
+    }
+}

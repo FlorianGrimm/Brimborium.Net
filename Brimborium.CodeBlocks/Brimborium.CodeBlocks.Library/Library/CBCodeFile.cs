@@ -29,12 +29,12 @@ namespace Brimborium.CodeBlocks.Library {
         public CBCodeFile() {
             this.Imports = new HashSet<ICBCodeImport>();
             this.Namespace = new CBCodeNamespace();
-            this.Items = new CBList<ICBTypeDefinition>(this);
+            this.Items = new CBList<ICBCodeTypeDefinition>(this);
         }
 
         public HashSet<ICBCodeImport> Imports { get; }
         public CBCodeNamespace Namespace { get; set; }
-        public CBList<ICBTypeDefinition> Items { get; }
+        public CBList<ICBCodeTypeDefinition> Items { get; }
 
         public ICBCodeElement? Parent { get; set; }
 

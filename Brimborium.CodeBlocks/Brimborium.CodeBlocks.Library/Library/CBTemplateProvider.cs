@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Brimborium.CodeBlocks.Library {
-    public class CBTemplateProvider {
+    public sealed class CBTemplateProvider {
         public const string CSharp = "CSharp";
+        public const string Default = "Default";
+        public const string Attribute = "Attribute";
+        public const string Declaration = "Declaration";
         public const string Expression = "Expression";
+        public const string TypeName = "TypeName";
 
         public Dictionary<Type, List<CBRegisterTemplate>> Templates { get; }
 
@@ -36,68 +40,90 @@ namespace Brimborium.CodeBlocks.Library {
             lstTemplate.Add(namedTemplate);
         }
 
-        public CBTemplate GetTemplate(Type currentType, Type staticType, string name) {
+        public bool TryGetTemplate(Type currentType, Type staticType, string? name, bool throwIfNotFound, [MaybeNullWhen(false)] out CBTemplate result) {
+            name ??= string.Empty;
             Type renderType = currentType;
-            do {
-                if (this.TryGetTemplate(renderType, name, out var result)) {
-                    return result;
-                }
-                if (renderType.BaseType is not null) {
-                    renderType = renderType.BaseType;
+            while (true) {
+                if (this.TryGetTemplateSingle(renderType, name, out result)) {
+                    return true;
                 } else {
-                    break;
+                    if (renderType.Equals(staticType)) {
+                        break;
+                    } else if (renderType.BaseType is not null) {
+                        renderType = renderType.BaseType;
+                        continue;
+                    } else {
+                        break;
+                    }
                 }
-            } while (!renderType.Equals(staticType) && renderType.Equals(typeof(object)));
-            {
+            }
+            if (throwIfNotFound) {
                 throw new InvalidCastException($"Template for {currentType.FullName} - {staticType.FullName} '{name}' not found.");
             }
-        }
-
-        public CBTemplate<T> GetTemplate<T>(string? name = default) => (CBTemplate<T>)this.GetTemplate(typeof(T), name);
-
-        public CBTemplate GetTemplate(Type renderType, string? name = default) {
-            if (this.TryGetTemplate(renderType, name ?? string.Empty, out var result)) {
-                return result;
-            } else {
-                throw new InvalidCastException($"Template for {renderType.FullName} '{name}' not found.");
+            {
+                result = default;
+                return false;
             }
         }
 
-        public bool TryGetTemplate(Type renderType, string name, [MaybeNullWhen(false)] out CBTemplate result) {
+        public bool TryGetTemplate<T>(string? name, bool throwIfNotFound, [MaybeNullWhen(false)] out CBTemplate result) {
+            if (this.TryGetTemplate(typeof(T), name, throwIfNotFound, out var template)) {
+                result = template;
+                return true;
+            } else {
+                result = default;
+                return false;
+            }
+        }
+
+        public bool TryGetTemplate(Type renderType, string? name, bool throwIfNotFound, [MaybeNullWhen(false)] out CBTemplate result) {
+            if (this.TryGetTemplateSingle(renderType, name ?? string.Empty, out result)) {
+                return true;
+            }
+            if (throwIfNotFound) {
+                throw new InvalidCastException($"Template for {renderType.FullName} '{name}' not found.");
+            }
+            {
+                result = default;
+                return false;
+            }
+        }
+
+        public bool TryGetTemplateSingle(Type renderType, string name, [MaybeNullWhen(false)] out CBTemplate result) {
             {
                 if (this.Templates.TryGetValue(renderType, out var lstTemplate)) {
-                    //CBTemplate? withNoName = null;
+                    CBTemplate? withNoName = null;
                     foreach (var namedTemplate in lstTemplate) {
                         if (namedTemplate.CanRenderType(renderType, name)) {
                             result = namedTemplate.Template;
                             return true;
                         }
-                        //if (string.IsNullOrEmpty(namedTemplate.Name)) {
-                        //    withNoName = namedTemplate.Template;
-                        //}
+                        if (string.IsNullOrEmpty(namedTemplate.Name)) {
+                            withNoName = namedTemplate.Template;
+                        }
                     }
-                    //if (withNoName is not null) {
-                    //    result = withNoName;
-                    //    return true;
-                    //}
+                    if (withNoName is not null) {
+                        result = withNoName;
+                        return true;
+                    }
                 }
             }
             {
                 if (this.Templates.TryGetValue(typeof(object), out var lstTemplate)) {
-                    //CBTemplate? withNoName = null;
+                    CBTemplate? withNoName = null;
                     foreach (var namedTemplate in lstTemplate) {
                         if (namedTemplate.CanRenderType(renderType, name)) {
                             result = namedTemplate.Template;
                             return true;
                         }
-                        //if (string.IsNullOrEmpty(namedTemplate.Name)) {
-                        //    withNoName = namedTemplate.Template;
-                        //}
+                        if (string.IsNullOrEmpty(namedTemplate.Name)) {
+                            withNoName = namedTemplate.Template;
+                        }
                     }
-                    //if (withNoName is not null) {
-                    //    result = withNoName;
-                    //    return true;
-                    //}
+                    if (withNoName is not null) {
+                        result = withNoName;
+                        return true;
+                    }
                 }
             }
             result = null;

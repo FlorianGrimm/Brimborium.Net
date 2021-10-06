@@ -23,7 +23,7 @@ namespace Brimborium.CodeBlocks.Library {
 
         public override void RenderT(CBCodeBlock value, CBRenderContext ctxt) {
             foreach (var statement in value.Statements) {
-                ctxt.CallTemplate(statement);
+                ctxt.CallTemplateStrict(statement);
             }
         }
     }

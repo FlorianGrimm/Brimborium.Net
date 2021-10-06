@@ -1,6 +1,7 @@
 ﻿{
   "BaseFolder": "..",
-  "Assembly": ".\\output\\Demo.CodeGen\\bin\\Debug\\net5.0\\Demo.CodeGen.dll",
-  "Assembly2": "..\\output\\Demo.CodeGen\\bin\\Debug\\net5.0\\Demo.CodeGen.dll",
+  "Assembly": ".\\output\\Demo.CodeGen\\bin\\Debug\\net5.0\\win-x64\\Demo.CodeGen.dll",
+  "Assembly2": ".\\output\\Demo.CodeGen\\bin\\Debug\\net5.0\\Demo.CodeGen.dll",
+  "Assembly3": "..\\output\\Demo.CodeGen\\bin\\Debug\\net5.0\\Demo.CodeGen.dll",
   "Project": ".\\Demo.CodeGen"
 }

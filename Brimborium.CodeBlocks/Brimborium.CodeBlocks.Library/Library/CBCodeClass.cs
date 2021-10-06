@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Brimborium.CodeBlocks.Library {
-    public class CBCodeClass : CBTypeDefinition, ICBTypeDefinition {
+    public sealed class CBCodeClass : CBCodeTypeDefinition, ICBCodeTypeDefinition {
         public CBCodeClass() : base() {
+            this.Prefix = new CBList<ICBCodeElement>(this);
         }
 
         public CBCodeClass(CBCodeNamespace @namespace, string typeName) : base(@namespace, typeName) {
+            this.Prefix = new CBList<ICBCodeElement>(this);
         }
+
+        public CBList<ICBCodeElement> Prefix { get; }
 
         public bool IsSealed { get; set; }
 
@@ -16,23 +19,25 @@ namespace Brimborium.CodeBlocks.Library {
         public bool IsPartial { get; set; }
     }
 
-
-    public sealed class CBTemplateCSharpClass : CBNamedTemplate<CBCodeClass> {
-        public CBTemplateCSharpClass()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpClassDeclaration : CBNamedTemplate<CBCodeClass> {
+        public CBTemplateCSharpClassDeclaration()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeClass value, CBRenderContext ctxt) {
             ctxt.Foreach(
-                items: value.Attributes,
+                items: value.Prefix,
                 eachItem: (i, ctxt) => ctxt.CallTemplateDynamic(i.Value));
-            ctxt.CallTemplate(value.AccessibilityLevel)
+            ctxt.Foreach(
+                items: value.Attributes,
+                eachItem: (i, ctxt) => ctxt.CallTemplateDynamic(i.Value, CBTemplateProvider.Attribute));
+            ctxt.CallTemplateStrict(value.AccessibilityLevel)
                 .If(value.IsAbstract, (ctxt) => ctxt.Write("abstract "))
                 .If(value.IsSealed, (ctxt) => ctxt.Write("sealed "))
                 .If(value.IsPartial, (ctxt) => ctxt.Write("partial "))
                 .Write("class ")
                 .Write(value.TypeName)
-                .CallTemplateDynamic(value, "BaseTypes")
+                .CallTemplateStrict<CBCodeTypeDefinition>(value, "BaseTypes")
                 .Write(" {").WriteLine();
             foreach (var grp in value.Members
                 .GroupBy(m => m switch { CBCodeDefinitionField => 0, CBCodeDefinitionConstructor => 1, CBCodeDefinitionProperty => 2, CBCodeDefinitionMethod => 3, _ => 4 })
@@ -44,41 +49,18 @@ namespace Brimborium.CodeBlocks.Library {
                 ctxt.WriteLine();
             }
 
-            //foreach (var member in value.Members) {
-            //    ctxt.CallTemplateDynamic(member);
-            //}
-
             ctxt.IndentDecr().Write("}").WriteLine();
         }
     }
 
-    public sealed class CBTemplateCSharpClassBaseTypes : CBNamedTemplate<CBCodeClass> {
-        public CBTemplateCSharpClassBaseTypes()
-            : base(CBTemplateProvider.CSharp, "BaseTypes") {
+    public sealed class CBTemplateCSharpClassTypeName : CBNamedTemplate<CBCodeClass> {
+        public CBTemplateCSharpClassTypeName()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.TypeName) {
         }
 
         public override void RenderT(CBCodeClass value, CBRenderContext ctxt) {
-            var lstBaseTypes = new List<ICBCodeTypeReference>();
-            if (value.BaseType is not null) {
-                lstBaseTypes.Add(value.BaseType);
-            }
-            lstBaseTypes.AddRange(value.Interfaces);
-
-            ctxt.Foreach(
-                items: lstBaseTypes,
-                eachItem: (i, ctxt) => {
-                    if (i.IsFirst) {
-                        ctxt.WriteLine(indent: +1);
-                        ctxt.Write(" : ");
-                    } else {
-                        ctxt.WriteLine();
-                        ctxt.Write(", ");
-                    }
-                    ctxt.CallTemplateDynamic(i.Value);
-                },
-                isEmpty: (ctxt) => {
-                    ctxt.IndentIncr();
-                });
+            ctxt.Write(value.Namespace.Namespace).Write(".").Write(value.TypeName);
+            
         }
     }
 }

@@ -1,15 +1,139 @@
-﻿using Brimborium.CodeBlocks.Tool;
-using System.Linq;
+﻿using Brimborium.CodeBlocks.Library;
+using Brimborium.CodeBlocks.Tool;
+
 using Microsoft.Extensions.Logging;
-using Brimborium.CodeFlow.Server;
-using Brimborium.CodeBlocks.Library;
+
 using System.CodeDom.Compiler;
 using System.IO;
+using System.Linq;
 using System.Text;
-using System.Collections.Generic;
 
 namespace Demo.CodeGen {
-    public class CodeGenTaskServerAPI : ICodeGenTask {
+    public class CodeGenTaskIServerAPI : ICodeGenTask {
+        private readonly ToolService _ToolService;
+        private readonly CBTemplateProvider _TemplateProvider;
+        private readonly ILogger<CodeGenTaskIServerAPI> _Logger;
+
+        public CodeGenTaskIServerAPI(
+            ToolService toolService,
+            CBTemplateProvider templateProvider,
+            ILogger<CodeGenTaskIServerAPI> logger
+            ) {
+            this._ToolService = toolService;
+            this._TemplateProvider = templateProvider.GetTemplateByLanguage(CBTemplateProvider.CSharp);
+            this._Logger = logger;
+        }
+
+        public int GetStep() => 100;
+
+        public void Execute() {
+            //var lstIServerAPI = typeof(Demo.Server.IEbbesServerAPI).Assembly.GetTypes().Where(t => typeof(IServerAPI).IsAssignableFrom(t)).ToList();
+            //this._Logger.LogDebug("ServerAPI : {ServerAPIs}", string.Join(", ", lstIServerAPI.Select(t => t.FullName)));
+            //foreach (var typeIServerAPI in lstIServerAPI) {
+            //    this.ScanServerAPI(CBCodeClrTypeReference.CreateFrom(typeIServerAPI));
+            //}
+            var lstTypeIController = this.GetType().Assembly.GetTypes().Where(t => t.Namespace == "Brimborium.WebFlow.Controllers").ToList();
+            this._Logger.LogDebug("IController  : {lstTypeIController}", string.Join(", ", lstTypeIController.Select(t => t.FullName)));
+            foreach (var typeIController in lstTypeIController) {
+                this.ScanServerAPI(CBCodeClrTypeReference.CreateFrom(typeIController));
+            }
+        }
+
+        private void ScanServerAPI(CBCodeClrTypeReference typeIController) {
+            var controllerInfo = SrcIControllerInfo.Create(typeIController);
+            var genIServerAPIInfo = GenIServerAPIInfo.Create(controllerInfo);
+
+            var codeFileInterface = CBCodeFileInterface.Create(
+                    genIServerAPIInfo.Namespace,
+                    genIServerAPIInfo.TypeName,
+                    $@"Demo.Abstracts\Server\{genIServerAPIInfo.TypeName}.txt"
+                );
+
+            var (codeFile, codeInterface) = codeFileInterface;
+            foreach (var ns in new string[]{
+                "System",
+                "System.Collections.Generic",
+                "System.Linq",
+                "System.Threading",
+                "System.Threading.Tasks"
+            }) {
+                codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace(ns)));
+            }
+            codeFile.Imports.Add(new CBCodeImportNamespace(codeInterface.Namespace));
+
+            codeFileInterface.Generate(this._ToolService, this._TemplateProvider);
+
+            /*
+            var typeServerAPI = new CBCodeClass(typeIServerAPI.Namespace, typeIServerAPI.TypeName.Substring(1));
+            typeServerAPI.Interfaces.Add(typeIServerAPI);
+            typeServerAPI.Attributes.Add(new CBCodeTypeAttribute(CBCodeClrTypeReference.Create<Brimborium.Registrator.ScopedAttribute>()));
+            var ns = typeServerAPI.Namespace.GetParentNamespace();
+
+            var codeFile = new CBCodeFile();
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("Brimborium.CodeFlow.RequestHandler")));
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("Brimborium.CodeFlow.Server")));
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("Brimborium.Registrator")));
+
+            codeFile.Imports.Add(new CBCodeImportNamespace(ns.GetSubNamespace("API")));
+            codeFile.Imports.Add(new CBCodeImportNamespace(ns.GetSubNamespace("Logic")));
+
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("Microsoft.Extensions.DependencyInjection")));
+
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("System")));
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("System.Collections.Generic")));
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("System.Linq")));
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("System.Threading")));
+            codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace("System.Threading.Tasks")));
+
+            codeFile.Namespace = typeIServerAPI.Namespace;
+            codeFile.Items.Add(typeServerAPI);
+            var ctor = new CBCodeDefinitionConstructor();
+            typeServerAPI.Members.Add(ctor);
+            ctor.AddParameterAssignToField("requestServices", CBCodeClrTypeReference.Create<System.IServiceProvider>());
+
+            foreach (var memberInfo in typeIServerAPI.GetMembers()) {
+                if (memberInfo is CBCodeClrMethodInfo methodInfo) {
+                    var serverAPIMethod = new GenIServerAPIMethodInfo();
+                    serverAPIMethod.Name = memberInfo.Name;
+                    if (methodInfo.Parameters.Length == 2) {
+                        serverAPIMethod.ServerRequest = methodInfo.Parameters[0].ParameterType;
+                    }
+
+                    if (methodInfo.ReturnType.TryGetGenericTypeArguments(typeof(System.Threading.Tasks.Task<>), out var taskOfArgs)) {
+                        if (taskOfArgs[0].TryGetGenericTypeArguments(typeof(Brimborium.CodeFlow.RequestHandler.RequestResult<>), out var responseArgs)) {
+                            serverAPIMethod.ServerResponse = responseArgs[0];
+                        }
+                    }
+                    serverAPIMethod.Request = serverAPIMethod.ServerRequest;
+                    serverAPIMethod.Response = serverAPIMethod.ServerResponse;
+                    typeServerAPI.Members.Add(serverAPIMethod);
+                }
+            }
+            */
+
+            /*
+            typeServerAPI.Members.Add(new ServerAPIMethod() {
+                Request = new CBCodeTypeNameReference(new CBCodeTypeName(new CBCodeNamespace(""), "GnaQueryRequest")),
+                ServerRequest = new CBCodeTypeNameReference(new CBCodeTypeName(new CBCodeNamespace(""), "GnaServerGetRequest")),
+                Response = new CBCodeTypeNameReference(new CBCodeTypeName(new CBCodeNamespace(""), "GnaQueryResponse")),
+                ServerResponse = new CBCodeTypeNameReference(new CBCodeTypeName(new CBCodeNamespace(""), "GnaServerGetResponse")),
+                RequestHandler = new CBCodeTypeNameReference(new CBCodeTypeName(new CBCodeNamespace(""), "IGnaQueryRequestHandler")),
+            });
+            */
+
+            //var sbOutput = new StringBuilder();
+            //var writer = new IndentedTextWriter(new StringWriter(sbOutput), "    ");
+            //CBRenderContext ctxt = new CBRenderContext(this._TemplateProvider, writer);
+            //ctxt.CallTemplateDynamic(codeFile);
+            //this._ToolService.SetFileContent(new CBFileContent($@"Demo.Logic\Server\{typeServerAPI.TypeName}.txt", sbOutput.ToString()));
+        }
+    }
+ 
+}
+
+#if false
+namespace Demo.CodeGen {
+    public class CodeGenTaskServerAPI /*: ICodeGenTask*/ {
         private readonly ToolService _ToolService;
         private readonly CBTemplateProvider _TemplateProvider;
         private readonly ILogger<CodeGenTaskServerAPI> _Logger;
@@ -30,7 +154,7 @@ namespace Demo.CodeGen {
             var lstIServerAPI = typeof(Demo.Server.IEbbesServerAPI).Assembly.GetTypes().Where(t => typeof(IServerAPI).IsAssignableFrom(t)).ToList();
             this._Logger.LogDebug("ServerAPI : {ServerAPIs}", string.Join(", ", lstIServerAPI.Select(t => t.FullName)));
             foreach (var typeIServerAPI in lstIServerAPI) {
-                this.ScanServerAPI(CBCodeClrTypeReference.Create(typeIServerAPI));
+                this.ScanServerAPI(CBCodeClrTypeReference.CreateFrom(typeIServerAPI));
             }
         }
 
@@ -66,9 +190,6 @@ namespace Demo.CodeGen {
             var ctor = new CBCodeDefinitionConstructor();
             typeServerAPI.Members.Add(ctor);
              ctor.AddParameterAssignToField("requestServices", CBCodeClrTypeReference.Create<System.IServiceProvider>());
-
-            //System.Diagnostics.Debugger.Launch();
-            //System.Diagnostics.Debugger.Break();
 
             foreach (var memberInfo in typeIServerAPI.GetMembers()) {
                 if (memberInfo is CBCodeClrMethodInfo methodInfo) {
@@ -139,6 +260,5 @@ namespace Demo.CodeGen {
 
         }
     }
-
-    public class ServerAPIInfo : CBCodeClass { }
 }
+#endif

@@ -91,9 +91,6 @@ namespace Brimborium.CodeBlocks.Library {
 
         public override void RenderT(CBCodeComplexExpression value, CBRenderContext ctxt) {
             for (int idx = 0; idx < value.Value.Count; idx++) {
-                //var prefix = value.Prefix[idx];
-                //var item = value.Value[idx];
-                //var suffix = value.Suffix[idx];
                 if (value.Prefix[idx] is string prefix) { 
                     ctxt.Write(prefix);
                 }
