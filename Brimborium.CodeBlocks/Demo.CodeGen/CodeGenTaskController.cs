@@ -42,7 +42,19 @@ namespace Demo.CodeGen {
                 );
 
             var (codeFile, codeClass) = codeFileClass;
+
+            var rootNS = genControllerInfo.Namespace.GetParentNamespace();
+            foreach (var ns in new string[] { "API", "Logic", "Server" }) {
+                codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace(rootNS.GetSubNamespace(ns))));
+            }
+
             foreach (var ns in new string[]{
+                "Brimborium.CodeFlow.RequestHandler",
+
+                "Microsoft.AspNetCore.Mvc",
+                "Microsoft.Extensions.DependencyInjection",
+                "Microsoft.Extensions.Logging",
+
                 "System",
                 "System.Collections.Generic",
                 "System.Linq",
@@ -55,8 +67,6 @@ namespace Demo.CodeGen {
 
             codeClass.Prefix.Add(new CBCodeConst("[ApiController]"));
             codeClass.Prefix.Add(new CBCodeConst("[Route(\"api/[controller]\")]"));
-
-
 
             //codeClass.Attributes.Add(new CBCodeTypeAttribute(CBCodeClrTypeReference.Create<Brimborium.Registrator.ScopedAttribute>()));
 

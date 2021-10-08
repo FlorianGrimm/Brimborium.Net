@@ -33,6 +33,11 @@ namespace Brimborium.CodeBlocks.Library {
             this.Expressions = new CBList<ICBCodeExpression>(this);
         }
 
+        public CBCodeAssignment(params ICBCodeExpression[] expressions) {
+            this.Expressions = new CBList<ICBCodeExpression>(this);
+            this.Expressions.AddRange(expressions);
+        }
+
         public CBList<ICBCodeExpression> Expressions { get; }
 
         public ICBCodeElement? Parent { get; set; }
@@ -49,7 +54,7 @@ namespace Brimborium.CodeBlocks.Library {
             ctxt.Foreach(
                 items: value.Expressions,
                 eachItem: (i, ctxt) => {
-                    ctxt.CallTemplateDynamic(i.Value);
+                    ctxt.CallTemplateDynamic(i.Value, CBTemplateProvider.Expression);
                     if (i.IsFirst) { } else { ctxt.Write(" = "); }
                     if (i.IsLast) {
                         ctxt.Write(";").WriteLine();

@@ -33,17 +33,13 @@ namespace Brimborium.CodeBlocks.Library {
             this._Items.AddRange(items);
             for (int idx = cnt; idx < this._Items.Count; idx++) {
                 var item = this._Items[idx];
-                if (item.Parent is null) {
-                    item.Parent = _Owner;
-                }
+                item.SetOwnerIfNeeded(this._Owner);
             }
         }
 
         public void Add(T item) {
             ((ICollection<T>)this._Items).Add(item);
-            if (item.Parent is null) {
-                item.Parent = _Owner;
-            }
+            item.SetOwnerIfNeeded(this._Owner);
         }
 
         public void Clear() {

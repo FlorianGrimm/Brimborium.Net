@@ -1,10 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Brimborium.CodeBlocks.Library {
     public interface ICBCodeDefinitionMember : ICBCodeElement {
-        bool IsStatic { get; set; }
         CBCodeAccessibilityLevel AccessibilityLevel { get; set; }
+        
+        bool IsStatic { get; set; }
+
+        bool IsReadonly { get; set; }
+
+        ICBCodeTypeReference? Type { get; set; }
+
         string Name { get; set; }
     }
 
@@ -12,10 +19,18 @@ namespace Brimborium.CodeBlocks.Library {
         public CBCodeDefinitionCustomMember() {
             this.Name = string.Empty;
         }
-        public bool IsStatic { get; set; }
         public CBCodeAccessibilityLevel AccessibilityLevel { get; set; }
+        
+        public bool IsStatic { get; set; }
+
+        public bool IsReadonly { get; set; }
+
+        public virtual ICBCodeTypeReference? Type { get; set; }
+
         public string Name { get; set; }
+
         public ICBCodeElement? Parent { get; set; }
+
         public virtual IEnumerable<ICBCodeElement> GetChildren() => new ICBCodeElement[0];
     }
 
@@ -26,6 +41,8 @@ namespace Brimborium.CodeBlocks.Library {
         public CBCodeAccessibilityLevel AccessibilityLevel { get; set; } = CBCodeAccessibilityLevel.Public;
 
         public bool IsStatic { get; set; }
+
+        public bool IsReadonly { get; set; }
 
         public string Name { get; set; } = string.Empty;
 
@@ -41,6 +58,9 @@ namespace Brimborium.CodeBlocks.Library {
             }
         }
 
+        public static implicit operator CBCodeFieldExpression(CBCodeDefinitionField that) {
+            return new CBCodeFieldExpression(that);
+        }
     }
 
     public sealed class CBTemplateCSharpDefinitionFieldDeclaration : CBNamedTemplate<CBCodeDefinitionField> {
@@ -49,8 +69,14 @@ namespace Brimborium.CodeBlocks.Library {
         }
 
         public override void RenderT(CBCodeDefinitionField value, CBRenderContext ctxt) {
-            ctxt.CallTemplateDynamic(value.AccessibilityLevel)
-                .CallTemplateDynamic(value.Type, CBTemplateProvider.TypeName).Write(" ")
+            ctxt.CallTemplateDynamic(value.AccessibilityLevel);
+            if (value.IsStatic) {
+                ctxt.Write("static ");
+            }
+            if (value.IsReadonly) {
+                ctxt.Write("readonly ");
+            }
+            ctxt.CallTemplateDynamic(value.Type, CBTemplateProvider.TypeName).Write(" ")
                 .Write(value.Name).Write(";")
                 .WriteLine();
         }
@@ -90,22 +116,34 @@ namespace Brimborium.CodeBlocks.Library {
         public static CBCodeDefinitionField AddParameterAssignToField(
             this CBCodeDefinitionConstructor that,
             string name,
-            ICBCodeTypeReference type
+            ICBCodeTypeReference type,
+            Action<CBCodeDefinitionField>? configField =default
             ) {
-            var p = new CBCodeParameter(name, type);
-            that.Parameters.Add(p);
-            var f = new CBCodeDefinitionField() { 
+            var parameter = new CBCodeParameter(name, type);
+            that.Parameters.Add(parameter);
+            var field = new CBCodeDefinitionField() { 
                 Name = "_" + name.Substring(0, 1).ToUpperInvariant() + name.Substring(1), 
                 Type = type,
                 AccessibilityLevel = CBCodeAccessibilityLevel.Private };
             if (that.Parent is CBCodeTypeDefinition typeDefinition) {
-                typeDefinition.Members.Add(f);
+                typeDefinition.Members.Add(field);
             }
             if (that.Code is null) { that.Code = new CBCodeBlock(); }
             if (that.Code is CBCodeBlock block) {
-                //block.Statements.Add(new CBCodeAssignment("this.", ));
+                block.Statements.Add(
+                    new CBCodeAssignment(
+                        new CBCodeAccessorExpression(new CBCodeCustomExpression("this"), new CBCodeFieldExpression(field)),
+                        new CBCodeAccessorExpression(new CBCodeParameterExpression(parameter))
+                        )
+                    );
+
+
+                    //new CBCodeSimpleExpression("this.", f), new CBCodeSimpleExpression("this.", f)); ;
             }
-            return f;
+            if (configField is not null) {
+                configField(field);
+            }
+            return field;
         }
     }
 
