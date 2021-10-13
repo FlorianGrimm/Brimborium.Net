@@ -96,6 +96,7 @@ namespace Brimborium.CodeBlocks.Tool {
             DependencyContext dependencyContext,
             AppConfiguration appConfiguration,
             IRunOptions opts) {
+            await Task.CompletedTask;
 
             var classNameStartup = $"{assembly.GetName().Name}.Startup";
 

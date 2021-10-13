@@ -73,9 +73,10 @@ namespace Brimborium.CodeBlocks.Library {
         }
 
         public override void RenderT(CBCodeMethod value, CBRenderContext ctxt) {
-            ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ")
-                .CallTemplateDynamic(value.ReturnType).Write(" ")
-                .Write(value.Name).Write("(").IndentIncr()
+            ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ");
+            ctxt.CallTemplateDynamic(value.ReturnType, CBTemplateProvider.TypeName);
+            ctxt.Write(" ");
+            ctxt.Write(value.Name).Write("(").IndentIncr()
                 .Foreach(
                     value.Parameters,
                     (i, ctxt) => {

@@ -49,21 +49,29 @@ namespace Brimborium.CodeBlocks.Library {
             string name,
             CBCodeType type
             ) {
-            var p = new CBCodeParameter(name, type);
-            that.Parameters.Add(p);
-            var f = new CBCodeField() {
+            var parameter = new CBCodeParameter(name, type);
+            that.Parameters.Add(parameter);
+            var field = new CBCodeField() {
                 Name = "_" + name.Substring(0, 1).ToUpperInvariant() + name.Substring(1),
                 Type = type,
                 AccessibilityLevel = CBCodeAccessibilityLevel.Private
             };
             if (that.Parent is CBCodeType typeDefinition) {
-                typeDefinition.Members.Add(f);
+                typeDefinition.Members.Add(field);
             }
             if (that.Code is null) { that.Code = new CBCodeBlock(); }
             if (that.Code is CBCodeBlock block) {
+                block.Statements.Add(
+                    new CBCodeAssignment(
+                        new CBCodeAccessor(
+                            field
+                            ) { This = true },
+                        parameter
+                        )
+                    );
                 //block.Statements.Add(new CBCodeAssignment("this.", ));
             }
-            return f;
+            return field;
         }
     }
 
@@ -73,7 +81,7 @@ namespace Brimborium.CodeBlocks.Library {
         }
 
         public override void RenderT(CBCodeConstructor value, CBRenderContext ctxt) {
-            ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ")
+            ctxt.CallTemplateDynamic(value.AccessibilityLevel)
                 .Write(value.Name).Write("(").IndentIncr()
                 .Foreach(
                     value.Parameters,
@@ -89,11 +97,13 @@ namespace Brimborium.CodeBlocks.Library {
                                     ctxt.Write(",");
                                 });
                     })
-                .IndentDecr().Write(") {").WriteLine().IndentIncr()
-                    .CallTemplateDynamic(value.Code)
-                .IndentDecr().Write("}").WriteLine()
-                .WriteLine()
-                ;
+                .IndentDecr().Write(") {").WriteLine().IndentIncr();
+            if (value.Code is not null) {
+                ctxt.CallTemplateDynamic(value.Code, CBTemplateProvider.Expression);
+            }
+            ctxt.IndentDecr().Write("}").WriteLine()
+            .WriteLine()
+            ;
         }
     }
 

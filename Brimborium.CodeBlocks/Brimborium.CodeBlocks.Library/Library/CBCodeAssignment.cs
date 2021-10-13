@@ -2,15 +2,18 @@
 
 namespace Brimborium.CodeBlocks.Library {
     public sealed class CBCodeAssignment : ICBCodeElement {
-        public CBCodeAssignment() {
-            this.Expressions = new CBList<ICBCodeExpression>(this);
+        public CBCodeAssignment(params ICBCodeElement[] expressions ) {
+            this.Expressions = new CBList<ICBCodeElement>(this);
+            if (expressions.Length > 0) { 
+            this.Expressions.AddRange(expressions);
+            }
         }
 
         public string? VariableName { get; set; }
 
         public CBCodeType? VariableType { get; set; }
 
-        public CBList<ICBCodeExpression> Expressions { get; }
+        public CBList<ICBCodeElement> Expressions { get; }
 
         public ICBCodeElement? Parent { get; set; }
 
@@ -37,8 +40,8 @@ namespace Brimborium.CodeBlocks.Library {
             ctxt.Foreach(
                 items: value.Expressions,
                 eachItem: (i, ctxt) => {
-                    ctxt.CallTemplateDynamic(i.Value);
                     if (i.IsFirst) { } else { ctxt.Write(" = "); }
+                    ctxt.CallTemplateDynamic(i.Value);
                 }
                 );
             ctxt.Write(";").WriteLine();

@@ -2,8 +2,11 @@
 
 namespace Brimborium.CodeBlocks.Library {
     public class CBCodeAccessor : ICBCodeExpression {
-        public CBCodeAccessor() {
+        public CBCodeAccessor(params ICBCodeElement[] expressions) {
             this.Expressions = new CBList<ICBCodeElement>(this);
+            if (expressions.Length > 0) {
+                this.Expressions.AddRange(expressions);
+            }
         }
 
         public bool This { get; set; }

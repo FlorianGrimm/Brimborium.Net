@@ -28,6 +28,7 @@ namespace Brimborium.CodeBlocks.Library {
         public CBCodeAccessibilityLevel AccessibilityLevel { get; set; }
 
         public bool IsStatic { get; set; }
+        public bool IsReadOnly { get; set; }
 
         public string Name { get; set; } = string.Empty;
 
@@ -50,10 +51,21 @@ namespace Brimborium.CodeBlocks.Library {
         }
 
         public override void RenderT(CBCodeField value, CBRenderContext ctxt) {
-            ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ")
-                .CallTemplateDynamic(value.Type).Write(" ")
+            ctxt.CallTemplateDynamic(value.AccessibilityLevel)
+                .If(value.IsReadOnly, ctxt=>ctxt.Write("readonly "))
+                .CallTemplateDynamic(value.Type, CBTemplateProvider.TypeName).Write(" ")
                 .Write(value.Name).Write(";")
                 .WriteLine();
+        }
+    }
+
+    public sealed class CBTemplateCSharpFieldExpression : CBNamedTemplate<CBCodeField> {
+        public CBTemplateCSharpFieldExpression()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Expression) {
+        }
+
+        public override void RenderT(CBCodeField value, CBRenderContext ctxt) {
+            ctxt.Write(value.Name);
         }
     }
 }

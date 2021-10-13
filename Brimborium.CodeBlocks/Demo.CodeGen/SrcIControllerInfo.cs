@@ -1,6 +1,5 @@
 ﻿using Brimborium.CodeBlocks.Library;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -33,11 +32,11 @@ namespace Demo.CodeGen {
         public List<SrcIControllerMethodInfo> Methods { get; }
     }
 
-    public sealed class SrcIControllerMethodInfo : CBCodeCustomMember {
+    public sealed class SrcIControllerMethodInfo : CBCodeMethod {
         public SrcIControllerMethodInfo(CBCodeMethod sourceMethod) {
             this.SourceMethod = sourceMethod;
+            this.AccessibilityLevel = sourceMethod.AccessibilityLevel;
             this.Name = sourceMethod.Name;
-            this.Parameters = new CBList<CBCodeParameter>(this);
             this.ReturnType = sourceMethod.ReturnType;
             foreach (var parameter in sourceMethod.Parameters) {
                 this.Parameters.Add(parameter);
@@ -45,10 +44,5 @@ namespace Demo.CodeGen {
         }
 
         public CBCodeMethod SourceMethod { get; }
-
-        public CBCodeType? ReturnType { get; set; }
-
-        public CBList<CBCodeParameter> Parameters { get; }
-
     }
 }

@@ -63,26 +63,35 @@ namespace Demo.CodeGen {
             }
             codeFile.Imports.Add(new CBCodeImportNamespace(codeClass.Namespace));
 
+            codeClass.AccessibilityLevel = CBCodeAccessibilityLevel.Public;
             codeClass.IsClass = true;
             codeClass.IsSealed = true;
-            codeClass.Prefix.Add(new CBCodeConst($"// {typeIController}"));
             codeClass.Prefix.Add(new CBCodeConst("[ApiController]"));
             codeClass.Prefix.Add(new CBCodeConst("[Route(\"api/[controller]\")]"));
             codeClass.BaseType = CBCodeType.FromClr(typeof(Microsoft.AspNetCore.Mvc.ControllerBase));
+            codeClass.Interfaces.Add(typeIController);
 
             //codeClass.Attributes.Add(new CBCodeTypeAttribute(CBCodeClrTypeReference.Create<Brimborium.Registrator.ScopedAttribute>()));
 
-            var ctor = new CBCodeConstructor();
+            var ctor = new CBCodeConstructor() {
+                AccessibilityLevel = CBCodeAccessibilityLevel.Public
+            };
             codeClass.Constructors.Add(ctor);
-            
-            ctor.AddParameterAssignToField("requestServices", CBCodeType.FromClr(typeof(System.IServiceProvider)));
+
+            ctor.AddParameterAssignToField("requestServices", CBCodeType.FromClr(typeof(System.IServiceProvider)))
+                .IsReadOnly=true;
 
             ctor.AddParameterAssignToField("logger",
                 new CBCodeType(
                     genericTypeDefinition: CBCodeType.FromClr(typeof(Microsoft.Extensions.Logging.ILogger<>)),
-                    genericTypeArguments: new CBCodeType[] { codeClass }));
+                    genericTypeArguments: new CBCodeType[] { codeClass }))
+                .IsReadOnly = true;
 
-            codeFile.Generate(this._ToolService, this._TemplateProvider);
+            codeClass.Methods.AddRange(
+                genControllerInfo.Methods
+                );
+            
+            codeFile.Generate(this._ToolService, this._TemplateProvider, CBTemplateProvider.Declaration);
         }
     }
 }

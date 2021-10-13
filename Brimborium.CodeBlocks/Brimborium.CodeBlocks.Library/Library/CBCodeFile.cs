@@ -94,7 +94,7 @@ namespace Brimborium.CodeBlocks.Library {
             ctxt.Write("namespace ").Write(value.Namespace.Name)
                 .Write(" {").WriteLine().IndentIncr();
             foreach (var item in value.Items) {
-                ctxt.CallTemplateDynamic(item);
+                ctxt.CallTemplateDynamic(item, CBTemplateProvider.Declaration);
             }
             ctxt.IndentDecr().Write("}").WriteLine();
         }

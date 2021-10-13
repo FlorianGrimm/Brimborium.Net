@@ -61,7 +61,7 @@ namespace Demo.CodeGen {
             }
             codeFile.Imports.Add(new CBCodeImportNamespace(codeInterface.Namespace));
 
-            codeFile.Generate(this._ToolService, this._TemplateProvider);
+            codeFile.Generate(this._ToolService, this._TemplateProvider, CBTemplateProvider.Declaration);
 
             /*
             var typeServerAPI = new CBCodeClass(typeIServerAPI.Namespace, typeIServerAPI.TypeName.Substring(1));

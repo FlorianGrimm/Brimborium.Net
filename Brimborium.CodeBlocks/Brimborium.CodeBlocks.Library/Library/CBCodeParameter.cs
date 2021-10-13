@@ -7,12 +7,12 @@ namespace Brimborium.CodeBlocks.Library {
         public static CBCodeParameter FromClr(ParameterInfo parameterInfo) {
             var result = new CBCodeParameter(
                 parameterInfo.Name ?? string.Empty,
-                CBCodeType.FromClr(parameterInfo.ParameterType)) { 
-                IsOut=parameterInfo.IsOut,
+                CBCodeType.FromClr(parameterInfo.ParameterType)) {
+                IsOut = parameterInfo.IsOut,
                 IsOptional = parameterInfo.IsOptional,
                 IsRef = parameterInfo.IsRetval
             };
-            
+
             return result;
         }
 
@@ -56,6 +56,20 @@ namespace Brimborium.CodeBlocks.Library {
                 .Write(" ")
                 .Write(value.Name)
                 ;
+        }
+    }
+
+    public sealed class CBTemplateCSharpParameterExpression : CBNamedTemplate<CBCodeParameter> {
+        public CBTemplateCSharpParameterExpression()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Expression) {
+        }
+
+        public override void RenderT(CBCodeParameter value, CBRenderContext ctxt) {
+            if (string.IsNullOrEmpty(value.Name)) {
+                ctxt.Write("parameter has no name");
+            } else { 
+                ctxt.Write(value.Name);
+            }
         }
     }
 }

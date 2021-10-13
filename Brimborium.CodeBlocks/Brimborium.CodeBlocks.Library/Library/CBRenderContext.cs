@@ -53,8 +53,8 @@ namespace Brimborium.CodeBlocks.Library {
         public CBRenderContext CallTemplateDynamic<T>([AllowNull] T value, string? name = default) {
             var currentName = string.IsNullOrEmpty(name) ? this.Name : name;
             if (value is null) {
-                if (this.TemplateProvider.TryGetTemplate(typeof(T), typeof(T), currentName, true, out var template)) {
-                    if (template.GetCallForNullShouldBeBlocked()) {
+                if (this.TemplateProvider.TryGetTemplate(typeof(T), typeof(T), currentName, false, out var template)) {
+                    if (template is null || template.GetCallForNullShouldBeBlocked()) {
                         // ignore
                     } else {
                         CBRenderContext caller = this.GetNextContext(name);

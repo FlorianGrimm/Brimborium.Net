@@ -37,17 +37,23 @@ namespace Brimborium.CodeBlocks.Library {
 
         public ICBCodeElement? Parent { get; set; }
 
-        public IEnumerable<ICBCodeElement> GetChildren() {
-            throw new System.NotImplementedException();
-        }
-
+        public IEnumerable<ICBCodeElement> GetChildren() => new ICBCodeElement[0];
     }
+
     public class CBTemplateCSharpPropertyDeclaration : CBNamedTemplate<CBCodeProperty> {
         public CBTemplateCSharpPropertyDeclaration()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 
         public override void RenderT(CBCodeProperty value, CBRenderContext ctxt) {
+            ctxt.CallTemplateDynamic(value.AccessibilityLevel)
+                .CallTemplateDynamic(value.PropertyType, CBTemplateProvider.TypeName)
+                .Write(" ")
+                .Write(value.Name);
+            ctxt.Write("{ get; set;}");
+            ctxt.Write("/*TODO*/");
+            ctxt.WriteLine();
+
             //ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ")
             //    .Write(value.Name).Write("(").IndentIncr()
             //    .Foreach(

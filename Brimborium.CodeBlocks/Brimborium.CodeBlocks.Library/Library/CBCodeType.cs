@@ -235,7 +235,7 @@ namespace Brimborium.CodeBlocks.Library {
                 eachItem: (i, ctxt) => {
                     if (i.IsFirst) {
                         ctxt.WriteLine(indent: +1);
-                        ctxt.Write(" : ");
+                        ctxt.Write(": ");
                     } else {
                         ctxt.WriteLine();
                         ctxt.Write(", ");
@@ -264,6 +264,7 @@ namespace Brimborium.CodeBlocks.Library {
                     if (idx > 0) { ctxt.Write(", "); }
                     ctxt.CallTemplateDynamic(genericTypeArguments[idx], CBTemplateProvider.TypeName);
                 }
+                ctxt.Write(">");
             }
         }
     }

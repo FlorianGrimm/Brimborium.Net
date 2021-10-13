@@ -11,7 +11,7 @@ namespace Demo.CodeGen {
             this.SrcInfo = controllerInfo;
             this.Namespace = controllerInfo.TypeIController.Namespace.GetParentNamespace().GetSubNamespace("Server");
             this.TypeName = $"I{controllerInfo.ShortName}ServerAPI";
-            this.Methods = new List<ControllerMethodInfo>();
+            this.Methods = new List<GenIServerAPIMethodInfo>();
         }
 
         public SrcIControllerInfo SrcInfo { get; }
@@ -19,17 +19,28 @@ namespace Demo.CodeGen {
         public CBCodeNamespace Namespace { get; }
         public string TypeName { get; }
 
-        public List<ControllerMethodInfo> Methods { get; }
+        public List<GenIServerAPIMethodInfo> Methods { get; }
 
         public static GenIServerAPIInfo Create(SrcIControllerInfo controllerInfo) {
             var result = new GenIServerAPIInfo(controllerInfo);
+            result.Methods.AddRange(
+                controllerInfo.Methods.Select(method => new GenIServerAPIMethodInfo(result, method))
+                );
             return result;
         }
     }
 
-    public sealed class GenIServerAPIMethodInfo : CBCodeCustomMember {
-        public GenIServerAPIMethodInfo() {
+    public sealed class GenIServerAPIMethodInfo : CBCodeMethod {
+        public GenIServerAPIMethodInfo(
+            GenIServerAPIInfo genIServerAPIInfo, 
+            SrcIControllerMethodInfo sourceMethod) {
+            this.GenIServerAPIInfo = genIServerAPIInfo;
+            this.SourceMethod = sourceMethod;
         }
+
+        public GenIServerAPIInfo GenIServerAPIInfo { get; }
+        public SrcIControllerMethodInfo SourceMethod { get; }
+
         //public ICBCodeTypeReference? ServerRequest { get; set; }
         //public ICBCodeTypeReference? Request { get; set; }
         //public ICBCodeTypeReference? Response { get; set; }

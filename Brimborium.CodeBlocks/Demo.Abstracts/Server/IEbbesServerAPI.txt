@@ -7,6 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.WebFlow.Server {
-    public interface IEbbesServerAPI {
+    interface IEbbesServerAPI {
     }
 }
