@@ -23,23 +23,18 @@ namespace Demo.CodeGen {
         }
     }
 
-    public sealed class ControllerMethodInfo : CBCodeDefinitionCustomMember {
-        public ControllerMethodInfo(CBCodeClrMethodInfo methodInfo) {
-            this.MethodInfo = methodInfo;
-            this.Name = methodInfo.Name;
-            this.Parameters = new CBList<ICBCodeParameter>(this);
-            this.ReturnType = methodInfo.ReturnType.GetCBCodeTypeNameReference();
-            foreach (var parameter in methodInfo.Parameters) {
-                this.Parameters.Add(parameter.AsCBCodeParameter());
+    public sealed class ControllerMethodInfo : CBCodeMethod {
+        public ControllerMethodInfo(CBCodeMethod sourceMethod) {
+            this.SourceMethod = sourceMethod;
+            this.AccessibilityLevel = CBCodeAccessibilityLevel.Public;
+            this.Name = sourceMethod.Name;
+            this.ReturnType = sourceMethod.ReturnType;
+            foreach (var parameter in sourceMethod.Parameters) {
+                this.Parameters.Add(parameter);
             }
         }
 
-        public CBCodeClrMethodInfo MethodInfo { get; }
-
-        public ICBCodeTypeReference? ReturnType { get; set; }
-
-        public CBList<ICBCodeParameter> Parameters { get; }
-
+        public CBCodeMethod SourceMethod { get; }
     }
 
     public sealed class CBTemplateCSharpControllerMethodInfo : CBNamedTemplate<ControllerMethodInfo> {

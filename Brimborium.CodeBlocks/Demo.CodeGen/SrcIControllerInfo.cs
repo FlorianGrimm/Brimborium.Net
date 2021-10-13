@@ -7,46 +7,46 @@ using System.Text.RegularExpressions;
 
 namespace Demo.CodeGen {
     public sealed class SrcIControllerInfo {
-        public static SrcIControllerInfo Create(CBCodeClrTypeReference typeIController) {
+        public static SrcIControllerInfo Create(CBCodeType typeIController) {
             var r = new Regex("^I(.*)Controller$", RegexOptions.Singleline);
-            var m = r.Match(typeIController.TypeName);
+            var m = r.Match(typeIController.Name);
             if (!m.Success) {
-                throw new System.ArgumentException($"{typeIController.TypeName} must match the pattern I...Controller.");
+                throw new System.ArgumentException($"{typeIController.Name} must match the pattern I...Controller.");
             }
             var result = new SrcIControllerInfo(typeIController, m.Groups[1].Value);
             result.Methods.AddRange(
-                    typeIController.GetMembers().OfType<CBCodeClrMethodInfo>().Select(mi => new SrcIControllerMethodInfo(mi))
+                    typeIController.Methods.Select(method => new SrcIControllerMethodInfo(method))
                 );
             return result;
         }
 
-        public SrcIControllerInfo(CBCodeClrTypeReference typeIController, string shortName) {
+        public SrcIControllerInfo(CBCodeType typeIController, string shortName) {
             this.TypeIController = typeIController;
             this.ShortName = shortName;
             this.Methods = new List<SrcIControllerMethodInfo>();
         }
 
-        public CBCodeClrTypeReference TypeIController { get; }
+        public CBCodeType TypeIController { get; }
 
         public string ShortName { get; }
 
         public List<SrcIControllerMethodInfo> Methods { get; }
     }
 
-    public sealed class SrcIControllerMethodInfo : CBCodeDefinitionCustomMember {
-        public SrcIControllerMethodInfo(CBCodeClrMethodInfo methodInfo) {
-            this.MethodInfo = methodInfo;
-            this.Name = methodInfo.Name;
+    public sealed class SrcIControllerMethodInfo : CBCodeCustomMember {
+        public SrcIControllerMethodInfo(CBCodeMethod sourceMethod) {
+            this.SourceMethod = sourceMethod;
+            this.Name = sourceMethod.Name;
             this.Parameters = new CBList<CBCodeParameter>(this);
-            this.ReturnType = methodInfo.ReturnType.GetCBCodeTypeNameReference();
-            foreach (var parameter in methodInfo.Parameters) {
-                this.Parameters.Add(parameter.AsCBCodeParameter());
+            this.ReturnType = sourceMethod.ReturnType;
+            foreach (var parameter in sourceMethod.Parameters) {
+                this.Parameters.Add(parameter);
             }
         }
 
-        public CBCodeClrMethodInfo MethodInfo { get; }
+        public CBCodeMethod SourceMethod { get; }
 
-        public CBCodeTypeNameReference? ReturnType { get; set; }
+        public CBCodeType? ReturnType { get; set; }
 
         public CBList<CBCodeParameter> Parameters { get; }
 

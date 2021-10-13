@@ -27,7 +27,7 @@ namespace Demo.CodeGen {
         }
     }
 
-    public sealed class GenIServerAPIMethodInfo : CBCodeDefinitionCustomMember {
+    public sealed class GenIServerAPIMethodInfo : CBCodeCustomMember {
         public GenIServerAPIMethodInfo() {
         }
         //public ICBCodeTypeReference? ServerRequest { get; set; }

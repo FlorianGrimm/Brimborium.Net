@@ -35,21 +35,21 @@ namespace Demo.CodeGen {
             var lstTypeIController = this.GetType().Assembly.GetTypes().Where(t => t.Namespace == "Brimborium.WebFlow.Controllers").ToList();
             this._Logger.LogDebug("IController  : {lstTypeIController}", string.Join(", ", lstTypeIController.Select(t => t.FullName)));
             foreach (var typeIController in lstTypeIController) {
-                this.ScanServerAPI(CBCodeClrTypeReference.CreateFrom(typeIController));
+                this.ScanServerAPI(CBCodeType.FromClr(typeIController));
             }
         }
 
-        private void ScanServerAPI(CBCodeClrTypeReference typeIController) {
+        private void ScanServerAPI(CBCodeType typeIController) {
             var controllerInfo = SrcIControllerInfo.Create(typeIController);
             var genIServerAPIInfo = GenIServerAPIInfo.Create(controllerInfo);
 
-            var codeFileInterface = CBCodeFileInterface.Create(
+            var (codeFile, codeInterface) = CBCodeFile.CreateFileAndType(
                     genIServerAPIInfo.Namespace,
                     genIServerAPIInfo.TypeName,
                     $@"Demo.Abstracts\Server\{genIServerAPIInfo.TypeName}.txt"
                 );
+            codeInterface.IsInterface = true;
 
-            var (codeFile, codeInterface) = codeFileInterface;
             foreach (var ns in new string[]{
                 "System",
                 "System.Collections.Generic",
@@ -61,7 +61,7 @@ namespace Demo.CodeGen {
             }
             codeFile.Imports.Add(new CBCodeImportNamespace(codeInterface.Namespace));
 
-            codeFileInterface.Generate(this._ToolService, this._TemplateProvider);
+            codeFile.Generate(this._ToolService, this._TemplateProvider);
 
             /*
             var typeServerAPI = new CBCodeClass(typeIServerAPI.Namespace, typeIServerAPI.TypeName.Substring(1));

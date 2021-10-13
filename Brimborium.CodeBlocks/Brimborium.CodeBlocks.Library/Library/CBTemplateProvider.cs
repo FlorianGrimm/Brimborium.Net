@@ -8,6 +8,7 @@ namespace Brimborium.CodeBlocks.Library {
         public const string Default = "Default";
         public const string Attribute = "Attribute";
         public const string Declaration = "Declaration";
+        public const string BaseTypes = "BaseTypes";
         public const string Expression = "Expression";
         public const string TypeName = "TypeName";
 

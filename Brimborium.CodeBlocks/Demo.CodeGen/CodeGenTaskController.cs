@@ -27,21 +27,21 @@ namespace Demo.CodeGen {
             var lstTypeIController = this.GetType().Assembly.GetTypes().Where(t => t.Namespace == "Brimborium.WebFlow.Controllers").ToList();
             this._Logger.LogDebug("IController  : {lstTypeIController}", string.Join(", ", lstTypeIController.Select(t => t.FullName)));
             foreach (var typeIController in lstTypeIController) {
-                this.ExecuteIController(CBCodeClrTypeReference.CreateFrom(typeIController));
+                this.ExecuteIController(CBCodeType.FromClr(typeIController));
             }
         }
 
-        public void ExecuteIController(CBCodeClrTypeReference typeIController) {
+        public void ExecuteIController(CBCodeType typeIController) {
             var controllerInfo = SrcIControllerInfo.Create(typeIController);
             var genControllerInfo = GenControllerInfo.Create(controllerInfo);
 
-            var codeFileClass = CBCodeFileClass.Create(
+            var (codeFile, codeClass) = CBCodeFile.CreateFileAndType(
                     genControllerInfo.Namespace,
                     genControllerInfo.TypeName,
                     $@"Demo.WebApplication\Controllers\{genControllerInfo.TypeName}.txt"
                 );
+            
 
-            var (codeFile, codeClass) = codeFileClass;
             foreach (var ns in new string[]{
                 "System",
                 "System.Collections.Generic",
@@ -53,30 +53,26 @@ namespace Demo.CodeGen {
             }
             codeFile.Imports.Add(new CBCodeImportNamespace(codeClass.Namespace));
 
+            codeClass.IsClass = true;
+            codeClass.IsSealed = true;
+            codeClass.Prefix.Add(new CBCodeConst($"// {typeIController}"));
             codeClass.Prefix.Add(new CBCodeConst("[ApiController]"));
             codeClass.Prefix.Add(new CBCodeConst("[Route(\"api/[controller]\")]"));
-
-
+            codeClass.BaseType = CBCodeType.FromClr(typeof(Microsoft.AspNetCore.Mvc.ControllerBase));
 
             //codeClass.Attributes.Add(new CBCodeTypeAttribute(CBCodeClrTypeReference.Create<Brimborium.Registrator.ScopedAttribute>()));
 
-            var ctor = new CBCodeDefinitionConstructor();
+            var ctor = new CBCodeConstructor();
+            codeClass.Constructors.Add(ctor);
+            
+            ctor.AddParameterAssignToField("requestServices", CBCodeType.FromClr(typeof(System.IServiceProvider)));
 
-            //var typeServerAPI = new CBCodeClass(typeIServerAPI.Namespace, typeIServerAPI.TypeName.Substring(1));
-            //codeClass.Interfaces.Add(typeIServerAPI);
-
-            codeClass.Members.Add(ctor);
-            ctor.AddParameterAssignToField("requestServices", CBCodeClrTypeReference.Create<System.IServiceProvider>());
             ctor.AddParameterAssignToField("logger",
-                new CBCodeTypeNameReference(
-                    new CBCodeTypeName() {
-                        GenericTypeDefinition = CBCodeClrTypeReference.CreateFrom(typeof(Microsoft.Extensions.Logging.ILogger<>)).GetCBCodeTypeNameReference(),
-                        GenericTypeArguments = new ICBCodeTypeReference[] {
-                            new CBCodeTypeNameReference(codeClass)
-                        }
-                    }));
+                new CBCodeType(
+                    genericTypeDefinition: CBCodeType.FromClr(typeof(Microsoft.Extensions.Logging.ILogger<>)),
+                    genericTypeArguments: new CBCodeType[] { codeClass }));
 
-            codeFileClass.Generate(this._ToolService, this._TemplateProvider);
+            codeFile.Generate(this._ToolService, this._TemplateProvider);
         }
     }
 }

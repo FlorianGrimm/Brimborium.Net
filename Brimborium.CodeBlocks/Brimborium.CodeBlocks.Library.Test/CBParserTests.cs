@@ -15,6 +15,7 @@ cc/*<<gna--*/dd/*--gna>>*/ee
 
 ";
 
+#if false
             var o = @"
 aa
 /*<<hugo:abc--*/
@@ -22,6 +23,7 @@ dd
 /*--hugo>>*/
 cc
 ";
+#endif
             var sut = new CBParser();
             var act = sut.Tokenize(i);
             Assert.Equal(9, act.Count);

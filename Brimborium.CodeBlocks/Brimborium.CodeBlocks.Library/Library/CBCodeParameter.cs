@@ -1,19 +1,43 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Brimborium.CodeBlocks.Library {
-    public class CBCodeParameter : ICBCodeParameter {
+    public class CBCodeParameter : ICBCodeElement {
+        public static CBCodeParameter FromClr(ParameterInfo parameterInfo) {
+            var result = new CBCodeParameter(
+                parameterInfo.Name ?? string.Empty,
+                CBCodeType.FromClr(parameterInfo.ParameterType)) { 
+                IsOut=parameterInfo.IsOut,
+                IsOptional = parameterInfo.IsOptional,
+                IsRef = parameterInfo.IsRetval
+            };
+            
+            return result;
+        }
+
+        public CBCodeParameter() {
+            this.Name = string.Empty;
+            this.Type = CBCodeType.FromClr(typeof(object));
+        }
+
         public CBCodeParameter(
             string name,
-            ICBCodeTypeReference type) {
+            CBCodeType type) {
             this.Name = name;
             this.Type = type;
         }
 
+
+        public string Name { get; set; }
+
+        public CBCodeType Type { get; set; }
+
         public bool IsOut { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+        public bool IsRef { get; set; }
 
-        public ICBCodeTypeReference Type { get; set; }
+        public bool IsOptional { get; set; }
 
         public ICBCodeElement? Parent { get; set; }
 
@@ -27,6 +51,7 @@ namespace Brimborium.CodeBlocks.Library {
 
         public override void RenderT(CBCodeParameter value, CBRenderContext ctxt) {
             ctxt.If(value.IsOut, ctxt => ctxt.Write("out "))
+                .If(value.IsRef, ctxt => ctxt.Write("ref "))
                 .CallTemplateDynamic(value.Type, CBTemplateProvider.TypeName)
                 .Write(" ")
                 .Write(value.Name)

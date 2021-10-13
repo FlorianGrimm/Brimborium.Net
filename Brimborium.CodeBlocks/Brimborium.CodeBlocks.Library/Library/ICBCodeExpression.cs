@@ -2,6 +2,7 @@
 
 namespace Brimborium.CodeBlocks.Library {
     public interface ICBCodeExpression : ICBCodeElement {
+        CBCodeType? ResultType { get; set; }
     }
 
     public sealed class CBCodeSimpleExpression : ICBCodeExpression {
@@ -17,6 +18,8 @@ namespace Brimborium.CodeBlocks.Library {
             this.Value = value;
             this.Suffix = suffix;
         }
+
+        public CBCodeType? ResultType { get; set; }
 
         public string? Prefix { get; set; }
 
@@ -64,6 +67,8 @@ namespace Brimborium.CodeBlocks.Library {
             this.Suffix.Add(suffix);
             return this;
         }
+
+        public CBCodeType? ResultType { get; set; }
 
         public List<string?> Prefix { get; }
 
