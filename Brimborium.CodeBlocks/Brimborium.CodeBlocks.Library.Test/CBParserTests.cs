@@ -1,4 +1,5 @@
 #pragma warning disable xUnit2004 // Do not use equality check to test for boolean conditions
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
 
 using Xunit;
 

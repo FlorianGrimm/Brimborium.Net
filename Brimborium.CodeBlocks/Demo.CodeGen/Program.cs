@@ -1,7 +1,9 @@
-﻿namespace Demo.CodeGen {
-    public class Program {
-        public static void Main(string[] args) {
-            System.Console.Out.WriteLine("use tool.");
+﻿using System.Threading.Tasks;
+
+namespace Demo.CodeGen {
+    public static class Program {
+        public static async Task<int> Main(string[] args) {
+            return await Brimborium.CodeBlocks.Inplace.InplaceProgram.Run(args, typeof(Program).Assembly);
         }
     }
 }

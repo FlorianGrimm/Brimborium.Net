@@ -76,9 +76,9 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpCodeFile : CBNamedTemplate<CBCodeFile> {
-        public CBTemplateCSharpCodeFile()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpCodeFileCommon : CBNamedTemplate<CBCodeFile> {
+        public CBTemplateCSharpCodeFileCommon() 
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Common) {
         }
 
         public override void RenderT(CBCodeFile value, CBRenderContext ctxt) {
@@ -100,9 +100,9 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpImportNamespace : CBNamedTemplate<CBCodeImportNamespace> {
-        public CBTemplateCSharpImportNamespace()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpImportNamespaceCommon : CBNamedTemplate<CBCodeImportNamespace> {
+        public CBTemplateCSharpImportNamespaceCommon()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Common) {
         }
 
         public override void RenderT(CBCodeImportNamespace value, CBRenderContext ctxt) {
@@ -110,9 +110,9 @@ namespace Brimborium.CodeBlocks.Library {
         }
     }
 
-    public sealed class CBTemplateCSharpImportAlias : CBNamedTemplate<CBCodeImportAlias> {
-        public CBTemplateCSharpImportAlias()
-            : base(CBTemplateProvider.CSharp, string.Empty) {
+    public sealed class CBTemplateCSharpImportAliasCommon : CBNamedTemplate<CBCodeImportAlias> {
+        public CBTemplateCSharpImportAliasCommon()
+            : base(CBTemplateProvider.CSharp, CBTemplateProvider.Common) {
         }
 
         public override void RenderT(CBCodeImportAlias value, CBRenderContext ctxt) {

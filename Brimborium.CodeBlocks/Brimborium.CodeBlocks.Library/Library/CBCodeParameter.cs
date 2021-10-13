@@ -44,8 +44,8 @@ namespace Brimborium.CodeBlocks.Library {
         public IEnumerable<ICBCodeElement> GetChildren() => new ICBCodeElement[] { this.Type };
     }
 
-    public sealed class CBTemplateCSharpParameter : CBNamedTemplate<CBCodeParameter> {
-        public CBTemplateCSharpParameter()
+    public sealed class CBTemplateCSharpParameterDeclaration : CBNamedTemplate<CBCodeParameter> {
+        public CBTemplateCSharpParameterDeclaration()
             : base(CBTemplateProvider.CSharp, CBTemplateProvider.Declaration) {
         }
 

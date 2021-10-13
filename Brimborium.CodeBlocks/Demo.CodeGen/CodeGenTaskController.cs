@@ -40,9 +40,19 @@ namespace Demo.CodeGen {
                     genControllerInfo.TypeName,
                     $@"Demo.WebApplication\Controllers\{genControllerInfo.TypeName}.txt"
                 );
-            
+
+            var rootNS = genControllerInfo.Namespace.GetParentNamespace();
+            foreach (var ns in new string[] { "API", "Logic", "Server" }) {
+                codeFile.Imports.Add(new CBCodeImportNamespace(new CBCodeNamespace(rootNS.GetSubNamespace(ns))));
+            }
 
             foreach (var ns in new string[]{
+                "Brimborium.CodeFlow.RequestHandler",
+
+                "Microsoft.AspNetCore.Mvc",
+                "Microsoft.Extensions.DependencyInjection",
+                "Microsoft.Extensions.Logging",
+
                 "System",
                 "System.Collections.Generic",
                 "System.Linq",

@@ -9,7 +9,7 @@ namespace Brimborium.CodeBlocks.Library {
         public CBRenderContext(CBTemplateProvider templateProvider, IndentedTextWriter writer, string? name = default) {
             this.TemplateProvider = templateProvider;
             this.Writer = writer;
-            this.Name = (string.IsNullOrEmpty(name)) ? CBTemplateProvider.Default : name;
+            this.Name = name ?? string.Empty;
         }
 
         public CBTemplateProvider TemplateProvider { get; }

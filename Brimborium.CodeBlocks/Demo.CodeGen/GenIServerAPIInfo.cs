@@ -35,28 +35,25 @@ namespace Demo.CodeGen {
         //public ICBCodeTypeReference? Response { get; set; }
         //public ICBCodeTypeReference? ServerResponse { get; set; }
         //public ICBCodeTypeReference? RequestHandler { get; set; }
-
-
     }
-    /*
-    public sealed class CBTemplateCSharpServerAPIMethod : CBNamedTemplate<ServerAPIMethod> {
+
+    public sealed class CBTemplateCSharpServerAPIMethod : CBNamedTemplate<GenIServerAPIMethodInfo> {
         public CBTemplateCSharpServerAPIMethod()
             : base(CBTemplateProvider.CSharp, string.Empty) {
         }
 
-        public override void RenderT(ServerAPIMethod value, CBRenderContext ctxt) {
-
-            ctxt.Write("public async Task<RequestResult<").CallTemplateDynamic(value.ServerResponse).Write(">> ").Write(value.Name ?? "").Write("(").CallTemplateDynamic(value.ServerRequest).Write(" request, CancellationToken cancellationToken) {").WriteLine(indent: +1);
-            {
-                ctxt.Write("IGlobalRequestHandlerFactory globalRequestHandlerFactory = this._RequestServices.GetRequiredService<IGlobalRequestHandlerFactory>();").WriteLine();
-                ctxt.CallTemplateDynamic(value.RequestHandler).Write(" requestHandler = globalRequestHandlerFactory.CreateRequestHandler<").CallTemplateDynamic(value.RequestHandler).Write(">(this._RequestServices);").WriteLine();
-                ctxt.Write("request.Deconstruct(").Write("out var Pattern, out var User").Write(");").WriteLine();
-                ctxt.CallTemplateDynamic(value.Request).Write(" logicRequest = new GnaQueryRequest(Pattern ?? string.Empty, User);").WriteLine();
-                ctxt.Write("RequestResult<").CallTemplateDynamic(value.Response).Write("> logicResponse = await requestHandler.ExecuteAsync(logicRequest, cancellationToken);").WriteLine();
-                ctxt.Write("IServerRequestResultConverter serverRequestResultConverter = this._RequestServices.GetRequiredService<IServerRequestResultConverter>();").WriteLine();
-                ctxt.Write("return serverRequestResultConverter.ConvertToServerResultOfT<").CallTemplateDynamic(value.Response).Write(", ").CallTemplateDynamic(value.ServerResponse).Write(">(logicResponse);").WriteLine(indent: -1);
-            }
-            ctxt.Write("}").WriteLine();
+        public override void RenderT(GenIServerAPIMethodInfo value, CBRenderContext ctxt) {
+            //ctxt.Write("public async Task<RequestResult<").CallTemplateDynamic(value.ServerResponse).Write(">> ").Write(value.Name ?? "").Write("(").CallTemplateDynamic(value.ServerRequest).Write(" request, CancellationToken cancellationToken) {").WriteLine(indent: +1);
+            //{
+            //    ctxt.Write("IGlobalRequestHandlerFactory globalRequestHandlerFactory = this._RequestServices.GetRequiredService<IGlobalRequestHandlerFactory>();").WriteLine();
+            //    ctxt.CallTemplateDynamic(value.RequestHandler).Write(" requestHandler = globalRequestHandlerFactory.CreateRequestHandler<").CallTemplateDynamic(value.RequestHandler).Write(">(this._RequestServices);").WriteLine();
+            //    ctxt.Write("request.Deconstruct(").Write("out var Pattern, out var User").Write(");").WriteLine();
+            //    ctxt.CallTemplateDynamic(value.Request).Write(" logicRequest = new GnaQueryRequest(Pattern ?? string.Empty, User);").WriteLine();
+            //    ctxt.Write("RequestResult<").CallTemplateDynamic(value.Response).Write("> logicResponse = await requestHandler.ExecuteAsync(logicRequest, cancellationToken);").WriteLine();
+            //    ctxt.Write("IServerRequestResultConverter serverRequestResultConverter = this._RequestServices.GetRequiredService<IServerRequestResultConverter>();").WriteLine();
+            //    ctxt.Write("return serverRequestResultConverter.ConvertToServerResultOfT<").CallTemplateDynamic(value.Response).Write(", ").CallTemplateDynamic(value.ServerResponse).Write(">(logicResponse);").WriteLine(indent: -1);
+            //}
+            //ctxt.Write("}").WriteLine();
         }
-    }*/
+    }
 }

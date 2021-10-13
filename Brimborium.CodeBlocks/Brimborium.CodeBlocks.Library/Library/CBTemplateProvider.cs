@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Brimborium.CodeBlocks.Library {
     public sealed class CBTemplateProvider {
         public const string CSharp = "CSharp";
-        public const string Default = "Default";
+        public const string Common = "";
         public const string Attribute = "Attribute";
         public const string Declaration = "Declaration";
         public const string BaseTypes = "BaseTypes";
@@ -18,12 +18,12 @@ namespace Brimborium.CodeBlocks.Library {
             this.Templates = new Dictionary<Type, List<CBRegisterTemplate>>();
         }
 
-        public void AddTemplateFromFunction<T>(Action<T, CBRenderContext> render, string? name = default) {
+        public void AddTemplateFromFunction<T>(Action<T, CBRenderContext> render, string? language, string? name) {
             var template = new CBTemplateFunction<T>(render);
-            this.AddTemplate(template, name);
+            this.AddTemplate(template, language, name);
         }
 
-        public void AddTemplate(CBTemplate template, string? language = default, string? name = default) {
+        public void AddTemplate(CBTemplate template, string? language, string? name ) {
             var renderType = template.GetRenderType();
             if (!this.Templates.TryGetValue(renderType, out var lstTemplate)) {
                 lstTemplate = new List<CBRegisterTemplate>();

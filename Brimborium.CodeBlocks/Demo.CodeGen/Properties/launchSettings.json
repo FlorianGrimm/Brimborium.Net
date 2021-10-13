@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Demo.CodeGen": {
+      "commandName": "Project",
+      "commandLineArgs": "-v"
+    }
+  }
+}
