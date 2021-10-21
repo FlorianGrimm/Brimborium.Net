@@ -32,7 +32,7 @@ namespace Demo.CodeGen {
             //foreach (var typeIServerAPI in lstIServerAPI) {
             //    this.ScanServerAPI(CBCodeClrTypeReference.CreateFrom(typeIServerAPI));
             //}
-            var lstTypeIController = this.GetType().Assembly.GetTypes().Where(t => t.Namespace == "Brimborium.WebFlow.Controllers").ToList();
+            var lstTypeIController = this.GetType().Assembly.GetTypes().Where(t => t.Namespace == "Demo.Controllers").ToList();
             this._Logger.LogDebug("IController  : {lstTypeIController}", string.Join(", ", lstTypeIController.Select(t => t.FullName)));
             foreach (var typeIController in lstTypeIController) {
                 this.ScanServerAPI(CBCodeType.FromClr(typeIController));

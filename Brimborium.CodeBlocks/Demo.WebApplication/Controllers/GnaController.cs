@@ -14,43 +14,49 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Brimborium.WebFlow.Controllers {
+namespace Demo.Server {
     [ApiController]
     [Route("api/[controller]")]
-    public sealed class GnaController : ControllerBase, IGnaController {
-        private readonly IServiceProvider _RequestServices;
-        private readonly ILogger _Logger;
-
+    public sealed class GnaController
+        : Microsoft.AspNetCore.Mvc.ControllerBase
+        , Demo.Controllers.IGnaController {
+        private readonly System.IServiceProvider _RequestServices;
+        
+        private readonly Microsoft.Extensions.Logging.ILogger<Demo.Server.GnaController> _Logger;
+        
         public GnaController(
-            IServiceProvider requestServices,
-            ILogger<GnaController> logger
-            ) {
+            System.IServiceProvider requestServices,
+            Microsoft.Extensions.Logging.ILogger<Demo.Server.GnaController> logger) {
             this._RequestServices = requestServices;
             this._Logger = logger;
         }
-
-        [HttpGet("", Name = "Get")]
-        public async Task<ActionResult<IEnumerable<Gna>>> GetAsync(string? pattern) {
+        
+        
+        public async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.IEnumerable<Demo.API.Gna>>> GetAsync(
+            System.String pattern
+            ) {
             var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString() ?? this.HttpContext?.TraceIdentifier ?? "";
             try {
                 this._Logger.LogInformation("GetAsync({parameter}) {traceId}", new { pattern }, traceId);
                 IGnaServerAPI service = this._RequestServices.GetRequiredService<IGnaServerAPI>();
                 System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
                 CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;
-                var request = new GnaServerGetRequest(pattern, user);
-                RequestResult<GnaServerGetResponse> response = await service.GetAsync(request, requestAborted);
-                ActionResult<IEnumerable<Gna>> actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
-                    .ConvertToActionResultOfT<GnaServerGetResponse, IEnumerable<Gna>>(this, response);
+                var request = new Demo.Server.GnaServerGetRequest(
+                    pattern,
+                    user
+                );
+                Brimborium.CodeFlow.RequestHandler.RequestResult<Demo.Server.GnaServerGetResponse>response = await service.GetAsync(request, requestAborted);
+                Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.IEnumerable<Demo.API.Gna>> actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
+                    .ConvertToActionResultOfT<Demo.Server.GnaServerGetResponse, System.Collections.Generic.IEnumerable<Demo.API.Gna>>(this, response);
                 return actionResult;
             } catch (System.Exception error) {
                 this._Logger.LogError(error, "GetAsync({parameter}) {traceId}", new { pattern }, traceId);
                 throw;
             }
         }
-
-        [HttpPost("", Name = "Post")]
-        public async Task<ActionResult> PostAsync(
-            Gna value
+        
+        public async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult> PostAsync(
+            Demo.API.Gna value
             ) {
             var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString() ?? this.HttpContext?.TraceIdentifier ?? "";
             try {
@@ -58,43 +64,44 @@ namespace Brimborium.WebFlow.Controllers {
                 IGnaServerAPI service = this._RequestServices.GetRequiredService<IGnaServerAPI>();
                 System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
                 CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;
-                GnaServerUpsertRequest request = new GnaServerUpsertRequest(value, user);
-                RequestResult<GnaServerUpsertResponse> response = await service.UpsertAsync(request, requestAborted);
-                ActionResult actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
-                    .ConvertToActionResultVoid(this, response);
+                var request = new Demo.Server.GnaServerPostRequest(
+                    value,
+                    user
+                );
+                Brimborium.CodeFlow.RequestHandler.RequestResult<Demo.Server.GnaServerPostResponse>response = await service.PostAsync(request, requestAborted);
+                Microsoft.AspNetCore.Mvc.ActionResult actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
+                    .ConvertToActionResultVoid<Demo.Server.GnaServerPostResponse>(this, response);
                 return actionResult;
             } catch (System.Exception error) {
                 this._Logger.LogError(error, "PostAsync({parameter}) {traceId}", new { value }, traceId);
                 throw;
             }
         }
-
-        [HttpPost("{Name}", Name = "PostName")]
-        public async Task<ActionResult> PostNameAsync(
-            string Name,
-            bool Done
+        
+        public async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult> PostNameAsync(
+            System.String Name,
+            System.Boolean Done
             ) {
             var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString() ?? this.HttpContext?.TraceIdentifier ?? "";
             try {
                 this._Logger.LogInformation("PostNameAsync({parameter}) {traceId}", new { Name, Done }, traceId);
-                //var (context, user, cancellationToken, responseConverter) = this._RequestHandlerSupport.GetRequestHandlerRootContext(this);
-                //var gnaService = new GnaService(context, user);
-                //var request = new GnaUpsertRequest(Name, Done);
-                //var response = await gnaService.GnaUpsertAsync(request, cancellationToken);
-                //return responseConverter.ConvertToActionResult(this, response, (responseT) => new OkResult());
-
                 IGnaServerAPI service = this._RequestServices.GetRequiredService<IGnaServerAPI>();
                 System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
                 CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;
-                GnaServerUpsertRequest request = new GnaServerUpsertRequest(new Gna(Name, Done), user);
-                RequestResult<GnaServerUpsertResponse> response = await service.UpsertAsync(request, requestAborted);
-                ActionResult actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
-                    .ConvertToActionResultVoid(this, response);
+                var request = new Demo.Server.GnaServerPostNameRequest(
+                    Name,
+                    Done,
+                    user
+                );
+                Brimborium.CodeFlow.RequestHandler.RequestResult<Demo.Server.GnaServerPostNameResponse>response = await service.PostNameAsync(request, requestAborted);
+                Microsoft.AspNetCore.Mvc.ActionResult actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
+                    .ConvertToActionResultVoid<Demo.Server.GnaServerPostNameResponse>(this, response);
                 return actionResult;
             } catch (System.Exception error) {
                 this._Logger.LogError(error, "PostNameAsync({parameter}) {traceId}", new { Name, Done }, traceId);
                 throw;
             }
         }
+        
     }
 }

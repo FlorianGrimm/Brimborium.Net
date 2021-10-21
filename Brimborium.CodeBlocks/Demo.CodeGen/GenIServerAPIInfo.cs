@@ -11,8 +11,15 @@ namespace Demo.CodeGen {
             this.TypeName = $"I{controllerInfo.ShortName}ServerAPI";
             this.PrefixTypeName = $"{controllerInfo.ShortName}Server";
             this.Methods = new List<GenIServerAPIMethodInfo>();
-            this.CodeFile = new CBCodeFile();
-            this.CodeInterface = new CBCodeType();
+            this.CodeFile = new CBCodeFile() {
+                Namespace = this.Namespace,
+            };
+            this.CodeInterface = new CBCodeType() {
+                Namespace = this.Namespace,
+                Name = this.TypeName,
+                IsInterface = true,
+                AccessibilityLevel = CBCodeAccessibilityLevel.Public,
+            };
             this.CodeFile.Items.Add(this.CodeInterface);
 
         }
@@ -26,28 +33,19 @@ namespace Demo.CodeGen {
         public List<GenIServerAPIMethodInfo> Methods { get; }
 
         public CBCodeFile CodeFile { get; }
-
         public CBCodeType CodeInterface { get; }
-
-        private void BuildCodeInterface() {
-            this.CodeFile.Namespace = this.Namespace;
-            this.CodeInterface.Namespace = this.CodeFile.Namespace;
-            this.CodeInterface.Name = this.TypeName;
-            this.CodeInterface.IsInterface = true;
-            this.CodeInterface.AccessibilityLevel = CBCodeAccessibilityLevel.Public;
-            foreach (var method in this.Methods) {
-                this.CodeInterface.Methods.Add(method);
-                this.CodeFile.Items.Add(method.RequestType);
-                this.CodeFile.Items.Add(method.ResposeType);
-            }
-        }
 
         public static GenIServerAPIInfo Create(SrcIControllerInfo controllerInfo) {
             var result = new GenIServerAPIInfo(controllerInfo);
             result.Methods.AddRange(
                 controllerInfo.Methods.Select(method => GenIServerAPIMethodInfo.Create(result, method))
                 );
-            result.BuildCodeInterface();
+            //
+            foreach (var method in result.Methods) {
+                result.CodeInterface.Methods.Add(method);
+                result.CodeFile.Items.Add(method.RequestType);
+                result.CodeFile.Items.Add(method.ResposeType);
+            }
             return result;
         }
     }
@@ -68,19 +66,20 @@ namespace Demo.CodeGen {
             var result = new GenIServerAPIMethodInfo(genIServerAPIInfo, sourceMethod);
 
             result.Name = sourceMethod.Name;
+            var typeMessageShortName = sourceMethod.Name.WithoutEnd("Async");
 
             result.RequestType = new CBCodeType() {
                 AccessibilityLevel = CBCodeAccessibilityLevel.Public,
                 IsRecord = true,
                 Namespace = genIServerAPIInfo.Namespace,
-                Name = $"{genIServerAPIInfo.PrefixTypeName}{sourceMethod.Name}Request"
+                Name = $"{genIServerAPIInfo.PrefixTypeName}{typeMessageShortName}Request"
             };
 
             result.ResposeType = new CBCodeType() {
                 AccessibilityLevel = CBCodeAccessibilityLevel.Public,
                 IsRecord = true,
                 Namespace = genIServerAPIInfo.Namespace,
-                Name = $"{genIServerAPIInfo.PrefixTypeName}{sourceMethod.Name}Respose"
+                Name = $"{genIServerAPIInfo.PrefixTypeName}{typeMessageShortName}Response"
             };
 
             result.ReturnType = typeTask.WithGenericTypeArguments(typeActionRequestResult.WithGenericTypeArguments(result.ResposeType));

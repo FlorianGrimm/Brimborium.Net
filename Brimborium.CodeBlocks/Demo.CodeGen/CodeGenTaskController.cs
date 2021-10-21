@@ -24,7 +24,7 @@ namespace Demo.CodeGen {
         public int GetStep() => 200;
 
         public void Execute() {
-            var lstTypeIController = this.GetType().Assembly.GetTypes().Where(t => t.Namespace == "Brimborium.WebFlow.Controllers").ToList();
+            var lstTypeIController = this.GetType().Assembly.GetTypes().Where(t => t.Namespace == "Demo.Controllers").ToList();
             this._Logger.LogDebug("IController  : {lstTypeIController}", string.Join(", ", lstTypeIController.Select(t => t.FullName)));
             foreach (var typeIController in lstTypeIController) {
                 this.ExecuteIController(CBCodeType.FromClr(typeIController));
@@ -35,12 +35,9 @@ namespace Demo.CodeGen {
             var controllerInfo = SrcIControllerInfo.Create(typeIController);
             var genIServerAPIInfo = GenIServerAPIInfo.Create(controllerInfo);
             var genControllerInfo = GenControllerInfo.Create(controllerInfo, genIServerAPIInfo);
-
-            var (codeFile, codeClass) = CBCodeFile.CreateFileAndType(
-                    genControllerInfo.Namespace,
-                    genControllerInfo.TypeName,
-                    $@"Demo.WebApplication\Controllers\{genControllerInfo.TypeName}.txt"
-                );
+            var codeFile=genControllerInfo.CodeFile;
+            codeFile.FileName = $@"Demo.WebApplication\Controllers\{genControllerInfo.TypeName}.cs";
+            var codeClass = genControllerInfo.CodeClass;
 
             var rootNS = genControllerInfo.Namespace.GetParentNamespace();
             foreach (var ns in new string[] { "API", "Logic", "Server" }) {

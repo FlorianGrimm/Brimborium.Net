@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Brimborium.WebFlow.Controllers {
+namespace Demo.Controllers {
     public interface IGnaController {
         [HttpGet("", Name = "Get")]
         Task<ActionResult<IEnumerable<Gna>>> GetAsync(string? pattern);

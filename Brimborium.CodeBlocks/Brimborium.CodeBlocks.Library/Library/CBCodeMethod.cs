@@ -88,6 +88,20 @@ namespace Brimborium.CodeBlocks.Library {
 
         public override void RenderT(CBCodeMethod value, CBRenderContext ctxt) {
             ctxt.CallTemplateDynamic(value.AccessibilityLevel).Write(" ");
+            if (value.IsStatic) {
+                ctxt.Write("static ");
+            } else if (value.IsVirtual) {
+                ctxt.Write("virtual ");
+            } else if (value.IsOverride) {
+                ctxt.Write("override ");
+            } else if (value.IsAbstract) {
+                ctxt.Write("abstract ");
+            } else if (value.IsNew) {
+                ctxt.Write("new ");
+            }
+            if (value.IsAsync) { 
+                ctxt.Write("async ");
+            }
             ctxt.CallTemplateDynamic(value.ReturnType, CBTemplateProvider.TypeName);
             ctxt.Write(" ");
             ctxt.Write(value.Name).Write("(").IndentIncr()

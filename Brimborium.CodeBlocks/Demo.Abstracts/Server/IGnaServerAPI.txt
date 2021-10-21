@@ -1,4 +1,4 @@
-﻿using Brimborium.WebFlow.Server;
+﻿using Demo.Server;
 
 using System;
 using System.Collections.Generic;
@@ -6,49 +6,49 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Brimborium.WebFlow.Server {
+namespace Demo.Server {
     public interface IGnaServerAPI {
-        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.GnaServerGetAsyncRespose>> GetAsync(
-            Brimborium.WebFlow.Server.GnaServerGetAsyncRequest request,
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Demo.Server.GnaServerGetResponse>> GetAsync(
+            Demo.Server.GnaServerGetRequest request,
             System.Threading.CancellationToken cancellationToken
         );
         
-        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.GnaServerPostAsyncRespose>> PostAsync(
-            Brimborium.WebFlow.Server.GnaServerPostAsyncRequest request,
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Demo.Server.GnaServerPostResponse>> PostAsync(
+            Demo.Server.GnaServerPostRequest request,
             System.Threading.CancellationToken cancellationToken
         );
         
-        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.GnaServerPostNameAsyncRespose>> PostNameAsync(
-            Brimborium.WebFlow.Server.GnaServerPostNameAsyncRequest request,
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Demo.Server.GnaServerPostNameResponse>> PostNameAsync(
+            Demo.Server.GnaServerPostNameRequest request,
             System.Threading.CancellationToken cancellationToken
         );
         
     }
-    public record GnaServerGetAsyncRequest(
+    public record GnaServerGetRequest(
         System.String Pattern,
         System.Security.Claims.ClaimsPrincipal User
     ): Brimborium.CodeFlow.Logic.IServerRequest;
     
-    public record GnaServerGetAsyncRespose(
+    public record GnaServerGetResponse(
         System.Collections.Generic.IEnumerable<Demo.API.Gna> Value
     ): Brimborium.CodeFlow.Logic.IServerResponse<System.Collections.Generic.IEnumerable<Demo.API.Gna>>;
     
-    public record GnaServerPostAsyncRequest(
+    public record GnaServerPostRequest(
         Demo.API.Gna Value,
         System.Security.Claims.ClaimsPrincipal User
     ): Brimborium.CodeFlow.Logic.IServerRequest;
     
-    public record GnaServerPostAsyncRespose(
+    public record GnaServerPostResponse(
         Brimborium.CodeFlow.RequestHandler.ResultVoid Value
     ): Brimborium.CodeFlow.Logic.IServerResponse<Brimborium.CodeFlow.RequestHandler.ResultVoid>;
     
-    public record GnaServerPostNameAsyncRequest(
+    public record GnaServerPostNameRequest(
         System.String Name,
         System.Boolean Done,
         System.Security.Claims.ClaimsPrincipal User
     ): Brimborium.CodeFlow.Logic.IServerRequest;
     
-    public record GnaServerPostNameAsyncRespose(
+    public record GnaServerPostNameResponse(
         Brimborium.CodeFlow.RequestHandler.ResultVoid Value
     ): Brimborium.CodeFlow.Logic.IServerResponse<Brimborium.CodeFlow.RequestHandler.ResultVoid>;
     
