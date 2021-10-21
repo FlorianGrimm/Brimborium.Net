@@ -252,7 +252,7 @@ namespace Brimborium.CodeBlocks.Library {
                 lst.AddRange(value.Constructors);
                 lst.AddRange(value.Properties);
                 lst.AddRange(value.Methods);
-                lst.AddRange(value.Members);e
+                lst.AddRange(value.Members);
                 foreach (var grp in lst
                     .GroupBy(m => m switch {
                         CBCodeField codeField => codeField.IsStatic ? 0 : 1,
