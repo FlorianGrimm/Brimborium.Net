@@ -7,6 +7,34 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.WebFlow.Server {
-    interface IEbbesServerAPI {
+    public interface IEbbesServerAPI {
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.EbbesServerGetAsyncRespose>> GetAsync(
+            Brimborium.WebFlow.Server.EbbesServerGetAsyncRequest request,
+            System.Threading.CancellationToken cancellationToken
+        );
+        
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.EbbesServerUpsertAsyncRespose>> UpsertAsync(
+            Brimborium.WebFlow.Server.EbbesServerUpsertAsyncRequest request,
+            System.Threading.CancellationToken cancellationToken
+        );
+        
     }
+    public record EbbesServerGetAsyncRequest(
+        System.String Pattern,
+        System.Security.Claims.ClaimsPrincipal User
+    ): Brimborium.CodeFlow.Logic.IServerRequest;
+    
+    public record EbbesServerGetAsyncRespose(
+        System.Collections.Generic.IEnumerable<Demo.API.Ebbes> Value
+    ): Brimborium.CodeFlow.Logic.IServerResponse<System.Collections.Generic.IEnumerable<Demo.API.Ebbes>>;
+    
+    public record EbbesServerUpsertAsyncRequest(
+        Demo.API.Ebbes Value,
+        System.Security.Claims.ClaimsPrincipal User
+    ): Brimborium.CodeFlow.Logic.IServerRequest;
+    
+    public record EbbesServerUpsertAsyncRespose(
+        Brimborium.CodeFlow.RequestHandler.ResultVoid Value
+    ): Brimborium.CodeFlow.Logic.IServerResponse<Brimborium.CodeFlow.RequestHandler.ResultVoid>;
+    
 }

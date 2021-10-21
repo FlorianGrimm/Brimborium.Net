@@ -28,6 +28,14 @@ namespace Brimborium.CodeBlocks.Library {
             this.Type = type;
         }
 
+        public CBCodeParameter(CBCodeParameter src) {
+            this.Name = src.Name;
+            this.Type = src.Type;
+            this.IsOut = src.IsOut;
+            this.IsRef = src.IsRef;
+            this.IsOptional = src.IsOptional;
+        }
+
 
         public string Name { get; set; }
 

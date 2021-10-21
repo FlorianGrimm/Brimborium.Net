@@ -22,31 +22,47 @@ namespace Demo.CodeGen {
 
         public List<ControllerMethodInfo> Methods { get; }
 
-        public static GenControllerInfo Create(SrcIControllerInfo controllerInfo) {
+        public static GenControllerInfo Create(SrcIControllerInfo controllerInfo, GenIServerAPIInfo genIServerAPIInfo) {
             var result = new GenControllerInfo(controllerInfo);
             result.Methods.AddRange(
-                controllerInfo.Methods.Select(method => new ControllerMethodInfo(result, method))
+                genIServerAPIInfo.Methods.Select(method => ControllerMethodInfo.Create(result, method.SourceMethod, method))
                 );
             return result;
         }
     }
 
     public sealed class ControllerMethodInfo : CBCodeMethod {
+
+        public static ControllerMethodInfo Create(
+                GenControllerInfo genControllerInfo,
+                SrcIControllerMethodInfo sourceMethod,
+                GenIServerAPIMethodInfo iServerMethod) {
+            var result = new ControllerMethodInfo(genControllerInfo, sourceMethod);
+            result.AccessibilityLevel = CBCodeAccessibilityLevel.Public;
+            result.Name = sourceMethod.Name;
+            result.ReturnType = sourceMethod.ReturnType;
+            foreach (var parameter in sourceMethod.Parameters) {
+                result.Parameters.Add(parameter);
+            }
+            result.ServerRequestType = iServerMethod.RequestType;
+            result.ServerResposeType = iServerMethod.ResposeType;
+            result.InnerReturnType = iServerMethod.InnerReturnType;
+            return result;
+        }
         public ControllerMethodInfo(
-            GenControllerInfo genControllerInfo,
-            SrcIControllerMethodInfo sourceMethod) {
+                GenControllerInfo genControllerInfo,
+                SrcIControllerMethodInfo sourceMethod
+            ) {
             this.GenControllerInfo = genControllerInfo;
             this.SourceMethod = sourceMethod;
-            this.AccessibilityLevel = CBCodeAccessibilityLevel.Public;
-            this.Name = sourceMethod.Name;
-            this.ReturnType = sourceMethod.ReturnType;
-            foreach (var parameter in sourceMethod.Parameters) {
-                this.Parameters.Add(parameter);
-            }
+            this.ServerRequestType = this.ServerResposeType = CBCodeType.FromType<object>();
         }
 
         public GenControllerInfo GenControllerInfo { get; }
         public SrcIControllerMethodInfo SourceMethod { get; }
+        public CBCodeType ServerRequestType;
+        public CBCodeType ServerResposeType;
+        public CBCodeType? InnerReturnType;
     }
 
     public sealed class CBTemplateCSharpControllerMethodInfo : CBNamedTemplate<ControllerMethodInfo> {
@@ -73,24 +89,54 @@ namespace Demo.CodeGen {
 
                     })
                 .Write(") {").WriteLine();
+            {
 
-            ctxt.Write("var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString() ?? this.HttpContext?.TraceIdentifier ?? \"\";").WriteLine()
-                .Write("try {").WriteLine(+1)
-                .Write("this._Logger.LogInformation(\"").Write(value.Name).Write("({parameter}) {traceId}\", new { pattern }, traceId);").WriteLine()
-                .Write(value.GenControllerInfo.TypeNameIServerAPI).Write(" service = this._RequestServices.GetRequiredService<").Write(value.GenControllerInfo.TypeNameIServerAPI).Write(">();").WriteLine()
-                .Write("System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();").WriteLine()
-                .Write("CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;").WriteLine()
-                .Write("var request = new GnaServerGetRequest(pattern, user);").WriteLine()
-                .Write("RequestResult<GnaServerGetResponse> response = await service.GetAsync(request, requestAborted);").WriteLine()
-                .Write("ActionResult<IEnumerable<Gna>> actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()").WriteLine()
-                .Write("    .ConvertToActionResultOfT<GnaServerGetResponse, IEnumerable<Gna>>(this, response);").WriteLine()
-                .Write("return actionResult;").WriteLine(-1)
-                .Write("} catch (System.Exception error) {").WriteLine(+1)
-                .Write("this._Logger.LogError(error, \"").Write(value.Name).Write("({parameter}) {traceId}\", new { pattern }, traceId);").WriteLine()
-                .Write("throw;").WriteLine(-1)
-                .Write("}").WriteLine(-1)
-                .Write("}").WriteLine()
-                .WriteLine();
+                var typeRequestResultOfRequestType = CBCodeType.FromClr(typeof(Brimborium.CodeFlow.RequestHandler.RequestResult<>)).WithGenericTypeArguments(value.ServerRequestType);
+
+                if (value.SourceMethod.ReturnType!.TryGetSingleGenericTypeArguments(CBCodeType.FromClr(typeof(System.Threading.Tasks.Task<>)), out var typeActionResultOf)) {
+                } else {
+                    typeActionResultOf = CBCodeType.FromClr(typeof(Microsoft.AspNetCore.Mvc.ActionResult));
+                }
+                var innerReturnType = typeActionResultOf.GenericTypeArguments.FirstOrDefault();
+
+
+                ctxt.Write("var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString() ?? this.HttpContext?.TraceIdentifier ?? \"\";").WriteLine();
+
+                ctxt.Write("try {").WriteLine(+1);
+                {
+                    ctxt.Write("this._Logger.LogInformation(\"").Write(value.Name).Write("({parameter}) {traceId}\", new { pattern }, traceId);").WriteLine()
+                        .Write(value.GenControllerInfo.TypeNameIServerAPI).Write(" service = this._RequestServices.GetRequiredService<").Write(value.GenControllerInfo.TypeNameIServerAPI).Write(">();").WriteLine()
+                        .Write("System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();").WriteLine()
+                        .Write("CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;").WriteLine()
+
+                        .Write("var request = new ").CallTemplateDynamic(value.ServerRequestType, CBTemplateProvider.TypeName).Write("(").IndentIncr()
+                        .Foreach(value.Parameters, (i, ctxt) => {
+                            ctxt
+                            .If(i.IsFirst, Then: ctxt => { ctxt.WriteLine(); }, Else: ctxt => { ctxt.Write(",").WriteLine(); })
+                            .Write(i.Value.Name);
+                        })
+                        .IndentDecr().Write(");").WriteLine()
+                        .CallTemplateDynamic(typeRequestResultOfRequestType, CBTemplateProvider.TypeName).Write("response = await service.GetAsync(request, requestAborted);").WriteLine();
+
+                    if (innerReturnType is not null) {
+                        ctxt.CallTemplateDynamic(typeActionResultOf, CBTemplateProvider.TypeName).Write(" actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()").WriteLine()
+                            .Write("    .ConvertToActionResultOfT<").CallTemplateDynamic(value.ServerResposeType, CBTemplateProvider.TypeName).Write(", ").CallTemplateDynamic(innerReturnType, CBTemplateProvider.TypeName).Write(">(this, response);").WriteLine();
+                    } else {
+                        ctxt.CallTemplateDynamic(typeActionResultOf, CBTemplateProvider.TypeName).Write(" actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()").WriteLine()
+                            .Write("    .ConvertToActionResult<").CallTemplateDynamic(value.ServerResposeType, CBTemplateProvider.TypeName).Write(">(this, response);").WriteLine();
+                    }
+
+
+                    ctxt.Write("return actionResult;").WriteLine(-1);
+                }
+                ctxt.Write("} catch (System.Exception error) {").WriteLine(+1);
+                {
+                    ctxt.Write("this._Logger.LogError(error, \"").Write(value.Name).Write("({parameter}) {traceId}\", new { pattern }, traceId);").WriteLine()
+                        .Write("throw;").WriteLine(-1)
+                        .Write("}").WriteLine(-1);
+                }
+                ctxt.Write("}").WriteLine();
+            }
         }
     }
 

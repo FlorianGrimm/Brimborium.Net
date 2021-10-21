@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace Brimborium.CodeBlocks.Library {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public class CBCodeNamespace {
+    public class CBCodeNamespace : IEquatable<CBCodeNamespace>{
         public CBCodeNamespace() {
             this.Name = string.Empty;
         }
@@ -39,6 +40,19 @@ namespace Brimborium.CodeBlocks.Library {
                 return new CBCodeNamespace(this.Name.Substring(0, index));
             }
             return new CBCodeNamespace();
+        }
+
+        public override bool Equals(object? obj) {
+            return this.Equals(obj as CBCodeNamespace);
+        }
+
+        public bool Equals(CBCodeNamespace? other) {
+            if (ReferenceEquals(this, other)) { return true; }
+            if (ReferenceEquals(other, null)) { return false; }
+            return string.Equals(this.Name, other.Name, StringComparison.Ordinal);
+        }
+        public override int GetHashCode() {
+            return this.Name.GetHashCode();
         }
     }
 }

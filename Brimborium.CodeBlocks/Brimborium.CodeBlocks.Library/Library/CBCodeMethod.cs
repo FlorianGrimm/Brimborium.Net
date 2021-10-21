@@ -25,6 +25,20 @@ namespace Brimborium.CodeBlocks.Library {
             this.Parameters = new CBList<CBCodeParameter>(this);
         }
 
+        public CBCodeMethod(CBCodeMethod src) : this() {
+            this.AccessibilityLevel = src.AccessibilityLevel;
+            this.IsStatic = src.IsStatic;
+            this.IsAsync = src.IsAsync;
+            this.IsVirtual = src.IsVirtual;
+            this.IsSealed = src.IsSealed;
+            this.IsOverride = src.IsOverride;
+            this.ReturnType = src.ReturnType;
+            this.Name = src.Name;
+            foreach (var p in src.Parameters) {
+                this.Parameters.Add(new CBCodeParameter(p));
+            }
+        }
+
         public MethodInfo? MethodInfo;
 
         public CBCodeAccessibilityLevel AccessibilityLevel { get; set; }

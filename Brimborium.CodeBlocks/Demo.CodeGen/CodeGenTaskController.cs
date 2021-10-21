@@ -33,7 +33,8 @@ namespace Demo.CodeGen {
 
         public void ExecuteIController(CBCodeType typeIController) {
             var controllerInfo = SrcIControllerInfo.Create(typeIController);
-            var genControllerInfo = GenControllerInfo.Create(controllerInfo);
+            var genIServerAPIInfo = GenIServerAPIInfo.Create(controllerInfo);
+            var genControllerInfo = GenControllerInfo.Create(controllerInfo, genIServerAPIInfo);
 
             var (codeFile, codeClass) = CBCodeFile.CreateFileAndType(
                     genControllerInfo.Namespace,

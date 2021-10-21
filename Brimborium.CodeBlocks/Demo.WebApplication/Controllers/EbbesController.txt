@@ -2,7 +2,6 @@
 using Brimborium.WebFlow.API;
 using Brimborium.WebFlow.Logic;
 using Brimborium.WebFlow.Server;
-using Brimborium.WebFlow.Server;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +20,7 @@ namespace Brimborium.WebFlow.Server {
         : Microsoft.AspNetCore.Mvc.ControllerBase
         , Brimborium.WebFlow.Controllers.IEbbesController {
         private readonly System.IServiceProvider _RequestServices;
+        
         private readonly Microsoft.Extensions.Logging.ILogger<Brimborium.WebFlow.Server.EbbesController> _Logger;
         
         public EbbesController(
@@ -40,10 +40,11 @@ namespace Brimborium.WebFlow.Server {
                 IEbbesServerAPI service = this._RequestServices.GetRequiredService<IEbbesServerAPI>();
                 System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
                 CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;
-                var request = new GnaServerGetRequest(pattern, user);
-                RequestResult<GnaServerGetResponse> response = await service.GetAsync(request, requestAborted);
-                ActionResult<IEnumerable<Gna>> actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
-                    .ConvertToActionResultOfT<GnaServerGetResponse, IEnumerable<Gna>>(this, response);
+                var request = new Brimborium.WebFlow.Server.EbbesServerGetAsyncRequest(
+                    pattern);
+                Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.EbbesServerGetAsyncRequest>response = await service.GetAsync(request, requestAborted);
+                Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.IEnumerable<Demo.API.Ebbes>> actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
+                    .ConvertToActionResultOfT<Brimborium.WebFlow.Server.EbbesServerGetAsyncRespose, System.Collections.Generic.IEnumerable<Demo.API.Ebbes>>(this, response);
                 return actionResult;
             } catch (System.Exception error) {
                 this._Logger.LogError(error, "GetAsync({parameter}) {traceId}", new { pattern }, traceId);
@@ -60,17 +61,17 @@ namespace Brimborium.WebFlow.Server {
                 IEbbesServerAPI service = this._RequestServices.GetRequiredService<IEbbesServerAPI>();
                 System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
                 CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;
-                var request = new GnaServerGetRequest(pattern, user);
-                RequestResult<GnaServerGetResponse> response = await service.GetAsync(request, requestAborted);
-                ActionResult<IEnumerable<Gna>> actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
-                    .ConvertToActionResultOfT<GnaServerGetResponse, IEnumerable<Gna>>(this, response);
+                var request = new Brimborium.WebFlow.Server.EbbesServerUpsertAsyncRequest(
+                    value);
+                Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.EbbesServerUpsertAsyncRequest>response = await service.GetAsync(request, requestAborted);
+                Microsoft.AspNetCore.Mvc.ActionResult actionResult = this._RequestServices.GetRequiredService<IActionResultConverter>()
+                    .ConvertToActionResult<Brimborium.WebFlow.Server.EbbesServerUpsertAsyncRespose>(this, response);
                 return actionResult;
             } catch (System.Exception error) {
                 this._Logger.LogError(error, "UpsertAsync({parameter}) {traceId}", new { pattern }, traceId);
                 throw;
             }
         }
-        
         
     }
 }

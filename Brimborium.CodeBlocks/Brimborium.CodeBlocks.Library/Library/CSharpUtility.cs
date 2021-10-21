@@ -8,4 +8,9 @@
         //        ).FullName;
         //}
     }
+    public static class StringUtility {
+        public static string FirstUpperCase(string txt) {
+            return txt.Substring(0, 1).ToUpperInvariant() + txt.Substring(1);
+        }
+    }
 }

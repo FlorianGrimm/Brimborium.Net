@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -24,8 +25,13 @@ namespace Brimborium.CodeBlocks.Library {
             }
         }
 
+        [DebuggerStepThrough]
         public static CBCodeType? FromCrlQ(Type? type) => (type is null) ? null : FromClr(type);
 
+        [DebuggerStepThrough]
+        public static CBCodeType FromType<T>() => FromClr(typeof(T));
+
+        [DebuggerStepThrough]
         public static CBCodeType FromClr(Type type) {
             if (_Cache.TryGetValue(type, out var result)) {
                 return result;
@@ -83,6 +89,7 @@ namespace Brimborium.CodeBlocks.Library {
             this.GenericTypeArguments = new CBList<CBCodeType>(this);
             this.Fields = new CBList<CBCodeField>(this);
             this.Constructors = new CBList<CBCodeConstructor>(this);
+            this.RecordParameters = new CBList<CBCodeParameter>(this);
             this.Properties = new CBList<CBCodeProperty>(this);
             this.Methods = new CBList<CBCodeMethod>(this);
             this.Members = new CBList<ICBCodeElement>(this);
@@ -100,8 +107,6 @@ namespace Brimborium.CodeBlocks.Library {
 
         public TypeInfo? TypeInfo { get; set; }
         public CBList<ICBCodeElement> Prefix { get; }
-
-
 
         public CBCodeNamespace Namespace { get; set; }
 
@@ -137,6 +142,8 @@ namespace Brimborium.CodeBlocks.Library {
 
         public CBList<CBCodeConstructor> Constructors { get; }
 
+        public CBList<CBCodeParameter> RecordParameters { get; }
+
         public CBList<CBCodeProperty> Properties { get; }
 
         public CBList<CBCodeMethod> Methods { get; }
@@ -150,6 +157,40 @@ namespace Brimborium.CodeBlocks.Library {
             var result = new List<ICBCodeElement>();
             return result;
         }
+
+        public bool HasEqualName(CBCodeType other) {
+            return (this.Namespace.Equals(other.Namespace)) && (string.Equals(this.Name, other.Name, StringComparison.Ordinal));
+        }
+
+        public bool TryGetGenericTypeArguments(CBCodeType other, [MaybeNullWhen(false)] out CBList<CBCodeType> genericTypeArguments) {
+            if (this.HasEqualName(other) && (this.GenericTypeArguments.Count > 0)) {
+                genericTypeArguments = this.GenericTypeArguments;
+                return true;
+            } else {
+                genericTypeArguments = null;
+                return false;
+            }
+        }
+        public bool TryGetSingleGenericTypeArguments(CBCodeType other, [MaybeNullWhen(false)] out CBCodeType genericTypeArgument) {
+            if (this.HasEqualName(other) && (this.GenericTypeArguments.Count == 1)) {
+                genericTypeArgument = this.GenericTypeArguments[0];
+                return true;
+            } else {
+                genericTypeArgument = null;
+                return false;
+            }
+        }
+
+        public CBCodeType WithGenericTypeArguments(params CBCodeType[] genericTypeArguments) {
+            var result= new CBCodeType() {
+                Namespace=this.Namespace,
+                Name=this.Name
+            };
+            result.GenericTypeDefinition = this;
+            result.GenericTypeArguments.AddRange(genericTypeArguments);
+            return result;
+        }
+
 
         public override string ToString() {
             return $"{this.Namespace.Name}.{this.Name}";
@@ -176,13 +217,27 @@ namespace Brimborium.CodeBlocks.Library {
             if (value.IsRecord) {
                 ctxt.CallTemplateStrict(value.AccessibilityLevel)
                     .Write("record ")
-                    .Write("(")
-                    .Foreach(value.Properties,
+                    .Write(value.Name)
+                    .Write("(").IndentIncr()
+                    .Foreach(value.RecordParameters,
                     (i, ctxt) => {
-                        ctxt.CallTemplateDynamic(i.Value.PropertyType, CBTemplateProvider.TypeName).Write(i.Value.Name);
+                        ctxt.WriteLine();
+                        ctxt.CallTemplateDynamic(i.Value.Type, CBTemplateProvider.TypeName).Write(" ").Write(i.Value.Name);
                         if (i.IsLast) { } else { ctxt.Write(","); }
                     })
-                    .Write(")");
+                    .WriteLine().IndentDecr().Write(")").IndentIncr();
+                if (value.Interfaces.Count > 0) {
+                    ctxt.Foreach(value.Interfaces,
+                        eachItem: (i, txt) => {
+                            ctxt.If(i.IsFirst,
+                                Then: ctxt => ctxt.Write(": "),
+                                Else: ctxt => ctxt.WriteLine().Write(", ")
+                                )
+                            .CallTemplateDynamic(i.Value, CBTemplateProvider.TypeName);
+                        });
+                } else { 
+                }
+                ctxt.IndentDecr().Write(";").WriteLine();
             } else {
                 ctxt.CallTemplateStrict(value.AccessibilityLevel)
                     .If(value.IsAbstract, (ctxt) => ctxt.Write("abstract "))
@@ -197,7 +252,7 @@ namespace Brimborium.CodeBlocks.Library {
                 lst.AddRange(value.Constructors);
                 lst.AddRange(value.Properties);
                 lst.AddRange(value.Methods);
-                lst.AddRange(value.Members);
+                lst.AddRange(value.Members);e
                 foreach (var grp in lst
                     .GroupBy(m => m switch {
                         CBCodeField codeField => codeField.IsStatic ? 0 : 1,
@@ -209,12 +264,11 @@ namespace Brimborium.CodeBlocks.Library {
                     .OrderBy(kv => kv.Key)
                     ) {
                     foreach (var member in grp) {
-                        ctxt.CallTemplateDynamic(member);
+                        ctxt.CallTemplateDynamic(member).WriteLine();
                     }
-                    ctxt.WriteLine();
                 }
 
-                ctxt.IndentDecr().Write("}").WriteLine();
+                ctxt.IndentDecr().Write("}");
             }
         }
     }

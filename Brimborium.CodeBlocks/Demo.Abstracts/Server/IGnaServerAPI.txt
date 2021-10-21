@@ -7,6 +7,49 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Brimborium.WebFlow.Server {
-    interface IGnaServerAPI {
+    public interface IGnaServerAPI {
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.GnaServerGetAsyncRespose>> GetAsync(
+            Brimborium.WebFlow.Server.GnaServerGetAsyncRequest request,
+            System.Threading.CancellationToken cancellationToken
+        );
+        
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.GnaServerPostAsyncRespose>> PostAsync(
+            Brimborium.WebFlow.Server.GnaServerPostAsyncRequest request,
+            System.Threading.CancellationToken cancellationToken
+        );
+        
+        System.Threading.Tasks.Task<Brimborium.CodeFlow.RequestHandler.RequestResult<Brimborium.WebFlow.Server.GnaServerPostNameAsyncRespose>> PostNameAsync(
+            Brimborium.WebFlow.Server.GnaServerPostNameAsyncRequest request,
+            System.Threading.CancellationToken cancellationToken
+        );
+        
     }
+    public record GnaServerGetAsyncRequest(
+        System.String Pattern,
+        System.Security.Claims.ClaimsPrincipal User
+    ): Brimborium.CodeFlow.Logic.IServerRequest;
+    
+    public record GnaServerGetAsyncRespose(
+        System.Collections.Generic.IEnumerable<Demo.API.Gna> Value
+    ): Brimborium.CodeFlow.Logic.IServerResponse<System.Collections.Generic.IEnumerable<Demo.API.Gna>>;
+    
+    public record GnaServerPostAsyncRequest(
+        Demo.API.Gna Value,
+        System.Security.Claims.ClaimsPrincipal User
+    ): Brimborium.CodeFlow.Logic.IServerRequest;
+    
+    public record GnaServerPostAsyncRespose(
+        Brimborium.CodeFlow.RequestHandler.ResultVoid Value
+    ): Brimborium.CodeFlow.Logic.IServerResponse<Brimborium.CodeFlow.RequestHandler.ResultVoid>;
+    
+    public record GnaServerPostNameAsyncRequest(
+        System.String Name,
+        System.Boolean Done,
+        System.Security.Claims.ClaimsPrincipal User
+    ): Brimborium.CodeFlow.Logic.IServerRequest;
+    
+    public record GnaServerPostNameAsyncRespose(
+        Brimborium.CodeFlow.RequestHandler.ResultVoid Value
+    ): Brimborium.CodeFlow.Logic.IServerResponse<Brimborium.CodeFlow.RequestHandler.ResultVoid>;
+    
 }

@@ -42,13 +42,9 @@ namespace Demo.CodeGen {
         private void ScanServerAPI(CBCodeType typeIController) {
             var controllerInfo = SrcIControllerInfo.Create(typeIController);
             var genIServerAPIInfo = GenIServerAPIInfo.Create(controllerInfo);
-
-            var (codeFile, codeInterface) = CBCodeFile.CreateFileAndType(
-                    genIServerAPIInfo.Namespace,
-                    genIServerAPIInfo.TypeName,
-                    $@"Demo.Abstracts\Server\{genIServerAPIInfo.TypeName}.txt"
-                );
-            codeInterface.IsInterface = true;
+            var codeFile = genIServerAPIInfo.CodeFile;
+            codeFile.FileName = $@"Demo.Abstracts\Server\{genIServerAPIInfo.TypeName}.txt";
+            var codeInterface = genIServerAPIInfo.CodeInterface;
 
             foreach (var ns in new string[]{
                 "System",
