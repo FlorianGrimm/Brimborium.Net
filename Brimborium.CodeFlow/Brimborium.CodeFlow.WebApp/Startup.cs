@@ -28,7 +28,7 @@ namespace Brimborium.CodeFlow.WebApp {
             services.AddRequestHandler();
             services.AddServicesWithRegistrator((a) => {
                 var assemblies = a.FromAssemblyOf<Startup>();
-                RequestHandlerExtensions.AddRequestHandlerServices(assemblies);
+                assemblies.AddRequestHandlerServices();
                 assemblies.AddClasses().UsingAttributes();
             });
             services.AddControllers();

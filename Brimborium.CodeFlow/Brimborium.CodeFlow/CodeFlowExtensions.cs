@@ -20,7 +20,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
             if (fromAssemblies is not null) {
                 services.AddServicesWithRegistrator((a) => {
                     var assemblies = fromAssemblies(a);
-                    AddRequestHandlerServices(assemblies);
+                    assemblies.AddRequestHandlerServices();
                     if (alsoUsingAttributes) {
                         assemblies.AddClasses().UsingAttributes();
                     }
@@ -31,7 +31,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
             return services;
         }
 
-        public static void AddRequestHandlerServices(IImplementationTypeSelector assemblies) {
+        public static IImplementationTypeSelector AddRequestHandlerServices(this IImplementationTypeSelector assemblies) {
             assemblies.AddClasses(c => {
                 c.AssignableTo<ITypedRequestHandlerFactory>().WithoutAttribute<ServiceDescriptorAttribute>();
             }).AsImplementedInterfaces().WithSingletonLifetime();
@@ -39,7 +39,7 @@ namespace Brimborium.CodeFlow.RequestHandler {
             assemblies.AddClasses(c => {
                 c.AssignableTo<IRequestHandler>().WithoutAttribute<ServiceDescriptorAttribute>();
             }).AsSelfWithInterfaces().WithTransientLifetime();
-
+            return assemblies;
         }
     }
 }

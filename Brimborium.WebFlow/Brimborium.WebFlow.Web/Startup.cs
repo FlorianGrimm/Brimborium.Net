@@ -2,8 +2,9 @@
 using Brimborium.CodeFlow.FlowSynchronization;
 using Brimborium.CodeFlow.RequestHandler;
 using Brimborium.WebFlow.FlowSynchronization;
+#if soon
 using Brimborium.WebFlow.WebLogic;
-
+#endif
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +25,9 @@ namespace Brimborium.WebFlow.Web {
         public void ConfigureServices(IServiceCollection services) {
             services.AddRequestHandler();
             services.AddWebFlowServices();
+#if soon
             services.AddWebFlowLogicServices();
+#endif
             services.AddServicesWithRegistrator((a) => {
                 //var assemblies = a.FromAssembliesOf(typeof(Startup), typeof(GnaRepository));
                 var assemblies = a.FromDependencyContext(DependencyContext.Default);
