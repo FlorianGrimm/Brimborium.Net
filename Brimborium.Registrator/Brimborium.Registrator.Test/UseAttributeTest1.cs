@@ -24,6 +24,8 @@ namespace Brimborium.Registrator.Test {
             Assert.Same(ia, instance);
         }
 
+#warning TODO:HERE
+#if false
         [Fact]
         public void UseAttribute_1_ServiceTypeMode_Auto() {
             var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
@@ -34,6 +36,7 @@ namespace Brimborium.Registrator.Test {
             Assert.DoesNotContain(services, sd => sd.ServiceType == typeof(IB));
             Assert.DoesNotContain(services, sd => sd.ServiceType == typeof(DummyImpl1AttributeSingleton));
         }
+#endif
 
         [Fact]
         public void UseAttribute_ServiceTypeMode_Auto_IA() {
