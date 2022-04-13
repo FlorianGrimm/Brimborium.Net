@@ -24,23 +24,35 @@ namespace Demo.Server {
             this._RequestServices = requestServices;
         }
 
-        public async Task<RequestResult<GnaServerGetResponse>> GetAsync(GnaServerGetRequest request, CancellationToken cancellationToken) {
-            IGlobalRequestHandlerFactory globalRequestHandlerFactory = this._RequestServices.GetRequiredService<IGlobalRequestHandlerFactory>();
-            IGnaQueryRequestHandler requestHandler = globalRequestHandlerFactory.CreateRequestHandler<IGnaQueryRequestHandler>(this._RequestServices);
-            request.Deconstruct(out var Pattern, out var User);
-            GnaQueryRequest logicRequest = new GnaQueryRequest(Pattern ?? string.Empty, User);
-            RequestResult<GnaQueryResponse> logicResponse = await requestHandler.ExecuteAsync(logicRequest, cancellationToken);
-            IServerRequestResultConverter serverRequestResultConverter = this._RequestServices.GetRequiredService<IServerRequestResultConverter>();
-            return serverRequestResultConverter.ConvertToServerResultOfT<GnaQueryResponse, GnaServerGetResponse>(logicResponse, convert);
-
-            static GnaServerGetResponse convert(GnaQueryResponse response) {
-                IEnumerable<Gna> resultValue = response.Value.Select(i => new Gna(i.Name, i.Done)).ToList();
-                return new GnaServerGetResponse(resultValue);
-            }
-        }
-
-        public Task<RequestResult<GnaServerUpsertResponse>> UpsertAsync(GnaServerUpsertRequest request, CancellationToken cancellationToken) {
+        public Task<RequestResult<GnaServerGetResponse>> GetAsync(GnaServerGetRequest request, CancellationToken cancellationToken) {
             throw new NotImplementedException();
         }
+
+        public Task<RequestResult<GnaServerPostResponse>> PostAsync(GnaServerPostRequest request, CancellationToken cancellationToken) {
+            throw new NotImplementedException();
+        }
+
+        public Task<RequestResult<GnaServerPostNameResponse>> PostNameAsync(GnaServerPostNameRequest request, CancellationToken cancellationToken) {
+            throw new NotImplementedException();
+        }
+
+        //public async Task<RequestResult<GnaServerGetResponse>> GetAsync(GnaServerGetRequest request, CancellationToken cancellationToken) {
+        //    IGlobalRequestHandlerFactory globalRequestHandlerFactory = this._RequestServices.GetRequiredService<IGlobalRequestHandlerFactory>();
+        //    IGnaQueryRequestHandler requestHandler = globalRequestHandlerFactory.CreateRequestHandler<IGnaQueryRequestHandler>(this._RequestServices);
+        //    request.Deconstruct(out var Pattern, out var User);
+        //    GnaQueryRequest logicRequest = new GnaQueryRequest(Pattern ?? string.Empty, User);
+        //    RequestResult<GnaQueryResponse> logicResponse = await requestHandler.ExecuteAsync(logicRequest, cancellationToken);
+        //    IServerRequestResultConverter serverRequestResultConverter = this._RequestServices.GetRequiredService<IServerRequestResultConverter>();
+        //    return serverRequestResultConverter.ConvertToServerResultOfT<GnaQueryResponse, GnaServerGetResponse>(logicResponse, convert);
+
+        //    static GnaServerGetResponse convert(GnaQueryResponse response) {
+        //        IEnumerable<Gna> resultValue = response.Value.Select(i => new Gna(i.Name, i.Done)).ToList();
+        //        return new GnaServerGetResponse(resultValue);
+        //    }
+        //}
+
+        //public Task<RequestResult<GnaServerUpsertResponse>> UpsertAsync(GnaServerUpsertRequest request, CancellationToken cancellationToken) {
+        //    throw new NotImplementedException();
+        //}
     }
 }
