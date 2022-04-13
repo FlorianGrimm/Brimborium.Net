@@ -1,0 +1,40 @@
+<Project Sdk="MSBuild.Sdk.SqlProj/1.16.0">
+	<!--
+    https://github.com/rr-wfm/MSBuild.Sdk.SqlProj
+  -->
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<!--
+          dotnet clean
+          dotnet build -p:SqlServerVersion=Sql140
+          dotnet publish -p:SqlServerVersion=Sql140
+        -->
+		<SqlServerVersion Condition=" '$(SqlServerVersion)'=='Sql140' ">Sql140</SqlServerVersion>
+		<SqlServerVersion Condition=" '$(SqlServerVersion)'=='Sql150' ">Sql150</SqlServerVersion>
+		<SqlServerVersion Condition=" '$(SqlServerVersion)'=='' ">Sql140</SqlServerVersion>
+		<!-- For additional properties that can be set here, please refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#model-properties -->
+		<GenerateCreateScript>True</GenerateCreateScript>
+		<BlockOnPossibleDataLoss>False</BlockOnPossibleDataLoss>
+		<ExcludeObjectTypes>Users,RoleMembership,Logins,ServerRoles,ServerRoleMembership</ExcludeObjectTypes>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<!-- Refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#publishing-support for supported publishing options -->
+	</PropertyGroup>
+
+	<!--
+	<ImportGroup>
+		<Import Condition="Exists('C:\secure\Brimborium.TestSqlDatabase.$(SqlServerVersion).targets')" Project="C:\secure\Brimborium.TestSqlDatabase.$(SqlServerVersion).targets" />
+	</ImportGroup>
+	-->
+	<ItemGroup>
+		<Content Include="..\Brimborium.TestSqlDatabase\**\*.sql">
+			<Link>\%(RecursiveDir)\%(FileName)%(extension)</Link>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<PostDeploy Include="..\Brimborium.TestSqlDatabase\Post-Deployment\Script.PostDeployment.sql">
+			<Link>Post-Deployment\Script.PostDeployment.sql</Link>
+		</PostDeploy>
+	</ItemGroup>
+</Project>

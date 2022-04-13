@@ -1,0 +1,3 @@
+﻿CREATE LOGIN [ToDo]
+    WITH PASSWORD = N'm}_Te`xkFG?bth&epzyll<b3msFT7_&#$!~<zdrpmEfxwb{b', SID = 0x84A672E388A6524CA749D7F4EF4D52D0, DEFAULT_LANGUAGE = [us_english], CHECK_POLICY = OFF;
+
