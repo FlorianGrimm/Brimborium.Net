@@ -57,6 +57,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeBlocks.Library", "Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj", "{647C65AA-D05A-474D-BC06-6B98D003EE38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -271,6 +273,18 @@ Global
 		{06771467-9145-42EB-B3D1-EBCEAD8AF9EF}.Release|x64.Build.0 = Release|Any CPU
 		{06771467-9145-42EB-B3D1-EBCEAD8AF9EF}.Release|x86.ActiveCfg = Release|Any CPU
 		{06771467-9145-42EB-B3D1-EBCEAD8AF9EF}.Release|x86.Build.0 = Release|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Debug|x64.Build.0 = Debug|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Debug|x86.Build.0 = Debug|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|x64.ActiveCfg = Release|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|x64.Build.0 = Release|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|x86.ActiveCfg = Release|Any CPU
+		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -293,6 +307,7 @@ Global
 		{8B2B96D2-57F1-4092-B8DB-63AC1818BC69} = {B110FAFC-B7B3-40E9-A782-BA023894B7B4}
 		{3F478D31-0733-41C8-9ABC-EAE3E81A8B8C} = {B110FAFC-B7B3-40E9-A782-BA023894B7B4}
 		{06771467-9145-42EB-B3D1-EBCEAD8AF9EF} = {B110FAFC-B7B3-40E9-A782-BA023894B7B4}
+		{647C65AA-D05A-474D-BC06-6B98D003EE38} = {FBFBC463-097B-4E68-8BE8-8F2A60EEA849}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BAD26BF-BE30-446B-AE30-D5831F06251C}

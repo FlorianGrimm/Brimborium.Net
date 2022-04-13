@@ -33,7 +33,7 @@ namespace Demo.Server {
         
         
         public async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.IEnumerable<Demo.API.Gna>>> GetAsync(
-            System.String pattern
+            System.String? pattern
             ) {
             var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString() ?? this.HttpContext?.TraceIdentifier ?? "";
             try {
@@ -42,7 +42,7 @@ namespace Demo.Server {
                 System.Security.Claims.ClaimsPrincipal user = this.HttpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
                 CancellationToken requestAborted = this.HttpContext?.RequestAborted ?? CancellationToken.None;
                 var request = new Demo.Server.GnaServerGetRequest(
-                    pattern,
+                    pattern ?? string.Empty,
                     user
                 );
                 Brimborium.CodeFlow.RequestHandler.RequestResult<Demo.Server.GnaServerGetResponse>response = await service.GetAsync(request, requestAborted);
