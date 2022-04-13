@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.WebSockets", "Brimborium.WebSockets\Brimborium.WebSockets.csproj", "{75D92E36-2C6E-4FD5-86F9-160C8C2551CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.WebSocketClient", "Demo.WebSocketClient\Demo.WebSocketClient.csproj", "{ECD70DB9-C287-47E4-88DC-E8ECBD280596}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.WebSocketServer", "Demo.WebSocketServer\Demo.WebSocketServer.csproj", "{30FEF542-05AD-44F5-8824-0664F2439491}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75D92E36-2C6E-4FD5-86F9-160C8C2551CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D92E36-2C6E-4FD5-86F9-160C8C2551CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D92E36-2C6E-4FD5-86F9-160C8C2551CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D92E36-2C6E-4FD5-86F9-160C8C2551CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECD70DB9-C287-47E4-88DC-E8ECBD280596}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECD70DB9-C287-47E4-88DC-E8ECBD280596}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECD70DB9-C287-47E4-88DC-E8ECBD280596}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECD70DB9-C287-47E4-88DC-E8ECBD280596}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30FEF542-05AD-44F5-8824-0664F2439491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30FEF542-05AD-44F5-8824-0664F2439491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30FEF542-05AD-44F5-8824-0664F2439491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30FEF542-05AD-44F5-8824-0664F2439491}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {165FB94E-A978-4CF1-A4C1-80AD1357A4ED}
+	EndGlobalSection
+EndGlobal
