@@ -131,7 +131,7 @@ steps:
   displayName: 'pack Brimborium.SqlAccess'
   inputs:
     command: 'pack'
-    packagesToPack: 'Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj
+    packagesToPack: 'Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj'
     nobuild: true
     includesymbols: true
 
