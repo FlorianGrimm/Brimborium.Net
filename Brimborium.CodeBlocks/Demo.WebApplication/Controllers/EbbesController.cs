@@ -33,7 +33,7 @@ namespace Demo.Server {
         
         
         public async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.IEnumerable<Demo.API.Ebbes>>> GetAsync(
-            System.String pattern
+            System.String? pattern
             ) {
             var traceId = System.Diagnostics.Activity.Current?.TraceId.ToString() ?? this.HttpContext?.TraceIdentifier ?? "";
             try {

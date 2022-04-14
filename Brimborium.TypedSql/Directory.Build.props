@@ -5,8 +5,8 @@
     <Nullable>enable</Nullable>
     <Company></Company>
     <Authors>Florian Grimm</Authors>
-    <Product>Brimborium.Registrator</Product>
-    <Title>Brimborium.Registrator</Title>
+    <Product>Brimborium.TypedSql</Product>
+    <Title>Brimborium.TypedSql</Title>
     <RootDirectory>$(MSBuildThisFileDirectory)</RootDirectory>
     <BaseIntermediateOutputPath>$(RootDirectory)output\$(MSBuildProjectName)\obj\$(PlatformName)</BaseIntermediateOutputPath>
     <BaseOutputPath>$(RootDirectory)output\$(MSBuildProjectName)\bin\$(PlatformName)</BaseOutputPath>
@@ -16,7 +16,7 @@
   
   <PropertyGroup>    
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/FlorianGrimm/Brimborium.Net/tree/main/Brimborium.Registrator</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/FlorianGrimm/Brimborium.Net/tree/main/Brimborium.TypedSql</PackageProjectUrl>
     <RepositoryUrl>https://github.com/FlorianGrimm/Brimborium.Net.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <MinClientVersion>3.5</MinClientVersion>
