@@ -1,4 +1,4 @@
-<Project Sdk="MSBuild.Sdk.SqlProj/2.0.0">
+﻿<Project Sdk="MSBuild.Sdk.SqlProj/2.0.0">
 	<!--
 	MSBuild.Sdk.SqlProj/1.16.0
     https://github.com/rr-wfm/MSBuild.Sdk.SqlProj
@@ -22,6 +22,9 @@
 
 	<PropertyGroup>
 		<!-- Refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#publishing-support for supported publishing options -->
+
+		<PublishRepositoryUrl>false</PublishRepositoryUrl>
+		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 	<!--
