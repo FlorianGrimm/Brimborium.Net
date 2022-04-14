@@ -15,6 +15,28 @@ variables:
   buildConfiguration: 'Release'
   ProjectName: 'Brimborium.Net'
   SolutionPath: 'Brimborium.Net.sln'
+  projects: |
+    Brimborium.CodeBlocks\Brimborium.CodeBlocks\Brimborium.CodeBlocks.csproj
+    Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj
+    Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj
+    Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj
+    Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj
+    Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj
+    Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj
+    Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj
+    Brimborium.TypedSql\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj
+
+  later: |
+    Brimborium.CodeBlocks\Brimborium.Typing\Brimborium.Typing.csproj
+    Brimborium.WebDavServer\Brimborium.WebDav.WebApp\Brimborium.WebDav.WebApp.csproj
+    Brimborium.WebDavServer\Brimborium.WebDavServer\Brimborium.WebDavServer.csproj
+    Brimborium.WebDavServer\Brimborium.WebDavServer.Model\Brimborium.WebDavServer.Model.csproj
+    Brimborium.WebFlow\Brimborium.WebFlow\Brimborium.WebFlow.csproj
+    Brimborium.WebFlow\Brimborium.WebFlow.Abstracts\Brimborium.WebFlow.Abstracts.csproj
+    Brimborium.WebFlow\Brimborium.WebFlow.Web\Brimborium.WebFlow.Web.csproj
+    Brimborium.WebSocket\Brimborium.WebSockets\Brimborium.WebSockets.csproj
+
+
 
 steps:
 - task: DotNetCoreCLI@2
@@ -22,7 +44,7 @@ steps:
   inputs:
     command: restore
     arguments: --configuration $(buildConfiguration)
-    projects: $(SolutionPath)
+    projects: $(projects)
     feedsToUse: 'config'
     nugetConfigPath: 'nuget.config'
     #vstsFeed: 'https://grimmuko.pkgs.visualstudio.com/Brimborium.Net/_packaging/Brimborium.Net/nuget/v3/index.json'
@@ -32,7 +54,7 @@ steps:
   inputs:
     command: build
     arguments: --configuration $(buildConfiguration)
-    projects: $(SolutionPath)
+    projects: $(projects)
     includesymbols: true 
 
 - task: DotNetCoreCLI@2
@@ -40,14 +62,14 @@ steps:
   inputs:
     command: test
     arguments: --configuration $(buildConfiguration)
-    projects: $(SolutionPath)
+    projects: $(projects)
 
 - task: DotNetCoreCLI@2
   displayName: 'pack $(ProjectName)'
   inputs:
     command: pack
     arguments: --configuration $(buildConfiguration)
-    projects: $(SolutionPath)
+    projects: $(projects)
     includesymbols: true 
  
 - task: NuGetCommand@2
