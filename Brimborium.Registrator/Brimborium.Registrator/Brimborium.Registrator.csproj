@@ -8,6 +8,8 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
+		<IsPackable>true</IsPackable>
+    	<IsPublishable>true</IsPublishable>
 	</PropertyGroup>
 
 	<ItemGroup>

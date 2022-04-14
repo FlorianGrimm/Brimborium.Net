@@ -4,6 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Brimborium.CodeFlow</RootNamespace>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <IsPublishable>true</IsPublishable>
   </PropertyGroup>
 
   <ItemGroup>

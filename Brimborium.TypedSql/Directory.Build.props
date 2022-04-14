@@ -14,7 +14,7 @@
     <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
   </PropertyGroup>
   
-  <PropertyGroup>    
+  <PropertyGroup>      
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/FlorianGrimm/Brimborium.Net/tree/main/Brimborium.TypedSql</PackageProjectUrl>
     <RepositoryUrl>https://github.com/FlorianGrimm/Brimborium.Net.git</RepositoryUrl>

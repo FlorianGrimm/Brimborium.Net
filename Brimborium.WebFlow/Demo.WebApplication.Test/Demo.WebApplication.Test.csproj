@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
-    <IsPackable>false</IsPackable>
-
     <RootNamespace>Demo.WebApplication</RootNamespace>
   </PropertyGroup>
 

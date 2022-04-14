@@ -8,6 +8,8 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>Brimborium.Registrator</RootNamespace>
 		<ImplicitUsings>disable</ImplicitUsings>
+		<IsPackable>true</IsPackable>
+    	<IsPublishable>true</IsPublishable>
 	</PropertyGroup>
 
 	<ItemGroup>
