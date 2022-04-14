@@ -72,12 +72,78 @@ steps:
 #    includesymbols: true 
  
 - task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.CodeBlocks.Library'
   inputs:
     command: 'pack'
-    packagesToPack: $(projects)
+    packagesToPack: 'Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj'
     nobuild: true
     includesymbols: true
-    
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.CodeBlocks.Library'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj'
+    nobuild: true
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.CodeFlow'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj'
+    nobuild: true
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.CodeFlow.Abstracts'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj'
+    nobuild: true
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.Registrator'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj'
+    nobuild: true
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.Registrator.Abstractions'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj'
+    nobuild: true
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.GenerateStoredProcedure'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj'
+    nobuild: true
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.SqlAccess'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj
+    nobuild: true
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.TypedStoredProcedure'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.TypedSql\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj'
+    nobuild: true
+    includesymbols: true
+
+   
     #versioningScheme: 'off'
     #verbosityPack: 'Diagnostic'
 
