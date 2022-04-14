@@ -16,7 +16,6 @@ variables:
   ProjectName: 'Brimborium.Net'
   SolutionPath: 'Brimborium.Net.sln'
   projects: |
-    Brimborium.CodeBlocks\Brimborium.CodeBlocks\Brimborium.CodeBlocks.csproj
     Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj
     Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj
     Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj
@@ -64,14 +63,24 @@ steps:
     arguments: --configuration $(buildConfiguration)
     projects: $(projects)
 
-- task: DotNetCoreCLI@2
-  displayName: 'pack $(ProjectName)'
-  inputs:
-    command: pack
-    arguments: --configuration $(buildConfiguration)
-    projects: $(projects)
-    includesymbols: true 
+#- task: DotNetCoreCLI@2
+#  displayName: 'pack $(ProjectName)'
+#  inputs:
+#    command: pack
+#    arguments: --configuration $(buildConfiguration)
+#    projects: $(projects)
+#    includesymbols: true 
  
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'pack'
+    packagesToPack: $(projects)
+    nobuild: true
+    includesymbols: true
+    
+    #versioningScheme: 'off'
+    #verbosityPack: 'Diagnostic'
+
 - task: NuGetCommand@2
   inputs:
     command: 'push'
