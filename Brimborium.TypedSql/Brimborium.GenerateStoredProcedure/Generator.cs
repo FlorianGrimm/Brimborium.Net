@@ -21,6 +21,7 @@ namespace Brimborium.GenerateStoredProcedure {
             if (server is null) {
                 throw new InvalidArgumentException($"server:{serverConnection.ServerInstance} not found!");
             }
+
             var database = server.Databases[connection.Database];
             if (database is null) {
                 throw new InvalidArgumentException($"Database:{serverConnection.DatabaseName} not found!");

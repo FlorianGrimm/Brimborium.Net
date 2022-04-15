@@ -1,112 +1,119 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-		<Name>Brimborium.TestSqlDatabase</Name>
-		<SchemaVersion>2.0</SchemaVersion>
-		<ProjectVersion>4.1</ProjectVersion>
-		<ProjectGuid>{13a900fc-98df-4935-9b92-3bdb2cdf680c}</ProjectGuid>
-		<DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
-		<OutputType>Database</OutputType>
-		<RootPath>
-		</RootPath>
-		<RootNamespace>Brimborium.TestSqlDatabase</RootNamespace>
-		<AssemblyName>Brimborium.TestSqlDatabase</AssemblyName>
-		<ModelCollation>1033,CI</ModelCollation>
-		<DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
-		<DeployToDatabase>True</DeployToDatabase>
-		<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-		<TargetLanguage>CS</TargetLanguage>
-		<AppDesignerFolder>Properties</AppDesignerFolder>
-		<SqlServerVerification>False</SqlServerVerification>
-		<IncludeCompositeObjects>True</IncludeCompositeObjects>
-		<TargetDatabaseSet>True</TargetDatabaseSet>
-		<DefaultCollation>Latin1_General_CI_AS_KS_WS</DefaultCollation>
-		<DefaultFilegroup>PRIMARY</DefaultFilegroup>
-		<TargetFrameworkProfile />
-		<PublishRepositoryUrl>false</PublishRepositoryUrl>
-		<IsPackable>false</IsPackable>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<OutputPath>bin\Release\</OutputPath>
-		<BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<DefineDebug>false</DefineDebug>
-		<DefineTrace>true</DefineTrace>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<OutputPath>bin\Debug\</OutputPath>
-		<BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<DefineDebug>true</DefineDebug>
-		<DefineTrace>true</DefineTrace>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup>
-		<VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
-		<!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
-		<SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
-		<VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
-	</PropertyGroup>
-	<PropertyGroup>
-		<!-- In the case that SSDT was installed separately from Visual Studio (e.g. for the Visual Studio build tools), change the VsInstallRoot so that the IDE extension will be found. -->
-		<VsInstallRoot Condition="!Exists('$(VsInstallRoot)\Common7\IDE\Extensions\Microsoft\SQLDB') And Exists('$(VsInstallRoot)\..\SQL')">$(VsInstallRoot)\..\SQL</VsInstallRoot>
-	</PropertyGroup>
-	<PropertyGroup>
-		<!-- In the case that SSDT was installed separately from Visual Studio (e.g. for the Visual Studio build tools), change the VsInstallRoot so that the IDE extension will be found. -->
-		<SqlTasks></SqlTasks>
-		<SqlTasks Condition="('$(SQLDBExtensionsRefPath)' != '') And Exists('$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets')">$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets</SqlTasks>
-		<SqlTasks Condition="('$(SQLDBExtensionsRefPath)' == '') And Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets</SqlTasks>
-	</PropertyGroup>
-	<Target Name="Build"></Target>
-	<Target Name="Pack"></Target>
-	<Target Name="Publish"></Target>
-	<Import Condition="('$(SqlTasks)' != '') And Exists('$(SqlTasks)')" Project="$(SqlTasks)" />
-	<ItemGroup>
-		<Folder Include="Properties" />
-		<Folder Include="dbo\" />
-		<Folder Include="dbo\Tables\" />
-		<Folder Include="Security\" />
-		<Folder Include="Post-Deployment" />
-		<Folder Include="dbo\StoredProcedures" />
-	</ItemGroup>
-	<ItemGroup>
-		<Build Include="dbo\Tables\UserHistory.sql" />
-		<Build Include="dbo\Tables\ProjectHistory.sql" />
-		<Build Include="dbo\Tables\ToDoHistory.sql" />
-		<Build Include="dbo\Tables\Activity.sql" />
-		<Build Include="dbo\Tables\User.sql" />
-		<Build Include="dbo\Tables\Project.sql" />
-		<Build Include="dbo\Tables\ToDo.sql" />
-		<Build Include="Security\SOLVIN_n.kessler.sql" />
-		<Build Include="Security\SOLVIN_n_1.kessler.sql" />
-		<Build Include="Security\SOLVIN_v.lederbogen.sql" />
-		<Build Include="Security\SOLVIN_v_1.lederbogen.sql" />
-		<Build Include="Security\ToDo.sql" />
-		<Build Include="Security\ToDo_1.sql" />
-		<Build Include="Security\RoleMemberships.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ActivityInsert.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ActivitySelectPK.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ProjectDeletePK.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ProjectSelectPK.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ProjectUpsert.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ToDoDeletePK.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ToDoSelectPK.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.ToDoUpsert.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.UserDeletePK.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.UserSelectPK.sql" />
-		<Build Include="dbo\StoredProcedures\dbo.UserUpsert.sql" />
-	</ItemGroup>
-	<ItemGroup>
-		<PostDeploy Include="Post-Deployment\Script.PostDeployment.sql" />
-	</ItemGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>Brimborium.TestSqlDatabase</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{13a900fc-98df-4935-9b92-3bdb2cdf680c}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>Brimborium.TestSqlDatabase</RootNamespace>
+    <AssemblyName>Brimborium.TestSqlDatabase</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>Latin1_General_CI_AS_KS_WS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <TargetFrameworkProfile />
+    <PublishRepositoryUrl>false</PublishRepositoryUrl>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- In the case that SSDT was installed separately from Visual Studio (e.g. for the Visual Studio build tools), change the VsInstallRoot so that the IDE extension will be found. -->
+    <VsInstallRoot Condition="!Exists('$(VsInstallRoot)\Common7\IDE\Extensions\Microsoft\SQLDB') And Exists('$(VsInstallRoot)\..\SQL')">$(VsInstallRoot)\..\SQL</VsInstallRoot>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- In the case that SSDT was installed separately from Visual Studio (e.g. for the Visual Studio build tools), change the VsInstallRoot so that the IDE extension will be found. -->
+    <SqlTasks>
+    </SqlTasks>
+    <SqlTasks Condition="('$(SQLDBExtensionsRefPath)' != '') And Exists('$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets')">$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets</SqlTasks>
+    <SqlTasks Condition="('$(SQLDBExtensionsRefPath)' == '') And Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets</SqlTasks>
+  </PropertyGroup>
+  <Target Name="Build">
+  </Target>
+  <Target Name="Pack">
+  </Target>
+  <Target Name="Publish">
+  </Target>
+  <Import Condition="('$(SqlTasks)' != '') And Exists('$(SqlTasks)')" Project="$(SqlTasks)" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="Security\" />
+    <Folder Include="Post-Deployment" />
+    <Folder Include="dbo\StoredProcedures" />
+    <Folder Include="history\" />
+    <Folder Include="history\Tables\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\Activity.sql" />
+    <Build Include="dbo\Tables\User.sql" />
+    <Build Include="dbo\Tables\Project.sql" />
+    <Build Include="dbo\Tables\ToDo.sql" />
+    <Build Include="Security\SOLVIN_n.kessler.sql" />
+    <Build Include="Security\SOLVIN_n_1.kessler.sql" />
+    <Build Include="Security\SOLVIN_v.lederbogen.sql" />
+    <Build Include="Security\SOLVIN_v_1.lederbogen.sql" />
+    <Build Include="Security\ToDo.sql" />
+    <Build Include="Security\ToDo_1.sql" />
+    <Build Include="Security\RoleMemberships.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ActivityInsert.sql" />
+    <Build Include="history\Tables\ProjectHistory.sql" />
+    <Build Include="Security\history.sql" />
+    <Build Include="history\Tables\UserHistory.sql" />
+    <Build Include="history\Tables\ToDoHistory.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ActivitySelectPK.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ProjectDeletePK.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ProjectSelectPK.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ProjectUpsert.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ToDoDeletePK.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ToDoSelectPK.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.ToDoUpsert.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.UserDeletePK.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.UserSelectPK.sql" />
+    <Build Include="dbo\StoredProcedures\dbo.UserUpsert.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Post-Deployment\Script.PostDeployment.sql" />
+  </ItemGroup>
 </Project>

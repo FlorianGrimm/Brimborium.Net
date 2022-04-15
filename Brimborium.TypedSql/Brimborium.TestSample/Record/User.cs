@@ -6,27 +6,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 //using Microsoft.EntityFrameworkCore;
 
 namespace Brimborium.TestSample.Record {
-    public partial class ToDo {
+    public partial class User {
+        public User() {
+            ToDo = new HashSet<ToDo>();
+        }
+
         [Key]
         public Guid Id { get; set; }
-        public Guid? ProjectId { get; set; }
-        public Guid? UserId { get; set; }
         [StringLength(50)]
-        public string Title { get; set; } = null!;
-        public bool Done { get; set; }
+        public string UserName { get; set; } = null!;
         public Guid? ActivityId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset ModifiedAt { get; set; }
-        public byte[] SerialVersion { get; set; } = null!;
+        public ulong SerialVersion { get; set; }
 
         [ForeignKey("ModifiedAt,ActivityId")]
-        [InverseProperty("ToDo")]
+        [InverseProperty("User")]
         public virtual Activity? Activity { get; set; }
-        [ForeignKey("ProjectId")]
-        [InverseProperty("ToDo")]
-        public virtual Project? Project { get; set; }
-        [ForeignKey("UserId")]
-        [InverseProperty("ToDo")]
-        public virtual User? User { get; set; }
+        [InverseProperty("User")]
+        public virtual ICollection<ToDo> ToDo { get; set; }
     }
 }

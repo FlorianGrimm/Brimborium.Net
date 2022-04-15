@@ -23,12 +23,12 @@ AS BEGIN
             FROM @Result
         )
     ) BEGIN
-        UPDATE TOP(1) [dbo].[ProjectHistory]
+        UPDATE TOP(1) [history].[Project]
             SET
                 [ValidTo] = @ModifiedAt
             WHERE
                     ([ActivityId] = @ActivityId)
-                    AND  ([ValidTo] = CAST('3141-05-09T00:00:00Z' as datetimeoffset))
+                    AND ([ValidTo] = CAST('3141-05-09T00:00:00Z' as datetimeoffset))
                         AND (@Id = [Id])
         ;
     END;

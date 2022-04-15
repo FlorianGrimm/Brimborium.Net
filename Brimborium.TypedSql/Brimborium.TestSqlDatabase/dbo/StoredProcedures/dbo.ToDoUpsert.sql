@@ -68,7 +68,7 @@ AS BEGIN
             @ModifiedAt
         );
         SET @ResultValue = 1; /* Inserted */
-        INSERT INTO [dbo].[ToDoHistory] (
+        INSERT INTO [history].[ToDo] (
             [Id],
             [ProjectId],
             [UserId],
@@ -119,7 +119,7 @@ AS BEGIN
                         ([Id] = @Id)
                 ;
                 SET @ResultValue = 2; /* Updated */
-                UPDATE TOP(1) [dbo].[ToDoHistory]
+                UPDATE TOP(1) [history].[ToDo]
                     SET
                         [ValidTo] = @ModifiedAt
                     WHERE
@@ -127,7 +127,7 @@ AS BEGIN
                         AND ([ActivityId] = @ActivityId)
                         AND ([Id] = @Id)
                 ;
-                INSERT INTO [dbo].[ToDoHistory] (
+                INSERT INTO [history].[ToDo] (
                     [Id],
                     [ProjectId],
                     [UserId],

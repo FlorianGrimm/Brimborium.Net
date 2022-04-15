@@ -666,24 +666,22 @@ namespace Brimborium.TestGenerateStoredProcedure {
 
 
             var tablesInsertOnly = databaseInfo.Tables.Where(
-                t => string.Equals(t.Name, "Activity")
+                t => IsActivityTable(t)
                 ).ToList();
 
             var tablesHistory = databaseInfo.Tables.Where(
-                t => !string.Equals(t.Name, "Activity")
-                    && t.Name.EndsWith("History")
+                t => !IsActivityTable(t) && IsAHistoryTable(t)
                 ).ToList();
             /* var dictTablesHistory = tablesHistory.ToDictionary(t => $"{t.Schema}.{t.Name}"); */
 
             var tablesUpdate = databaseInfo.Tables.Where(
-                t => !string.Equals(t.Name, "Activity")
-                    && !t.Name.EndsWith("History")
+                t => !IsActivityTable(t) && !IsAHistoryTable(t)
                 ).ToList();
 
             var tablesUpdatePaired = tablesUpdate.Join(
                     tablesHistory,
-                    o => $"{o.Schema}.{o.Name}History",
-                    i => $"{i.Schema}.{i.Name}",
+                    o =>  o.Name,
+                    i =>  i.Name,
                     (tableInfoData, tableInfoHistory) => new TableDataHistory(
                         tableInfoData,
                         tableInfoHistory,
@@ -702,7 +700,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
 
             var tablesDataWithFKReferenced = databaseInfo.Tables.Select(
                     tableInfo => tableInfo.ForeignKeysReferenced.Where(fk => !IsADataTable(fk.TableInfo))
-                    .OrderBy(t=>t.TableInfo.GetNameQ())
+                    .OrderBy(t => t.TableInfo.GetNameQ())
                     .ToList()
                 ).Where(
                     fks => (fks.Count > 0)
@@ -753,11 +751,11 @@ namespace Brimborium.TestGenerateStoredProcedure {
             return !(IsActivityTable(t) || IsAHistoryTable(t));
         }
         private static bool IsAHistoryTable(TableInfo t) {
-            return t.Name.EndsWith("History");
+            return string.Equals(t.Schema, "history", System.StringComparison.Ordinal);
         }
 
         private static bool IsActivityTable(TableInfo t) {
-            return string.Equals(t.Name, "Activity");
+            return string.Equals(t.GetNameQ(), "[dbo].[Activity]", System.StringComparison.Ordinal);
         }
     }
 }
