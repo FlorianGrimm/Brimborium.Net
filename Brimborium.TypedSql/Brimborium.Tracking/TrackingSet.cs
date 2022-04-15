@@ -19,9 +19,9 @@ public abstract class TrackingSet<TItem> : TrackingSet {
     }
 
     internal override Type GetItemType() => typeof(TItem);
+    public abstract TrackingObject<TItem> Attach(TItem item);
 
-    public virtual void Delete(TrackingObject<TItem> trackingObject) {
-    }
+    public abstract void Delete(TrackingObject<TItem> trackingObject);
 }
 
 public class TrackingSet<TKey, TItem>
@@ -30,6 +30,8 @@ public class TrackingSet<TKey, TItem>
     private readonly Dictionary<TKey, TrackingObject<TItem>> _Items;
     //private readonly List<TrackingObject<TItem>> _ItemsToDelete;
     private readonly Func<TItem, TKey> _ExtractKey;
+
+    public int Count => this._Items.Count;
 
     public TrackingSet(
         Func<TItem, TKey> extractKey,
@@ -40,12 +42,14 @@ public class TrackingSet<TKey, TItem>
         this._Items = new Dictionary<TKey, TrackingObject<TItem>>(comparer);
     }
 
-    public TrackingObject<TItem> Attach(TItem item) {
+    public override TrackingObject<TItem> Attach(TItem item) {
         var result = new TrackingObject<TItem>(
             item: item,
             status: TrackingStatus.Original,
             trackingSet: this
             );
+        var key=this._ExtractKey(item);
+        this._Items.Add(key,result);
         return result;
     }
 

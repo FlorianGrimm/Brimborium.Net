@@ -17,12 +17,7 @@ public class TrackingContext {
 
     public TrackingObject<TItem> Attach<TItem>(TItem item) {
         if (this._TrackingSetByType.TryGetValue(typeof(TItem), out var trackingSet)) {
-            var result = new TrackingObject<TItem>(
-                item: item,
-                status: TrackingStatus.Original,
-                trackingSet: (TrackingSet<TItem>) trackingSet
-                );
-            return result;
+            return ((TrackingSet<TItem>)trackingSet).Attach(item);
         } else {
             throw new InvalidOperationException();
         }

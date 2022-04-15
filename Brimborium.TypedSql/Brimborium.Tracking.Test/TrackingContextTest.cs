@@ -10,6 +10,9 @@ public class TrackingContextTest {
     public void TrackingContext_001() {
         var sut = new Test1TrackingContext();
         Assert.NotNull(sut);
+        sut.Attach(new Ebbes(Guid.NewGuid(), "1"));
+        sut.Attach(new Ebbes(Guid.NewGuid(), "2"));
+        Assert.Equal(2, sut.Ebbes.Count);
     }
 }
 
