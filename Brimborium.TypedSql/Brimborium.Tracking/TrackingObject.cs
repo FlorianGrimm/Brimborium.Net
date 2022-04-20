@@ -1,4 +1,6 @@
-﻿namespace Brimborium.Tracking;
+﻿using System.Threading.Tasks;
+
+namespace Brimborium.Tracking;
 public abstract class TrackingObject {
     protected TrackingStatus _Status;
 
@@ -19,7 +21,7 @@ public abstract class TrackingObject {
 
     public abstract object GetValue();
 
-    public abstract void ApplyChanges(TrackingStatus status, TrackingTransaction trackingTransaction);
+    public abstract Task ApplyChangesAsync(TrackingStatus status, TrackingTransaction trackingTransaction);
 }
 public class TrackingObject<TValue> 
     : TrackingObject
@@ -62,21 +64,24 @@ public class TrackingObject<TValue>
         this._TrackingSet.Delete(this);
     }
 
-    public override void ApplyChanges(TrackingStatus status, TrackingTransaction  trackingTransaction) {
+    public override async Task ApplyChangesAsync(TrackingStatus status, TrackingTransaction  trackingTransaction) {
         if (this.Status != status) {
             throw new System.InvalidOperationException($"{this.Status}!={status}");
         }
         if (this.Status == TrackingStatus.Original) {
             // all done
         } else if (this.Status == TrackingStatus.Added) {
-            this.TrackingSet.TrackingApplyChanges.Insert(this.Value, trackingTransaction);
+            var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this.Value, trackingTransaction);
             this.Status = TrackingStatus.Original;
+            this._Value = nextValue;
+#warning HERE
         } else if (this.Status == TrackingStatus.Modified) {
-            this.TrackingSet.TrackingApplyChanges.Update(this.Value, trackingTransaction);
+            var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this.Value, trackingTransaction);
             this.Status = TrackingStatus.Original;
+            this._Value = nextValue;
         } else if (this.Status == TrackingStatus.Deleted) {
-            this.TrackingSet.TrackingApplyChanges.Delete(this.Value, trackingTransaction);
-            this.Status = TrackingStatus.Original;
+            await this.TrackingSet.TrackingApplyChanges.Delete(this.Value, trackingTransaction);
+            this.TrackingSet.Detach(this);
         } else {
             throw new System.InvalidOperationException($"{this.Status} unknown.");
         }

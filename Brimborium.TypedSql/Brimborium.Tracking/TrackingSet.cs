@@ -37,6 +37,8 @@ public abstract class TrackingSet<TValue>
 
     public abstract TrackingObject<TValue> Upsert(TValue item);
 
+    public abstract void Detach(TrackingObject<TValue> item);
+
     public abstract void Delete(TrackingObject<TValue> trackingObject);
 
     internal protected abstract void Upsert(TValue value, TrackingObject<TValue> trackingObject);
@@ -81,6 +83,11 @@ public class TrackingSet<TKey, TValue>
         var key = this._ExtractKey(item);
         this._Items.Add(key, result);
         return result;
+    }
+
+    public override void Detach(TrackingObject<TValue> item) {
+        var key = this._ExtractKey(item.Value);
+        this._Items.Remove(key);
     }
 
     public override TrackingObject<TValue> Insert(TValue item) {

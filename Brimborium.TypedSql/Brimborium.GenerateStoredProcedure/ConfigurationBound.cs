@@ -10,17 +10,31 @@ namespace Brimborium.GenerateStoredProcedure {
         }
         public List<RenderBinding> RenderBindings { get; }
         public List<RenderBinding> ReplacementBindings { get; }
+
         public void AddRenderBindings(
             string comment,
             IEnumerable<RenderBinding> renderBindings
             ) {
             var lstRenderBindings = renderBindings.ToList();
             if (lstRenderBindings.Count == 0) {
-                System.Console.Out.WriteLine($"{comment}: none");
+                System.Console.Out.WriteLine($"Render {comment}: none");
             } else {
-                System.Console.Out.WriteLine($"{comment}: {lstRenderBindings.Count}");
+                System.Console.Out.WriteLine($"Render {comment}: {lstRenderBindings.Count}");
             }
             this.RenderBindings.AddRange(lstRenderBindings);
+        }
+
+        public void AddReplacementBindings(
+            string comment,
+            IEnumerable<RenderBinding> renderBindings
+            ) {
+            var lstRenderBindings = renderBindings.ToList();
+            if (lstRenderBindings.Count == 0) {
+                System.Console.Out.WriteLine($"Replacement {comment}: none");
+            } else {
+                System.Console.Out.WriteLine($"Replacement {comment}: {lstRenderBindings.Count}");
+            }
+            this.ReplacementBindings.AddRange(lstRenderBindings);
         }
 
         public static List<ReplacementBinding<T>> CreateReplacementBinding<T>(

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Brimborium.Tracking;
 
@@ -22,15 +23,15 @@ public class TrackingChanges {
         this._TrackingContext = trackingContext;
         this.Changes = new List<TrackingChange>();
     }
-    public void ApplyChanges(TrackingConnection trackingConnection) {
+    public async Task ApplyChangesAsync(TrackingConnection trackingConnection) {
         if (this.Changes.Count > 0) {
             var changes = this.Changes.ToArray();
             this.Changes.Clear();
             using (var trackingTransaction = trackingConnection.BeginTransaction()) { 
                 foreach (var chg in changes) {
-                    chg.TrackingObject.ApplyChanges(chg.Status, trackingTransaction);
+                    await chg.TrackingObject.ApplyChangesAsync(chg.Status, trackingTransaction);
                 }
-                trackingTransaction.Commit();
+                await trackingTransaction.CommitAsync();
             }
         }
     }

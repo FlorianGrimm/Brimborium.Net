@@ -16,7 +16,7 @@ public abstract class TrackingTransaction : IDisposable {
 
     private bool _IsDisposed;
 
-    public abstract Task Commit();
+    public abstract Task CommitAsync();
 
     protected virtual bool Dispose(bool disposing) {
         if (_IsDisposed) {

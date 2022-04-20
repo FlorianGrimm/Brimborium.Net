@@ -55,7 +55,7 @@ public sealed class TrackingSqlTransaction
         return (this._Connection, this._Transaction);
     }
 
-    public override async Task Commit() {
+    public override async Task CommitAsync() {
         if (this._Connection is null) {
             throw new System.InvalidOperationException("no connection");
         } else if (this._Transaction is null) {

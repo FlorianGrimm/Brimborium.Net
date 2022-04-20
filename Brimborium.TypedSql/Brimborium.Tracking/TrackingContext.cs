@@ -52,7 +52,7 @@ public class TrackingContext {
     }
 
     public void ApplyChanges(TrackingConnection trackingConnection) {
-        this.TrackingChanges.ApplyChanges(trackingConnection);
+        this.TrackingChanges.ApplyChangesAsync(trackingConnection);
         
     }
 }
