@@ -17,20 +17,33 @@ public class TrackingChange {
 
 public class TrackingChanges {
     private TrackingContext _TrackingContext;
-    private readonly List<TrackingChange> _Changes;
+    public readonly List<TrackingChange> Changes;
     public TrackingChanges(TrackingContext trackingContext) {
         this._TrackingContext = trackingContext;
-        this._Changes = new List<TrackingChange>();
+        this.Changes = new List<TrackingChange>();
+    }
+    public void ApplyChanges(TrackingConnection trackingConnection) {
+        if (this.Changes.Count > 0) {
+            var changes = this.Changes.ToArray();
+            this.Changes.Clear();
+            using (var trackingTransaction = trackingConnection.BeginTransaction()) { 
+                foreach (var chg in changes) {
+                    chg.TrackingObject.ApplyChanges(chg.Status, trackingTransaction);
+                }
+                trackingTransaction.Commit();
+            }
+        }
     }
 
     public void Add(TrackingChange change) {
-        this._Changes.Add(change);
+        this.Changes.Add(change);
     }
     public void Remove(TrackingStatus status, TrackingObject trackingObject) {
-        for (int idx = 0; idx < this._Changes.Count; idx++) {
-            if (this._Changes[idx].Status == status) {
-                if (ReferenceEquals(this._Changes[idx].TrackingObject, trackingObject)) {
-                    this._Changes.RemoveAt(idx);
+        var value = trackingObject.GetValue();
+        for (int idx = 0; idx < this.Changes.Count; idx++) {
+            if (this.Changes[idx].Status == status) {
+                if (ReferenceEquals(this.Changes[idx].TrackingObject.GetValue(), value)) {
+                    this.Changes.RemoveAt(idx);
                     return;
                 }
             }

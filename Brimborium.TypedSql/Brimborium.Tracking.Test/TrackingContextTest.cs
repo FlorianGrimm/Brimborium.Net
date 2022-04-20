@@ -7,12 +7,15 @@ namespace Brimborium.Tracking.Test;
 
 public class TrackingContextTest {
     [Fact]
-    public void TrackingContext_001() {
+    public void TrackingContext_001_Attach() {
         var sut = new Test1TrackingContext();
         Assert.NotNull(sut);
-        sut.Attach(new Ebbes(Guid.NewGuid(), "1"));
-        sut.Attach(new Ebbes(Guid.NewGuid(), "2"));
+        var id1 = Guid.NewGuid();
+        var id2 = Guid.NewGuid();
+        sut.Attach(new Ebbes(id1, "1"));
+        sut.Attach(new Ebbes(id2, "2"));
         Assert.Equal(2, sut.Ebbes.Count);
+        Assert.Equal("1", sut.Ebbes[new EbbesKey(Id:id1)].Value.Title);
     }
 }
 
@@ -21,7 +24,8 @@ public class Test1TrackingContext : TrackingContext {
         this.Ebbes = new TrackingSet<EbbesKey, Ebbes>(
             extractKey: EbbesUtiltiy.Instance.ExtractKey,
             comparer: EbbesUtiltiy.Instance,
-            trackingContext: this
+            trackingContext: this,
+            trackingApplyChanges: null!
             );
     }
     public TrackingSet<EbbesKey, Ebbes> Ebbes { get; }

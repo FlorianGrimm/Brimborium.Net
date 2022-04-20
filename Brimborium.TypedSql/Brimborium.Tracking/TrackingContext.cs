@@ -11,23 +11,48 @@ public class TrackingContext {
         this.TrackingChanges = new TrackingChanges(this);
     }
     public void RegisterTrackingSet(TrackingSet trackingSet) {
-        var itemType=trackingSet.GetItemType();
+        var itemType = trackingSet.GetItemType();
         this._TrackingSetByType.Add(itemType, trackingSet);
     }
 
-    public TrackingObject<TItem> Attach<TItem>(TItem item) {
-        if (this._TrackingSetByType.TryGetValue(typeof(TItem), out var trackingSet)) {
-            return ((TrackingSet<TItem>)trackingSet).Attach(item);
+    public TrackingObject<TValue> Attach<TValue>(TValue item)
+        where TValue : class {
+        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+            return ((TrackingSet<TValue>)trackingSet).Attach(item);
         } else {
             throw new InvalidOperationException();
         }
     }
 
-    //public TrackingSet<TItem> Insert<TItem>(TItem item) {
-    //    return this;
-    //}
+    public TrackingObject<TValue> Insert<TValue>(TValue item)
+        where TValue : class {
+        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+            return ((TrackingSet<TValue>)trackingSet).Insert(item);
+        } else {
+            throw new InvalidOperationException();
+        }
+    }
 
-    //public TrackingSet<TItem> Update<TItem>(TItem item) {
-    //    return this;
-    //}
+    public TrackingObject<TValue> Update<TValue>(TValue item)
+        where TValue : class {
+        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+            return ((TrackingSet<TValue>)trackingSet).Update(item);
+        } else {
+            throw new InvalidOperationException();
+        }
+    }
+
+    public TrackingObject<TValue> Upsert<TValue>(TValue item)
+        where TValue : class {
+        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+            return ((TrackingSet<TValue>)trackingSet).Upsert(item);
+        } else {
+            throw new InvalidOperationException();
+        }
+    }
+
+    public void ApplyChanges(TrackingConnection trackingConnection) {
+        this.TrackingChanges.ApplyChanges(trackingConnection);
+        
+    }
 }

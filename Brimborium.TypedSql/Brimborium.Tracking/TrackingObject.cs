@@ -1,12 +1,13 @@
 ﻿namespace Brimborium.Tracking;
-public class TrackingObject {
-    private TrackingStatus _Status;
+public abstract class TrackingObject {
+    protected TrackingStatus _Status;
+
     protected TrackingObject(
         TrackingStatus status
         ) {
         this._Status = status;
-
     }
+
     public TrackingStatus Status {
         get {
             return this._Status;
@@ -15,45 +16,69 @@ public class TrackingObject {
             this._Status = value;
         }
     }
+
+    public abstract object GetValue();
+
+    public abstract void ApplyChanges(TrackingStatus status, TrackingTransaction trackingTransaction);
 }
-public class TrackingObject<TItem> : TrackingObject {
-    private TItem _Item;
-    private readonly TrackingSet<TItem> _TrackingSet;
+public class TrackingObject<TValue> 
+    : TrackingObject
+    where TValue : class
+    {
+    private TValue _Value;
+    private readonly TrackingSet<TValue> _TrackingSet;
 
     public TrackingObject(
-        TItem item,
+        TValue value,
         TrackingStatus status,
-        TrackingSet<TItem> trackingSet)
+        TrackingSet<TValue> trackingSet)
         : base(status) {
-        this._Item = item;
+        this._Value = value;
         this._TrackingSet = trackingSet;
     }
 
-    public TItem Item {
+    internal void Set(
+        TValue value,
+        TrackingStatus status
+        ) {
+        this._Value = value;
+        this._Status = status;
+    }
+
+    public TValue Value {
         get {
-            return this._Item;
+            return this._Value;
         }
         set {
-            if (this.Status == TrackingStatus.Original) { 
-                this._Item = value;
-                this.TrackingSet.TrackingContext.TrackingChanges.Add(
-                    new TrackingChange(Tracking.TrackingStatus.Added, this)
-                    ); ;
-            } else if (this.Status == TrackingStatus.Added) {
-                this._Item = value;
-                // TrackingChange should be there
-            } else if (this.Status == TrackingStatus.Modified) {
-                this._Item = value;
-                // TrackingChange should be there
-            } else if (this.Status == TrackingStatus.Deleted) {
-                throw new System.InvalidOperationException("The object is deleted.");
-            }
+            this._TrackingSet.Upsert(value, this);
         }
     }
 
-    internal TrackingSet<TItem> TrackingSet => this._TrackingSet;
+    public override object GetValue() => this._Value;
+
+    internal TrackingSet<TValue> TrackingSet => this._TrackingSet;
 
     public void Delete() {
         this._TrackingSet.Delete(this);
+    }
+
+    public override void ApplyChanges(TrackingStatus status, TrackingTransaction  trackingTransaction) {
+        if (this.Status != status) {
+            throw new System.InvalidOperationException($"{this.Status}!={status}");
+        }
+        if (this.Status == TrackingStatus.Original) {
+            // all done
+        } else if (this.Status == TrackingStatus.Added) {
+            this.TrackingSet.TrackingApplyChanges.Insert(this.Value, trackingTransaction);
+            this.Status = TrackingStatus.Original;
+        } else if (this.Status == TrackingStatus.Modified) {
+            this.TrackingSet.TrackingApplyChanges.Update(this.Value, trackingTransaction);
+            this.Status = TrackingStatus.Original;
+        } else if (this.Status == TrackingStatus.Deleted) {
+            this.TrackingSet.TrackingApplyChanges.Delete(this.Value, trackingTransaction);
+            this.Status = TrackingStatus.Original;
+        } else {
+            throw new System.InvalidOperationException($"{this.Status} unknown.");
+        }
     }
 }
