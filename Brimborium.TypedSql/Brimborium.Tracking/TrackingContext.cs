@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Brimborium.Tracking;
 
 public class TrackingContext {
@@ -24,10 +26,10 @@ public class TrackingContext {
         }
     }
 
-    public TrackingObject<TValue> Insert<TValue>(TValue item)
+    public TrackingObject<TValue> Add<TValue>(TValue item)
         where TValue : class {
         if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
-            return ((TrackingSet<TValue>)trackingSet).Insert(item);
+            return ((TrackingSet<TValue>)trackingSet).Add(item);
         } else {
             throw new InvalidOperationException();
         }
@@ -51,8 +53,7 @@ public class TrackingContext {
         }
     }
 
-    public void ApplyChanges(TrackingConnection trackingConnection) {
-        this.TrackingChanges.ApplyChangesAsync(trackingConnection);
-        
+    public async Task ApplyChangesAsync(TrackingConnection trackingConnection) {
+        await this.TrackingChanges.ApplyChangesAsync(trackingConnection);
     }
 }

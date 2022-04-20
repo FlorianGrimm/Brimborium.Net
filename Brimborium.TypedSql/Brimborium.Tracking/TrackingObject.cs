@@ -74,7 +74,6 @@ public class TrackingObject<TValue>
             var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this.Value, trackingTransaction);
             this.Status = TrackingStatus.Original;
             this._Value = nextValue;
-#warning HERE
         } else if (this.Status == TrackingStatus.Modified) {
             var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this.Value, trackingTransaction);
             this.Status = TrackingStatus.Original;

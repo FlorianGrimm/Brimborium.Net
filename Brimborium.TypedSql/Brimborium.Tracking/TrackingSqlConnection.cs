@@ -7,12 +7,8 @@ using System.Data.Common;
 
 namespace Brimborium.Tracking;
 
-public sealed class TrackingSqlConnectionOption {
-    public TrackingSqlConnectionOption() {
-        this.ConnectionString = string.Empty;
-    }
-
-    public string ConnectionString { get; set; }
+public class TrackingSqlConnectionOption {
+    public string? ConnectionString { get; set; }
 }
 
 public sealed class TrackingSqlConnection
@@ -23,12 +19,19 @@ public sealed class TrackingSqlConnection
     }
 
     public TrackingSqlConnection(IOptions<TrackingSqlConnectionOption> options) {
-        this.ConnectionString = options.Value.ConnectionString;
+        if (string.IsNullOrEmpty(options.Value.ConnectionString)) {
+            this.ConnectionString = String.Empty;
+        } else {
+            this.ConnectionString = options.Value.ConnectionString;
+        }
     }
 
     public string ConnectionString { get; set; }
 
     public override TrackingTransaction BeginTransaction() {
+        if (string.IsNullOrEmpty(this.ConnectionString)) {
+            throw new System.InvalidOperationException("ConnectionString is empty.");
+        }
         return new TrackingSqlTransaction(this.ConnectionString);
     }
 }
@@ -66,6 +69,7 @@ public sealed class TrackingSqlTransaction
             await this._Connection.CloseAsync();
             this._Transaction = null;
             this._Connection = null;
+            System.GC.SuppressFinalize(this);
         }
     }
 
@@ -73,6 +77,12 @@ public sealed class TrackingSqlTransaction
     protected override bool Dispose(bool disposing) {
         var result = base.Dispose(disposing);
         if (result) {
+            using (var c = this._Connection) {
+                using (var t = this._Transaction) {
+                    this._Transaction = null;
+                    this._Connection = null;
+                }
+            }
         }
         return result;
     }
