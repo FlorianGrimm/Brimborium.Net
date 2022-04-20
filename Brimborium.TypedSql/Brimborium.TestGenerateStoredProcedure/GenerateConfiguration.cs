@@ -681,7 +681,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
             var tablesUpdatePaired = tablesUpdate.Join(
                     tablesHistory,
                     o =>  o.Name,
-                    i =>  i.Name,
+                    i =>  i.Name.EndsWith("History")?i.Name.Substring(0, i.Name.Length - 7):null,
                     (tableInfoData, tableInfoHistory) => new TableDataHistory(
                         tableInfoData,
                         tableInfoHistory,
@@ -709,7 +709,8 @@ namespace Brimborium.TestGenerateStoredProcedure {
                 ).ToList();
 
 
-            result.RenderBindings.AddRange(
+            result.AddRenderBindings(
+                    "SelectPKTempate",
                     tablesNotHistory
                     .Select(tableInfo => new TableBinding(tableInfo, this.SelectPKTempate)));
 
@@ -725,14 +726,16 @@ namespace Brimborium.TestGenerateStoredProcedure {
             //    );
 
             //List<(TableInfo tableInfoData, TableInfo tableInfoHistory, List<(ColumnInfo columnData, ColumnInfo columnHistory)> columnPairs)>?
-            result.RenderBindings.AddRange(
+            result.AddRenderBindings(
+                    "UpdateTempate",
                     tablesUpdatePaired
                     .Select(t => new DataTemplateBinding<TableDataHistory>(
                             t,
                             t => t.TableData,
                             this.UpdateTempate)));
 
-            result.RenderBindings.AddRange(
+            result.AddRenderBindings(
+                    "DeletePKTempate",
                     tablesUpdatePaired
                         .Select(t => new DataTemplateBinding<TableDataHistory>(
                             t,

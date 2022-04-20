@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Brimborium.GenerateStoredProcedure {
     public class ConfigurationBound {
@@ -9,6 +10,18 @@ namespace Brimborium.GenerateStoredProcedure {
         }
         public List<RenderBinding> RenderBindings { get; }
         public List<RenderBinding> ReplacementBindings { get; }
+        public void AddRenderBindings(
+            string comment,
+            IEnumerable<RenderBinding> renderBindings
+            ) {
+            var lstRenderBindings = renderBindings.ToList();
+            if (lstRenderBindings.Count == 0) {
+                System.Console.Out.WriteLine($"{comment}: none");
+            } else {
+                System.Console.Out.WriteLine($"{comment}: {lstRenderBindings.Count}");
+            }
+            this.RenderBindings.AddRange(lstRenderBindings);
+        }
 
         public static List<ReplacementBinding<T>> CreateReplacementBinding<T>(
             List<ReplacementTemplate<T>> lstReplacementTemplates,

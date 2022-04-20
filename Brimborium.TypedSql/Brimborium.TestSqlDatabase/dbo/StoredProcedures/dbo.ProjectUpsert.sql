@@ -53,7 +53,7 @@ AS BEGIN
             @ModifiedAt
         );
         SET @ResultValue = 1; /* Inserted */
-        INSERT INTO [history].[Project] (
+        INSERT INTO [history].[ProjectHistory] (
             [Id],
             [Title],
             [ActivityId],
@@ -89,7 +89,7 @@ AS BEGIN
                         ([Id] = @Id)
                 ;
                 SET @ResultValue = 2; /* Updated */
-                UPDATE TOP(1) [history].[Project]
+                UPDATE TOP(1) [history].[ProjectHistory]
                     SET
                         [ValidTo] = @ModifiedAt
                     WHERE
@@ -97,7 +97,7 @@ AS BEGIN
                         AND ([ActivityId] = @ActivityId)
                         AND ([Id] = @Id)
                 ;
-                INSERT INTO [history].[Project] (
+                INSERT INTO [history].[ProjectHistory] (
                     [Id],
                     [Title],
                     [ActivityId],

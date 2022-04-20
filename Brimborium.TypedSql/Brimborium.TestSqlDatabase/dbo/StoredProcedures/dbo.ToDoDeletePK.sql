@@ -23,7 +23,7 @@ AS BEGIN
             FROM @Result
         )
     ) BEGIN
-        UPDATE TOP(1) [history].[ToDo]
+        UPDATE TOP(1) [history].[ToDoHistory]
             SET
                 [ValidTo] = @ModifiedAt
             WHERE
