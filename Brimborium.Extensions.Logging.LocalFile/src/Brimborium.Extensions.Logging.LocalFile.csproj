@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Description>Logger implementation to support local file and Azure App Services 'Diagnostics logs', 'Log stream' features.</Description>
-		<TargetFramework>net6.0<TargetFrameworks>
+		<TargetFramework>net6.0</TargetFramework>
 		<!--
 		<TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
 		-->
