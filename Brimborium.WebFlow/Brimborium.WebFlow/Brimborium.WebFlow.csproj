@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <IsPackable>true</IsPackable>
-    <IsPublishable>true</IsPublishable>
   </PropertyGroup>
+
+	<Import Project="..\..\build\package.targets" />
 
   <ItemGroup>
     <Compile Remove="RequestHandler\ControllerBaseExtensions.cs" />

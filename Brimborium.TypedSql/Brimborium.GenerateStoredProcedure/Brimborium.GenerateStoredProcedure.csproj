@@ -5,9 +5,9 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>Latest</LangVersion>
 		<Nullable>enable</Nullable>
-		<IsPackable>true</IsPackable>
-    	<IsPublishable>true</IsPublishable>
 	</PropertyGroup>
+
+	<Import Project="..\..\build\package.targets" />
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />

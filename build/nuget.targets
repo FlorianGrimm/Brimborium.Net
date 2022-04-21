@@ -1,0 +1,11 @@
+<Project>
+    <PropertyGroup>
+        <RestoreAdditionalProjectSources>
+            https://grimmuko.pkgs.visualstudio.com/Brimborium.Net/_packaging/Brimborium.Net/nuget/v3/index.json;
+        </RestoreAdditionalProjectSources>
+        <!--
+            $(MSBuildThisFileDirectory)/../References/;
+        -->
+    </PropertyGroup>
+
+</Project>

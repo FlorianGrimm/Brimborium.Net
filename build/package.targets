@@ -2,6 +2,8 @@
 	<PropertyGroup>
 		<IsPackable>true</IsPackable>
 		<IsPublishable>true</IsPublishable>
+        <PackageOutputPath>../nupkg</PackageOutputPath>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

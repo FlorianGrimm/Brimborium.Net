@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <IsPackable>true</IsPackable>
-    <IsPublishable>true</IsPublishable>
   </PropertyGroup>
+
+	<Import Project="..\..\build\package.targets" />
 
 </Project>

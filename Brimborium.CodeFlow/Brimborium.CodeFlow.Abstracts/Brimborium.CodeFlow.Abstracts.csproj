@@ -4,9 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Brimborium.CodeFlow</RootNamespace>
     <Nullable>enable</Nullable>
-    <IsPackable>true</IsPackable>
-    <IsPublishable>true</IsPublishable>
   </PropertyGroup>
+
+  <Import Project="..\..\build\package.targets" />
 
   <ItemGroup>
     <Compile Remove="RequestHandler\IRequestHandlerContext.cs" />

@@ -4,9 +4,9 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<IsPackable>true</IsPackable>
-		<IsPublishable>true</IsPublishable>
 	</PropertyGroup>
+
+	<Import Project="..\..\build\package.targets" />
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />

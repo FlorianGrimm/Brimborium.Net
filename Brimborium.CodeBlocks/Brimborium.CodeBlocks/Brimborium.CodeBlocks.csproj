@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+  
+  <Import Project="..\..\build\package.targets" />
 
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
@@ -11,9 +13,6 @@
     <Product>Brimborium.CodeBlocks</Product>
     <Description>Brimborium.CodeBlocks from the CLI</Description>
     <ToolCommandName>codeblocks</ToolCommandName>
-
-    <PackageOutputPath>../nupkg</PackageOutputPath>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   
   <ItemGroup>
