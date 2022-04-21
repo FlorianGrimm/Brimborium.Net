@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -7,6 +7,13 @@
 		<Nullable>enable</Nullable>
 		<UserSecretsId>1ae00c78-4cfe-4b4e-b830-466314f1c9f5</UserSecretsId>
 	</PropertyGroup>
+
+	<!--
+	ItemGroup
+	  Compile Include="..\Brimborium.TestSample\Record\Activity.cs" Link="External\Record\Activity.cs" /
+	  Compile Include="..\Brimborium.TestSample\Record\PrimaryKeyLocation.cs" Link="External\PrimaryKeyLocation.cs" /
+	/ItemGroup
+	-->
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
@@ -24,5 +31,21 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj" />
 	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Folder Include="External\Service\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="..\Brimborium.TestSample\Record\*.cs">
+			<Link>External\Record\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="..\Brimborium.TestSample\Service\SqlAccessLocation.cs" Link="External\Service\SqlAccessLocation.cs" />
+	</ItemGroup>
+
 
 </Project>

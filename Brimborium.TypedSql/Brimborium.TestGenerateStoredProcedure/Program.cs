@@ -5,10 +5,6 @@ using System.Collections.Generic;
 namespace Brimborium.TestGenerateStoredProcedure;
 
 public static class Program {
-    //public static string DefaultConnectionString = "";
-    //public static string DefaultConnectionString = "Data Source=parado.dev.solvin.local;Initial Catalog=TodoDB;Trusted_Connection=True;";
-    //public static string DefaultConnectionString = "Data Source=.;Initial Catalog=TestDB;Trusted_Connection=True;";
-
     public static int Main(string[] args) {
         try {
             var configuration = GetConfiguration(args);
@@ -22,7 +18,7 @@ public static class Program {
                 System.Console.Error.WriteLine("ConnectionString is empty");
                 return 1;
             }
-            System.Console.Out.WriteLine(connectionString);
+            // System.Console.Out.WriteLine(connectionString);
 
             var upperDirectoryPath = GetUpperDirectoryPath();
 

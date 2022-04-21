@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Brimborium.TestSample.Record {
     public partial class Project {
         public Project() {
-            ToDo = new HashSet<ToDo>();
+            this.ToDo = new HashSet<ToDo>();
         }
 
         [Key]
@@ -18,7 +18,7 @@ namespace Brimborium.TestSample.Record {
         public Guid? ActivityId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset ModifiedAt { get; set; }
-        public ulong SerialVersion { get; set; }
+        public long SerialVersion { get; set; }
 
         [ForeignKey("ModifiedAt,ActivityId")]
         [InverseProperty("Project")]

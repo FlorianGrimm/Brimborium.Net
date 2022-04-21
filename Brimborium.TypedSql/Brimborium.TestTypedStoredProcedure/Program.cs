@@ -3,24 +3,47 @@
 using Microsoft.Extensions.Configuration;
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Brimborium.TestTypedStoredProcedure;
 
 public static partial class Program {
-    //public static string DefaultConnectionString = "";
-    //public static string DefaultConnectionString = "Data Source=parado.dev.solvin.local;Initial Catalog=TodoDB;Trusted_Connection=True;";
-    public static string DefaultConnectionString = "Data Source=.;Initial Catalog=TestDB;Trusted_Connection=True;";
-
     public static int Main(string[] args) {
         try {
             var configuration = GetConfiguration(args);
+            var connectionString = configuration.GetValue<string>("ConnectionString");
+
+            if (string.IsNullOrEmpty(connectionString)) {
+                System.Console.Error.WriteLine("ConnectionString is empty");
+                return 1;
+            }
+            //
+            System.Console.Out.WriteLine(connectionString);
 
             AddNativeTypeConverter();
-            //MainEnsureProcedure();
-            //MainGeneratePrimaryKey(configuration);
-            //MainGenerateOneTSSqlAccess(configuration);
+            
+            { 
+                //MainEnsureProcedure();
+            }
 
-            //var connectionString = configuration.GetValue<string>("ConnectionString");
+#if false
+            {
+                var (outputFilePrimaryKey, outputNamespacePrimaryKey) = Brimborium.TestSample.Record.PrimaryKeyLocation.GetPrimaryKeyOutputInfo();
+                MainGeneratePrimaryKey(connectionString, outputFilePrimaryKey, outputNamespacePrimaryKey);
+            }
+#endif
+
+#if true
+            { 
+                var defintions = GetDefintion();
+
+                var(outputPath, outputNamespace, outputClassName) = Brimborium.TestSample.Service.SqlAccessLocation.GetPrimaryKeyOutputInfo();
+                //var outputFolder = System.IO.Path.GetDirectoryName(outputPath);
+
+                MainGenerateOneTSSqlAccess(connectionString, defintions, outputPath, outputNamespace, outputClassName);
+            }
+#endif
+
             //var outputFolder = configuration.GetValue<string>("OutputFolder")
             //    ?? configuration.GetValue<string>("App:OutputFolder");
             //var sqlProjectName = configuration.GetValue<string>("SqlProject");
@@ -112,22 +135,40 @@ public static partial class Program {
         }
     }
 
+    private static void MainGeneratePrimaryKey(
+        string connectionString,
+        string outputFilePrimaryKey,
+        string outputNamespacePrimaryKey
+        ) {
+        var printClass = new PrintClass(outputNamespacePrimaryKey, string.Empty);
+        Generator.GenerateModel(connectionString, outputFilePrimaryKey, printClass);
+    }
+
+    private static void MainGenerateOneTSSqlAccess(
+        string connectionString, 
+        DatabaseDefintion dbDefs,
+        string outputPath,
+        string outputNamespace, 
+        string outputClassName
+        ) {
+        var types=typeof(Brimborium.TestSample.Record.PrimaryKeyLocation).Assembly.GetTypes()
+            .Where(t => t.Namespace == "Brimborium.TestSample.Record")
+            .ToArray()
+            ;
+        var printClass = new PrintClass(
+            outputNamespace,
+            outputClassName
+            /*"OneTSSqlAccess"*/
+            );
+        Generator.GenerateSqlAccessWrapper(types, connectionString, outputPath, dbDefs, printClass);
+    }
+
     public static IConfigurationRoot GetConfiguration(string[] args) {
         var configurationBuilder = new ConfigurationBuilder();
         // configurationBuilder.AddJsonFile(@"c:\secure\appsettings.TestTypedStoredProcedure.json", true);
         configurationBuilder.AddCommandLine(args).AddUserSecrets(assembly: typeof(Program).Assembly, optional: true);
         var configuration = configurationBuilder.Build();
         return configuration;
-    }
-
-
-    private static void AddNativeTypeConverter() {
-        SQLUtility.AddDefaultTypeConverter();
-        //SQLUtility.AddTypeConverter(
-        //    typeof(int),
-        //    typeof(bool),
-        //    typeof(Solvin.OneTS.Services.SqlHelpers.Int32Converter),
-        //    nameof(Solvin.OneTS.Services.SqlHelpers.Int32Converter.ToBool));
     }
 
     //public static bool MainGenerate(string connectionString, string outputFolder) {

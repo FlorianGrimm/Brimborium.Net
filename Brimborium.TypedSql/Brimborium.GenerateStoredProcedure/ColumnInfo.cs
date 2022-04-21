@@ -11,6 +11,7 @@ namespace Brimborium.GenerateStoredProcedure {
         public int PrimaryKeyIndexPosition { get; set; }
         public int ClusteredIndexPosition { get; set; }
         public Hashtable ExtraInfo { get; } = new Hashtable();
+        public string? ParameterSqlDataType { get; set; }
 
         public static ColumnInfo Create(
             Column column
@@ -47,6 +48,18 @@ namespace Brimborium.GenerateStoredProcedure {
                 return sqlName;
             }
         }
+        public string GetParameterSqlDataType(bool addNotNull = false) {
+            if (string.IsNullOrEmpty(this.ParameterSqlDataType)) {
+                return this.GetSqlDataType(addNotNull);
+            } else {
+                if (addNotNull) {
+                    return this.ParameterSqlDataType + this.GetNotNull();
+                } else {
+                    return this.ParameterSqlDataType;
+                }
+            }
+        }
+
         public string GetNotNull() {
             if (this.Column.Nullable) {
                 return " NULL";

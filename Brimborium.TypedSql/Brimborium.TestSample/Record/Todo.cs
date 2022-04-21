@@ -17,7 +17,7 @@ namespace Brimborium.TestSample.Record {
         public Guid? ActivityId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset ModifiedAt { get; set; }
-        public byte[] SerialVersion { get; set; } = null!;
+        public long SerialVersion { get; set; }
 
         [ForeignKey("ModifiedAt,ActivityId")]
         [InverseProperty("ToDo")]

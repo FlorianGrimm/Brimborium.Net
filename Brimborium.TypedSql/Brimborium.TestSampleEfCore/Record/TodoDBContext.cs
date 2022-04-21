@@ -35,7 +35,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var converterSerialVersion = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.NumberToBytesConverter<ulong>();
+            var converterSerialVersion = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.NumberToBytesConverter<long>();
 
             modelBuilder.Entity<Activity>(entity =>
             {

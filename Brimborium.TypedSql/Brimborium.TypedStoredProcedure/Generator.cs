@@ -35,7 +35,10 @@ namespace Brimborium.TypedStoredProcedure {
             foreach (StoredProcedure? storedProcedure in database.StoredProcedures) {
                 if (storedProcedure is object
                     && storedProcedure.Schema is object
-                    && string.Equals(storedProcedure.Schema, "dbo", StringComparison.OrdinalIgnoreCase)) {
+                    ) {
+                    if (string.Equals(storedProcedure.Schema, "sys", StringComparison.OrdinalIgnoreCase)) {
+                        continue;
+                    } 
                     lstStoredProcedure.Add(storedProcedure);
                 }
             }
@@ -116,6 +119,7 @@ namespace Brimborium.TypedStoredProcedure {
             var success = sbOutputImplementation.Length == 0;
             var ctxt = new PrintContext(sbOutputImplementation);
             sbOutputImplementation.AppendLine("#if true");
+            sbOutputImplementation.AppendLine("#nullable enable");
             sbOutputImplementation.AppendLine("");
             printFileImplementation(lstUsed, printClass, storedProcedureNames, ignoreTypePropertyNames, ctxt);
             sbOutputImplementation.AppendLine("");
@@ -159,7 +163,10 @@ namespace Brimborium.TypedStoredProcedure {
             sbOutputImplementation.AppendLine("#if true");
             sbOutputImplementation.AppendLine("using System;");
             sbOutputImplementation.AppendLine("");
-            sbOutputImplementation.AppendLine("namespace Solvin.OneTS.Model {");
+
+            sbOutputImplementation.Append("namespace ");
+            sbOutputImplementation.Append(printClass.Namespace);
+            sbOutputImplementation.AppendLine(" {");
 
             foreach (var t in lstTablePrimaryKey) {
                 var (table, primaryKey) = t;

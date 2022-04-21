@@ -2,7 +2,7 @@ CREATE PROCEDURE [dbo].[ToDoDeletePK]
     @Id uniqueidentifier,
     @ActivityId uniqueidentifier,
     @ModifiedAt datetimeoffset,
-    @SerialVersion timestamp
+    @SerialVersion bigint
 AS BEGIN
     SET NOCOUNT ON;
 

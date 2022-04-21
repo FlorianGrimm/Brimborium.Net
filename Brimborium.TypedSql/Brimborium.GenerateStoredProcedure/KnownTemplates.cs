@@ -48,7 +48,7 @@ namespace Brimborium.GenerateStoredProcedure {
                         ctxt.AppendPartsLine(
                             column.GetNamePrefixed("@"),
                             " ",
-                            column.GetSqlDataType(),
+                            column.GetParameterSqlDataType(),
                             ctxt.IfNotLast(",")
                             );
                     });
@@ -64,7 +64,7 @@ namespace Brimborium.GenerateStoredProcedure {
                         ctxt.AppendPartsLine(
                             column.GetNamePrefixed("@"),
                             " ",
-                            column.GetSqlDataType(),
+                            column.GetParameterSqlDataType(),
                             //ctxt.IfNotLast(",", (data.columnRowVersion is not null))
                             ((ctxt.IsLast && (data.columnRowVersion is null)) ? string.Empty : ",")
                             );

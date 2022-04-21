@@ -21,7 +21,7 @@ namespace Brimborium.TestSampleEfCore.Record
         public string EntityId { get; set; } = null!;
         public string? Data { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-        public ulong SerialVersion { get; set; }
+        public long SerialVersion { get; set; }
 
         public virtual ICollection<Project> Project { get; set; }
         public virtual ICollection<ProjectHistory> ProjectHistory { get; set; }

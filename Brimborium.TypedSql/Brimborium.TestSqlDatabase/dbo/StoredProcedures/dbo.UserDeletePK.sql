@@ -2,7 +2,7 @@ CREATE PROCEDURE [dbo].[UserDeletePK]
     @Id uniqueidentifier,
     @ActivityId uniqueidentifier,
     @ModifiedAt datetimeoffset,
-    @SerialVersion timestamp
+    @SerialVersion bigint
 AS BEGIN
     SET NOCOUNT ON;
 

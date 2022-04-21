@@ -48,7 +48,7 @@ public class SqlAccessBase : IDisposable, ISqlAccessBase {
         command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter(parameterName, sqlDbType) { Value = (value == null) ? DBNull.Value : value });
     }
 
-    protected void AddParameterDateTimeOffset(Microsoft.Data.SqlClient.SqlCommand command, string parameterName, DateTime? value) {
+    protected void AddParameterDateTimeOffset(Microsoft.Data.SqlClient.SqlCommand command, string parameterName, DateTimeOffset? value) {
         command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter(parameterName, SqlDbType.DateTimeOffset) { Value = (value == null) ? DBNull.Value : value });
     }
 

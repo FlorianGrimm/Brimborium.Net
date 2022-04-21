@@ -18,7 +18,7 @@ namespace Brimborium.TestSample.Record {
         public DateTimeOffset ValidFrom { get; set; }
         [Key]
         public DateTimeOffset ValidTo { get; set; }
-        public ulong SerialVersion { get; set; }
+        public long SerialVersion { get; set; }
 
         [ForeignKey("ValidFrom,ActivityId")]
         [InverseProperty("ProjectHistory")]

@@ -22,4 +22,19 @@ AS BEGIN
         @CreatedAt
     );
 
+    SELECT
+        [Id],
+        [Title],
+        [EntityType],
+        [EntityId],
+        [Data],
+        [CreatedAt],
+        [SerialVersion] = CAST([SerialVersion] as BIGINT)
+    FROM
+        [dbo].[Activity]
+    WHERE
+        (@CreatedAt = [CreatedAt])
+            AND (@Id = [Id])
+    ;
+
 END;

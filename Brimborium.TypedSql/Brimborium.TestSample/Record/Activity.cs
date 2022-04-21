@@ -8,12 +8,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Brimborium.TestSample.Record {
     public partial class Activity {
         public Activity() {
-            Project = new HashSet<Project>();
-            ProjectHistory = new HashSet<ProjectHistory>();
-            ToDo = new HashSet<ToDo>();
-            ToDoHistory = new HashSet<ToDoHistory>();
-            User = new HashSet<User>();
-            UserHistory = new HashSet<UserHistory>();
+            this.Project = new HashSet<Project>();
+            this.ProjectHistory = new HashSet<ProjectHistory>();
+            this.ToDo = new HashSet<ToDo>();
+            this.ToDoHistory = new HashSet<ToDoHistory>();
+            this.User = new HashSet<User>();
+            this.UserHistory = new HashSet<UserHistory>();
         }
 
         [Key]
@@ -27,7 +27,7 @@ namespace Brimborium.TestSample.Record {
         public string? Data { get; set; }
         [Key]
         public DateTimeOffset CreatedAt { get; set; }
-        public ulong SerialVersion { get; set; }
+        public long SerialVersion { get; set; }
 
         [InverseProperty("Activity")]
         public virtual ICollection<Project> Project { get; set; }

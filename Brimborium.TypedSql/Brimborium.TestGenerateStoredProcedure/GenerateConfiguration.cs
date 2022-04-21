@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace Brimborium.TestGenerateStoredProcedure {
     public class GenerateConfiguration : Brimborium.GenerateStoredProcedure.Configuration {
-
-
         public readonly RenderTemplate<TableInfo> SelectPKTempate;
+        
         public readonly RenderTemplate<TableInfo> SelectAtTimeTempate;
+        
         public readonly RenderTemplate<ForeignKeyInfo> SelectByReferencedPKTempate;
 
         public record TableDataHistory(
@@ -23,6 +23,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
         public readonly RenderTemplate<TableDataHistory> UpdateTempate;
 
         public readonly RenderTemplate<TableDataHistory> DeletePKTempate;
+        
         public readonly List<ReplacementTemplate<TableInfo>> ReplacementTableTemplates;
 
         public GenerateConfiguration() {
@@ -486,7 +487,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
                                                 );
                                         });
                                     ctxt.AppendLine(
-                                        $"[RowVersion] = CAST({data.TableData.ColumnRowversion.GetNameQ()} as BIGINT)");
+                                        $"{data.TableData.ColumnRowversion.GetNameQ()} = CAST({data.TableData.ColumnRowversion.GetNameQ()} as BIGINT)");
                                 },
                                 fromBlock: (data, ctxt) => {
                                     ctxt.AppendLine(data.TableData.GetNameQ());
@@ -503,7 +504,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
                                                 );
                                         });
                                 });
-                            ctxt.AppendLine("SELECT ResultValue=@ResultValue;");
+                            ctxt.AppendLine("SELECT ResultValue = @ResultValue, Message='';");
                         }
                     );
                 });
@@ -525,7 +526,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
                                 ctxt.AppendPartsLine(
                                     column.GetNamePrefixed("@"),
                                     " ",
-                                    column.GetSqlDataType(),
+                                    column.GetParameterSqlDataType(),
                                     ","
                                     );
 
@@ -537,7 +538,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
                                 ctxt.AppendPartsLine(
                                         data.TableData.ColumnRowversion.GetNamePrefixed("@"),
                                         " ",
-                                        data.TableData.ColumnRowversion.GetSqlDataType()
+                                        data.TableData.ColumnRowversion.GetParameterSqlDataType()
                                         );
                             }
                         },
@@ -662,6 +663,17 @@ namespace Brimborium.TestGenerateStoredProcedure {
                     var excludeFromCompare = hsExcludeFromCompare.Contains(column.Name);
                     column.ExtraInfo["ExcludeFromCompare"] = excludeFromCompare;
                 }
+            }
+
+            foreach (var tableInfo in databaseInfo.Tables) {
+                if (tableInfo.ColumnRowversion is not null) {
+                    tableInfo.ColumnRowversion.ParameterSqlDataType = "bigint";
+                }
+                //foreach (var columnInfo in tableInfo.Columns) {
+                //    if (columnInfo.Column.DataType.SqlDataType == Microsoft.SqlServer.Management.Smo.SqlDataType.Timestamp) {
+                //        columnInfo.ParameterSqlDataType = "bigint";
+                //    }
+                //}
             }
 
 

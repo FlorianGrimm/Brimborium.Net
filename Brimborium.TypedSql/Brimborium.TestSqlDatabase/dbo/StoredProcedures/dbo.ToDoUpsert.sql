@@ -162,11 +162,11 @@ AS BEGIN
             [ActivityId],
             [CreatedAt],
             [ModifiedAt],
-            [RowVersion] = CAST([SerialVersion] as BIGINT)
+            [SerialVersion] = CAST([SerialVersion] as BIGINT)
         FROM
             [dbo].[ToDo]
         WHERE
             (@Id = [Id])
         ;
-    SELECT ResultValue=@ResultValue;
+    SELECT ResultValue = @ResultValue, Message='';
 END;
