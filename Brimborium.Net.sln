@@ -46,10 +46,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.TypedStoredProce
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D816627-162F-4936-9D64-7E6EBC056F17}"
 	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
 		nuget.config = nuget.config
+		build\package.targets = build\package.targets
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeBlocks.Library", "Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj", "{647C65AA-D05A-474D-BC06-6B98D003EE38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Brimborium.Extensions.Logging.LocalFile", "Brimborium.Extensions.Logging.LocalFile", "{17572381-14E6-4A93-A4FF-091994B15D62}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Extensions.Logging.LocalFile", "Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj", "{257676A4-5FC3-468B-9F16-F3E2EA039B86}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{596E6A49-D640-419D-8E7D-E12A38ABF8BC}"
+	ProjectSection(SolutionItems) = preProject
+		build\package.targets = build\package.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -241,6 +252,18 @@ Global
 		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|x64.Build.0 = Release|Any CPU
 		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|x86.ActiveCfg = Release|Any CPU
 		{647C65AA-D05A-474D-BC06-6B98D003EE38}.Release|x86.Build.0 = Release|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Debug|x64.Build.0 = Debug|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Debug|x86.Build.0 = Debug|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Release|x64.ActiveCfg = Release|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Release|x64.Build.0 = Release|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Release|x86.ActiveCfg = Release|Any CPU
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -261,6 +284,8 @@ Global
 		{3F478D31-0733-41C8-9ABC-EAE3E81A8B8C} = {B110FAFC-B7B3-40E9-A782-BA023894B7B4}
 		{06771467-9145-42EB-B3D1-EBCEAD8AF9EF} = {B110FAFC-B7B3-40E9-A782-BA023894B7B4}
 		{647C65AA-D05A-474D-BC06-6B98D003EE38} = {FBFBC463-097B-4E68-8BE8-8F2A60EEA849}
+		{257676A4-5FC3-468B-9F16-F3E2EA039B86} = {17572381-14E6-4A93-A4FF-091994B15D62}
+		{596E6A49-D640-419D-8E7D-E12A38ABF8BC} = {2D816627-162F-4936-9D64-7E6EBC056F17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BAD26BF-BE30-446B-AE30-D5831F06251C}

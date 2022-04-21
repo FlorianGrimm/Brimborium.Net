@@ -24,6 +24,7 @@ variables:
     Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj
     Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj
     Brimborium.TypedSql\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj
+    Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj
 
   later: |
     Brimborium.CodeBlocks\Brimborium.Typing\Brimborium.Typing.csproj
@@ -143,6 +144,13 @@ steps:
     nobuild: true
     includesymbols: true
 
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.Extensions.Logging.LocalFile'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj'
+    nobuild: true
+    includesymbols: true
    
     #versioningScheme: 'off'
     #verbosityPack: 'Diagnostic'
