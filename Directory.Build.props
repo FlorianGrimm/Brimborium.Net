@@ -13,8 +13,6 @@
     <IsPublishable>false</IsPublishable>
     <IsPackable>false</IsPackable>    
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/FlorianGrimm/Brimborium.Net.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
     <MinClientVersion>3.5</MinClientVersion>
   </PropertyGroup>
 

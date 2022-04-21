@@ -4,6 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<PackageProjectUrl>https://github.com/FlorianGrimm/Brimborium.Net/tree/main/Brimborium.TypedSql/Brimborium.TypedStoredProcedure</PackageProjectUrl>
 	</PropertyGroup>
 
 	<Import Project="..\..\build\package.targets" />
