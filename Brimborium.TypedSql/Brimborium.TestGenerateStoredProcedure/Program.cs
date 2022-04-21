@@ -54,6 +54,7 @@ public static class Program {
                             upperDirectoryPath,
                             sqlProjectName
                             );
+                    // dotnet build
                     {
                         var psi = new System.Diagnostics.ProcessStartInfo(
                             dotnet, $"build \"{sqlProject_csproj}\"");
@@ -69,6 +70,7 @@ public static class Program {
                             }
                         }
                     }
+                    // dotnet publish
                     {                        
                         var csb=new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
                         var p1 = (string.IsNullOrEmpty(csb.DataSource) || string.IsNullOrEmpty(csb.InitialCatalog)) ? string.Empty :  
@@ -83,13 +85,14 @@ public static class Program {
                         if (process is not null) {
                             process.WaitForExit(30_000);
                             if (process.ExitCode == 0) {
-                                System.Console.Out.WriteLine($"dotnet build {sqlProject_csproj} OK");
+                                System.Console.Out.WriteLine($"dotnet publish {sqlProject_csproj} OK");
                             } else {
-                                System.Console.Out.WriteLine($"dotnet build {sqlProject_csproj} Failed");
+                                System.Console.Out.WriteLine($"dotnet publish {sqlProject_csproj} Failed");
                                 return 1;
                             }
                         }
                     }
+                    // dotnet run Brimborium.TestTypedStoredProcedure.csproj
                     return 0;
                 } else {
                     System.Console.Out.WriteLine($"no changes.");
