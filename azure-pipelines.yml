@@ -77,7 +77,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -85,7 +85,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -93,7 +93,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -101,7 +101,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -109,7 +109,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -117,7 +117,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -125,7 +125,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -133,7 +133,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -141,7 +141,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.TypedSql\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
 
 - task: DotNetCoreCLI@2
@@ -149,7 +149,7 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj'
-    nobuild: true
+    nobuild: false
     includesymbols: true
    
     #versioningScheme: 'off'

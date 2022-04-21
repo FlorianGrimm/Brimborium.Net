@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Description>Logger implementation to support local file and Azure App Services 'Diagnostics logs', 'Log stream' features.</Description>
+		<TargetFramework>net6.0<TargetFrameworks>
+		<!--
 		<TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+		-->
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 		<Nullable>disable</Nullable>
 	</PropertyGroup>
 	
 	<Import Project="..\..\build\package.targets" />
 	
-	<ItemGroup>
-		<InternalsVisibleTo Include="Brimborium.Extensions.Logging.LocalFile.Tests" />
-	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />

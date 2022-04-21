@@ -3,16 +3,12 @@
 		<IsPackable>true</IsPackable>
 		<IsPublishable>true</IsPublishable>
         <PackageOutputPath>../nupkg</PackageOutputPath>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<RepositoryUrl>https://github.com/FlorianGrimm/Brimborium.Net.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
-		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TF_BUILD)' == 'True'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
