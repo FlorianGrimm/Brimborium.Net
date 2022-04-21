@@ -26,7 +26,7 @@ public class WebConfigurationLevelSwitchTests
             })
             .Build();
 
-        var levelSwitcher = new ConfigurationBasedLevelSwitcher(configuration, typeof(TestFileLoggerProvider), "levelKey");
+        var levelSwitcher = new ConfigurationBasedLevelSwitcher(configuration, typeof(AzureAppServicesTestFileLoggerProvider), "levelKey");
 
         var filterConfiguration = new LoggerFilterOptions();
         levelSwitcher.Configure(filterConfiguration);
@@ -34,7 +34,7 @@ public class WebConfigurationLevelSwitchTests
         Assert.Equal(1, filterConfiguration.Rules.Count);
 
         var rule = filterConfiguration.Rules[0];
-        Assert.Equal(typeof(TestFileLoggerProvider).FullName, rule.ProviderName);
+        Assert.Equal(typeof(AzureAppServicesTestFileLoggerProvider).FullName, rule.ProviderName);
         Assert.Equal(expectedLevel, rule.LogLevel);
     }
 }

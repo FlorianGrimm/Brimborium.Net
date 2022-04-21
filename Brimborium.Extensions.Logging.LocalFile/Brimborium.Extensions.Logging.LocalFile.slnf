@@ -1,9 +1,0 @@
-{
-  "solution": {
-    "path": "..\\..\\AspNetCore.sln",
-    "projects": [
-      "src\\Brimborium.Extensions.Logging.LocalFile\\src\\Brimborium.Extensions.Logging.LocalFile.csproj",
-      "src\\Brimborium.Extensions.Logging.LocalFile\\test\\Brimborium.Extensions.Logging.LocalFile.Tests.csproj"
-    ]
-  }
-}

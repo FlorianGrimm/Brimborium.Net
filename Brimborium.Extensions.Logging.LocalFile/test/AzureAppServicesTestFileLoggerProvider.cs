@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Brimborium.Extensions.Logging.LocalFile.Test;
 
-internal class TestFileLoggerProvider : FileLoggerProvider
+internal class AzureAppServicesTestFileLoggerProvider : AzureAppServicesFileLoggerProvider
 {
     internal ManualIntervalControl IntervalControl { get; } = new ManualIntervalControl();
 
-    public TestFileLoggerProvider(
+    public AzureAppServicesTestFileLoggerProvider(
         string path,
         string fileName = "LogFile.",
         int maxFileSize = 32_000,
         int maxRetainedFiles = 100)
-        : base(new OptionsWrapperMonitor<AzureFileLoggerOptions>(new AzureFileLoggerOptions()
+        : base(new OptionsWrapperMonitor<AzureAppServicesFileLoggerOptions>(new AzureAppServicesFileLoggerOptions()
         {
             LogDirectory = path,
             FileName = fileName,

@@ -121,8 +121,7 @@ public class BatchingLoggerProviderTests
         {
         }
 
-        internal override Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken token)
-        {
+        protected override Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken token) {
             Batches.Add(messages.ToArray());
             return Task.CompletedTask;
         }

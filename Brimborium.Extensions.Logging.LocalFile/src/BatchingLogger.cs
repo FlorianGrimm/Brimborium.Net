@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Text;
 
 namespace Brimborium.Extensions.Logging.LocalFile;
-
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 public class BatchingLogger : ILogger
 {
     private readonly BatchingLoggerProvider _provider;

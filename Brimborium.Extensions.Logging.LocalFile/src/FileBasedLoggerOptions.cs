@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
@@ -6,9 +6,9 @@ using System;
 namespace Brimborium.Extensions.Logging.LocalFile;
 
 /// <summary>
-/// Options for Azure diagnostics file logging.
+/// Options for file logging.
 /// </summary>
-public class AzureFileLoggerOptions : BatchingLoggerOptions
+public class FileBasedLoggerOptions : BatchingLoggerOptions
 {
     private int? _fileSizeLimit = 10 * 1024 * 1024;
     private int? _retainedFileCountLimit = 2;
@@ -67,5 +67,5 @@ public class AzureFileLoggerOptions : BatchingLoggerOptions
         }
     }
 
-    internal protected  string LogDirectory { get; set; }
+    public string LogDirectory { get; set; }
 }

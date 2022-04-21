@@ -4,7 +4,7 @@
 using System;
 
 namespace Brimborium.Extensions.Logging.LocalFile;
-
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 public readonly struct LogMessage
 {
     public LogMessage(DateTimeOffset timestamp, string message)

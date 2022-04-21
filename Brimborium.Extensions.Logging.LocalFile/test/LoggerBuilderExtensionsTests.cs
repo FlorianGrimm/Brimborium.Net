@@ -28,12 +28,12 @@ public class LoggerBuilderExtensionsTests
     public void BuilderExtensionAddsSingleSetOfServicesWhenCalledTwice()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddLogging(builder => builder.AddAzureWebAppDiagnostics(_appContext, _ => { }));
+        serviceCollection.AddLogging(builder => builder.AddWebAppDiagnostics(_appContext, _ => { }));
         var count = serviceCollection.Count;
 
         Assert.NotEqual(0, count);
 
-        serviceCollection.AddLogging(builder => builder.AddAzureWebAppDiagnostics(_appContext, _ => { }));
+        serviceCollection.AddLogging(builder => builder.AddWebAppDiagnostics(_appContext, _ => { }));
 
         Assert.Equal(count, serviceCollection.Count);
     }
@@ -47,7 +47,7 @@ public class LoggerBuilderExtensionsTests
         // Tracking for main configuration
         Assert.Equal(1, serviceCollection.Count(d => d.ServiceType == typeof(IOptionsChangeTokenSource<LoggerFilterOptions>)));
 
-        serviceCollection.AddLogging(builder => builder.AddAzureWebAppDiagnostics(_appContext, _ => { }));
+        serviceCollection.AddLogging(builder => builder.AddWebAppDiagnostics(_appContext, _ => { }));
 
         // Make sure we add another config change token for azure diagnostic configuration
         Assert.Equal(2, serviceCollection.Count(d => d.ServiceType == typeof(IOptionsChangeTokenSource<LoggerFilterOptions>)));
@@ -62,7 +62,7 @@ public class LoggerBuilderExtensionsTests
         // Tracking for main configuration
         Assert.Equal(2, serviceCollection.Count(d => d.ServiceType == typeof(IConfigureOptions<LoggerFilterOptions>)));
 
-        serviceCollection.AddLogging(builder => builder.AddAzureWebAppDiagnostics(_appContext, _ => { }));
+        serviceCollection.AddLogging(builder => builder.AddWebAppDiagnostics(_appContext, _ => { }));
 
         Assert.Equal(4, serviceCollection.Count(d => d.ServiceType == typeof(IConfigureOptions<LoggerFilterOptions>)));
     }
@@ -71,7 +71,7 @@ public class LoggerBuilderExtensionsTests
     public void LoggerProviderIsResolvable()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddLogging(builder => builder.AddAzureWebAppDiagnostics(_appContext, _ => { }));
+        serviceCollection.AddLogging(builder => builder.AddWebAppDiagnostics(_appContext, _ => { }));
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var loggerFactory = serviceProvider.GetService<ILoggerProvider>();

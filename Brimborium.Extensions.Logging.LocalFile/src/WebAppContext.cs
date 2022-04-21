@@ -8,6 +8,7 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 /// <summary>
 /// Represents the default implementation of <see cref="IWebAppContext"/>.
 /// </summary>
+[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 public class WebAppContext : IWebAppContext
 {
     /// <summary>

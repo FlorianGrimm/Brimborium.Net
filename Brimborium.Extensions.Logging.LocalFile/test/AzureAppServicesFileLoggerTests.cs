@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Extensions.Logging;
+
 using System;
 using System.IO;
 using System.Linq;
@@ -9,11 +11,11 @@ using Xunit;
 
 namespace Brimborium.Extensions.Logging.LocalFile.Test;
 
-public class FileLoggerTests : IDisposable
+public class AzureAppServicesFileLoggerTests : IDisposable
 {
     DateTimeOffset _timestampOne = new DateTimeOffset(2016, 05, 04, 03, 02, 01, TimeSpan.Zero);
 
-    public FileLoggerTests()
+    public AzureAppServicesFileLoggerTests()
     {
         TempPath = Path.GetTempFileName() + "_";
     }
@@ -38,7 +40,7 @@ public class FileLoggerTests : IDisposable
     [Fact]
     public async Task WritesToTextFile()
     {
-        var provider = new TestFileLoggerProvider(TempPath);
+        var provider = new AzureAppServicesTestFileLoggerProvider(TempPath);
         var logger = (BatchingLogger)provider.CreateLogger("Cat");
 
         await provider.IntervalControl.Pause;
@@ -58,7 +60,7 @@ public class FileLoggerTests : IDisposable
     [Fact]
     public async Task RollsTextFile()
     {
-        var provider = new TestFileLoggerProvider(TempPath);
+        var provider = new AzureAppServicesTestFileLoggerProvider(TempPath);
         var logger = (BatchingLogger)provider.CreateLogger("Cat");
 
         await provider.IntervalControl.Pause;
@@ -84,7 +86,7 @@ public class FileLoggerTests : IDisposable
         Directory.CreateDirectory(TempPath);
         File.WriteAllText(Path.Combine(TempPath, "randomFile.txt"), "Text");
 
-        var provider = new TestFileLoggerProvider(TempPath, maxRetainedFiles: 5);
+        var provider = new AzureAppServicesTestFileLoggerProvider(TempPath, maxRetainedFiles: 5);
         var logger = (BatchingLogger)provider.CreateLogger("Cat");
 
         await provider.IntervalControl.Pause;
