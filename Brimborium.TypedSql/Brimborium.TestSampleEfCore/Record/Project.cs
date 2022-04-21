@@ -15,7 +15,7 @@ namespace Brimborium.TestSampleEfCore.Record
         public Guid? ActivityId { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset ModifiedAt { get; set; }
-        public long SerialVersion { get; set; }
+        public byte[] SerialVersion { get; set; } = null!;
 
         public virtual Activity? Activity { get; set; }
         public virtual ICollection<ToDo> ToDo { get; set; }

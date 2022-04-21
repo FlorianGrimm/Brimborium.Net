@@ -35,8 +35,6 @@ namespace Brimborium.TestSampleEfCore.Record
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var converterSerialVersion = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.NumberToBytesConverter<long>();
-
             modelBuilder.Entity<Activity>(entity =>
             {
                 entity.HasKey(e => new { e.CreatedAt, e.Id });
@@ -47,9 +45,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
                 entity.Property(e => e.SerialVersion)
                     .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasConversion(converterSerialVersion)
-                    ;
+                    .IsConcurrencyToken();
 
                 entity.Property(e => e.Title).HasMaxLength(100);
             });
@@ -60,9 +56,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
                 entity.Property(e => e.SerialVersion)
                     .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasConversion(converterSerialVersion)
-                    ;
+                    .IsConcurrencyToken();
 
                 entity.Property(e => e.Title).HasMaxLength(50);
 
@@ -81,9 +75,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
                 entity.Property(e => e.SerialVersion)
                     .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasConversion(converterSerialVersion)
-                    ;
+                    .IsConcurrencyToken();
 
                 entity.Property(e => e.Title).HasMaxLength(50);
 
@@ -100,9 +92,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
                 entity.Property(e => e.SerialVersion)
                     .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasConversion(converterSerialVersion)
-                    ;
+                    .IsConcurrencyToken();
 
                 entity.Property(e => e.Title).HasMaxLength(50);
 
@@ -131,9 +121,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
                 entity.Property(e => e.SerialVersion)
                     .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasConversion(converterSerialVersion)
-                    ;
+                    .IsConcurrencyToken();
 
                 entity.Property(e => e.Title).HasMaxLength(50);
 
@@ -150,9 +138,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
                 entity.Property(e => e.SerialVersion)
                     .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasConversion(converterSerialVersion)
-                    ;
+                    .IsConcurrencyToken();
 
                 entity.Property(e => e.UserName).HasMaxLength(50);
 
@@ -171,9 +157,7 @@ namespace Brimborium.TestSampleEfCore.Record
 
                 entity.Property(e => e.SerialVersion)
                     .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasConversion(converterSerialVersion)
-                    ;
+                    .IsConcurrencyToken();
 
                 entity.Property(e => e.UserName).HasMaxLength(50);
 

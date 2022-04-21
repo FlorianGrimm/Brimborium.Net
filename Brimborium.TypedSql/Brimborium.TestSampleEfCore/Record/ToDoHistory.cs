@@ -13,7 +13,7 @@ namespace Brimborium.TestSampleEfCore.Record
         public bool Done { get; set; }
         public DateTimeOffset ValidFrom { get; set; }
         public DateTimeOffset ValidTo { get; set; }
-        public long SerialVersion { get; set; }
+        public byte[] SerialVersion { get; set; } = null!;
 
         public virtual Activity Activity { get; set; } = null!;
     }
