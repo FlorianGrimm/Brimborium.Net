@@ -21,7 +21,7 @@ public abstract class TrackingObject {
 
     public abstract object GetValue();
 
-    public abstract Task ApplyChangesAsync(TrackingStatus status, TrackingTransaction trackingTransaction);
+    public abstract Task ApplyChangesAsync(TrackingStatus status, TrackingTransConnection trackingTransaction);
 }
 public class TrackingObject<TValue> 
     : TrackingObject
@@ -64,7 +64,7 @@ public class TrackingObject<TValue>
         this._TrackingSet.Delete(this);
     }
 
-    public override async Task ApplyChangesAsync(TrackingStatus status, TrackingTransaction  trackingTransaction) {
+    public override async Task ApplyChangesAsync(TrackingStatus status, TrackingTransConnection  trackingTransaction) {
         if (this.Status != status) {
             throw new System.InvalidOperationException($"{this.Status}!={status}");
         }
@@ -80,7 +80,8 @@ public class TrackingObject<TValue>
             this._Value = nextValue;
         } else if (this.Status == TrackingStatus.Deleted) {
             await this.TrackingSet.TrackingApplyChanges.Delete(this.Value, trackingTransaction);
-            this.TrackingSet.Detach(this);
+#warning TODO add TEST
+            // this.TrackingSet.Detach(this); this should already be deleted!
         } else {
             throw new System.InvalidOperationException($"{this.Status} unknown.");
         }

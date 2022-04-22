@@ -28,22 +28,22 @@ public sealed class TrackingSqlConnection
 
     public string ConnectionString { get; set; }
 
-    public override TrackingTransaction BeginTransaction() {
+    public override TrackingTransConnection BeginTransaction() {
         if (string.IsNullOrEmpty(this.ConnectionString)) {
             throw new System.InvalidOperationException("ConnectionString is empty.");
         }
-        return new TrackingSqlTransaction(this.ConnectionString);
+        return new TrackingSqlTransConnection(this.ConnectionString);
     }
 }
 
-public sealed class TrackingSqlTransaction
-    : TrackingTransaction
+public class TrackingSqlTransConnection
+    : TrackingTransConnection
     , IDisposable {
     private readonly string _ConnectionString;
     private SqlConnection? _Connection;
     private DbTransaction? _Transaction;
 
-    internal TrackingSqlTransaction(string connectionString) {
+    internal TrackingSqlTransConnection(string connectionString) {
         this._ConnectionString = connectionString;
         System.GC.SuppressFinalize(this);
     }

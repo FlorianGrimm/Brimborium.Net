@@ -7,11 +7,11 @@ public abstract class TrackingConnection {
     protected TrackingConnection() {
 
     }
-    public abstract TrackingTransaction BeginTransaction();
+    public abstract TrackingTransConnection BeginTransaction();
 }
 
-public abstract class TrackingTransaction : IDisposable {
-    protected TrackingTransaction() {
+public abstract class TrackingTransConnection : IDisposable {
+    protected TrackingTransConnection() {
     }
 
     private bool _IsDisposed;
@@ -28,7 +28,7 @@ public abstract class TrackingTransaction : IDisposable {
         }
     }
 
-    ~TrackingTransaction() {
+    ~TrackingTransConnection() {
         this.Dispose(disposing: false);
     }
 

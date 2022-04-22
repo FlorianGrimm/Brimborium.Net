@@ -39,6 +39,7 @@ public class TrackingChanges {
     public void Add(TrackingChange change) {
         this.Changes.Add(change);
     }
+
     public void Remove(TrackingStatus status, TrackingObject trackingObject) {
         var value = trackingObject.GetValue();
         for (int idx = 0; idx < this.Changes.Count; idx++) {

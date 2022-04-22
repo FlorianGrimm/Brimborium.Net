@@ -22,16 +22,18 @@ public abstract class TrackingSet<TValue>
 
     protected TrackingSet(
         TrackingContext trackingContext,
-        TrackingSetApplyChanges<TValue> trackingApplyChanges
+        ITrackingSetApplyChanges<TValue> trackingApplyChanges
         ) : base(trackingContext) {
         this.TrackingApplyChanges = trackingApplyChanges;
     }
 
-    public TrackingSetApplyChanges<TValue> TrackingApplyChanges { get; }
+    public ITrackingSetApplyChanges<TValue> TrackingApplyChanges { get; }
 
     internal override Type GetItemType() => typeof(TValue);
 
     public abstract TrackingObject<TValue> Attach(TValue item);
+    
+    public abstract List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items);
 
     public abstract TrackingObject<TValue> Add(TValue item);
 
@@ -49,6 +51,7 @@ public abstract class TrackingSet<TValue>
 
 public class TrackingSet<TKey, TValue>
     : TrackingSet<TValue>
+    , ITrackingSet<TKey, TValue>
     where TKey : notnull
     where TValue : class {
     private readonly Dictionary<TKey, TrackingObject<TValue>> _Items;
@@ -77,8 +80,6 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    public bool IsReadOnly => false;
-
     public TValue this[TKey key] {
         get {
             return this._Items[key].Value;
@@ -92,7 +93,7 @@ public class TrackingSet<TKey, TValue>
         Func<TValue, TKey> extractKey,
         IEqualityComparer<TKey> comparer,
         TrackingContext trackingContext,
-        TrackingSetApplyChanges<TValue> trackingApplyChanges
+        ITrackingSetApplyChanges<TValue> trackingApplyChanges
         ) : base(trackingContext, trackingApplyChanges) {
         this._ExtractKey = extractKey;
         this._Items = new Dictionary<TKey, TrackingObject<TValue>>(comparer);
@@ -107,13 +108,33 @@ public class TrackingSet<TKey, TValue>
     /// a item with the same already exists
     /// </exception>
     public override TrackingObject<TValue> Attach(TValue item) {
-        var result = new TrackingObject<TValue>(
-            value: item,
-            status: TrackingStatus.Original,
-            trackingSet: this
-            );
         var key = this._ExtractKey(item);
-        this._Items.Add(key, result);
+        if (this._Items.TryGetValue(key, out var found)) {
+            if (found.Status == TrackingStatus.Original) {
+                found.Set(item, TrackingStatus.Original);
+                return found;
+            } else {
+#warning Conflict?
+                return found;
+            }
+        } else {
+            var result = new TrackingObject<TValue>(
+                value: item,
+                status: TrackingStatus.Original,
+                trackingSet: this
+            );
+            this._Items.Add(key, result);
+            return result;
+        }
+    }
+
+
+    public override List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items) {
+        var result = new List<TrackingObject<TValue>>();
+        foreach (var item in items) {
+            var to=this.Attach(item);
+            result.Add(to);
+        }
         return result;
     }
 
@@ -201,13 +222,13 @@ public class TrackingSet<TKey, TValue>
 
     public void Delete(TValue item) {
         var key = this._ExtractKey(item);
-        
+
         if (this._Items.TryGetValue(key, out var result)) {
             if (ReferenceEquals(result.GetValue(), item)) {
                 if (result.Status == TrackingStatus.Original) {
                     result.Set(item, TrackingStatus.Deleted);
                     this._Items.Remove(key);
-                    this.TrackingContext.TrackingChanges.Add(new TrackingChange( TrackingStatus.Deleted, result));
+                    this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Deleted, result));
                     return;
                 }
                 if (result.Status == TrackingStatus.Deleted) {
@@ -231,7 +252,7 @@ public class TrackingSet<TKey, TValue>
                     throw new InvalidOperationException("item Delete found.");
                 }
                 throw new InvalidOperationException($"unknown state:{result.Status}");
-            } else { 
+            } else {
                 throw new InvalidOperationException("item not found.");
             }
         } else {

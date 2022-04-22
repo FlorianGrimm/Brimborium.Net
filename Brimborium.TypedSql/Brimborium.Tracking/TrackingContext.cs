@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 
 namespace Brimborium.Tracking;
 
-public class TrackingContext {
+public class TrackingContext 
+    : ITrackingContext {
     private readonly Dictionary<Type, TrackingSet> _TrackingSetByType;
     public TrackingChanges TrackingChanges { get; }
 
@@ -12,6 +13,7 @@ public class TrackingContext {
         this._TrackingSetByType = new Dictionary<Type, TrackingSet>();
         this.TrackingChanges = new TrackingChanges(this);
     }
+
     public void RegisterTrackingSet(TrackingSet trackingSet) {
         var itemType = trackingSet.GetItemType();
         this._TrackingSetByType.Add(itemType, trackingSet);

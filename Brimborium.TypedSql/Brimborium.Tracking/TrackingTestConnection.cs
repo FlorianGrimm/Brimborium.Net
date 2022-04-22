@@ -12,7 +12,7 @@ public class TrackingTestConnection : TrackingConnection {
         this._FuncBeginTransaction = funcBeginTransaction;
     }
 
-    public override TrackingTransaction BeginTransaction() {
+    public override TrackingTransConnection BeginTransaction() {
         if (this._FuncBeginTransaction is not null) {
             return this._FuncBeginTransaction(this);
         } else {
@@ -21,7 +21,7 @@ public class TrackingTestConnection : TrackingConnection {
     }
 }
 
-public class TrackingTestTransaction : TrackingTransaction {
+public class TrackingTestTransaction : TrackingTransConnection {
     public TrackingTestTransaction() {
     }
 
