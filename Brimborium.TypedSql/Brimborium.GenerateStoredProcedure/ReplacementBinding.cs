@@ -74,7 +74,7 @@ namespace Brimborium.GenerateStoredProcedure {
             }
         }
 
-        public static (bool changed, string content) Replace(string content, Func<string, string> replace) {
+        public static (bool changed, string content) Replace(string content, Func<string, int, string> replace) {
             var posStart = 0;
             var changed = false;
             while (posStart < content.Length) {
@@ -84,7 +84,17 @@ namespace Brimborium.GenerateStoredProcedure {
                 var rpStop = IndexOfReplaceStop(content, rpStart);
                 if (rpStop.start < 0) { break; }
                 //
-                var rpValue = replace(rpStart.name);
+                var wsStart = 0;
+                while ((0 <= (rpStart.start - wsStart - 1)) && IsSpaceOrTab(content[(rpStart.start - wsStart - 1)])) {
+                    wsStart++;
+                }
+
+                var wsStop = 0;
+                while ((0 <= (rpStop.start - wsStop - 1)) && IsSpaceOrTab(content[(rpStop.start - wsStop - 1)])) {
+                    wsStop++;
+                }
+
+                var rpValue = replace(rpStart.name, wsStart);
                 if (string.IsNullOrEmpty(rpValue)) {
                     posStart = rpStop.start + rpStop.tokenStop.Length;
                 } else {
@@ -93,7 +103,7 @@ namespace Brimborium.GenerateStoredProcedure {
                         posStart = rpStart.start + rpStart.len + rpValue.Length + rpStop.prefixTokenLen;
                     } else {
                         var startContent = content.Substring(0, rpStart.start + rpStart.len);
-                        var stopContent = content.Substring(rpStop.start);
+                        var stopContent = content.Substring(rpStop.start - wsStop);
                         content = startContent + rpValue + stopContent;
                         posStart = rpStart.start + rpStart.len + rpValue.Length + rpStop.prefixTokenLen;
                         changed = true;
@@ -101,6 +111,10 @@ namespace Brimborium.GenerateStoredProcedure {
                 }
             }
             return (changed, content);
+        }
+
+        private static bool IsSpaceOrTab(char c) {
+            return c == ' ' || c == '\t';
         }
     }
 

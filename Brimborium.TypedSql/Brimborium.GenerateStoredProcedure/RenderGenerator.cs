@@ -24,11 +24,15 @@ namespace Brimborium.GenerateStoredProcedure {
         }
 
         public string GetValue(
-                string name
+                string name,
+                int ws = 0
             ) {
             if (this._BindingByName.TryGetValue(name, out var replacementBinding)) {
                 var sbOutput = new StringBuilder();
                 var printContext = new PrintContext(sbOutput, this._TemplateVariables);
+                if (0 < ws) {
+                    printContext = printContext.GetIndented(new string(' ', ws));
+                }
                 replacementBinding.Render(printContext);
                 return sbOutput.ToString();
             }

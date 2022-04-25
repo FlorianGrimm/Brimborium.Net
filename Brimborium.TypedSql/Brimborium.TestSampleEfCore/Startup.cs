@@ -1,6 +1,4 @@
-﻿using Brimborium.TestSampleEfCore.Record;
-
-namespace Brimborium.TestSampleEfCore;
+﻿namespace Brimborium.TestSampleEfCore;
 
 public class Startup {
     public Startup(IConfiguration configuration) {

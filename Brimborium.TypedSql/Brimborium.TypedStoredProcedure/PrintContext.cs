@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Text;
 
 namespace Brimborium.TypedStoredProcedure {
@@ -11,5 +12,10 @@ namespace Brimborium.TypedStoredProcedure {
         }
 
         public override string ToString() => this.Output.ToString();
+
+        public void AppendLineAndError(string line) {
+            this.Output.AppendLine(line);
+            System.Console.Error.WriteLine(line);
+        }
     }
 }
