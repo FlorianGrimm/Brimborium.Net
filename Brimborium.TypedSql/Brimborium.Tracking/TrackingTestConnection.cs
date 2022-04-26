@@ -1,23 +1,24 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace Brimborium.Tracking;
 
-namespace Brimborium.Tracking;
-
-public class TrackingTestConnection : TrackingConnection {
-    private readonly Func<TrackingTestConnection, TrackingTestTransaction>? _FuncBeginTransaction;
+#warning weichei
+public class TrackingTestConnection : ITrackingConnection {
+    private readonly Func<TrackingTestConnection, Task<TrackingTestTransaction>>? _FuncBeginTransaction;
 
     public TrackingTestConnection(
-        Func<TrackingTestConnection, TrackingTestTransaction>? funcBeginTransaction
+        Func<TrackingTestConnection, Task<TrackingTestTransaction>>? funcBeginTransaction
         ) {
         this._FuncBeginTransaction = funcBeginTransaction;
     }
 
-    public override TrackingTransConnection BeginTransaction() {
+    public async Task<ITrackingTransConnection> BeginTrackingTransConnection() {
         if (this._FuncBeginTransaction is not null) {
-            return this._FuncBeginTransaction(this);
+            return await this._FuncBeginTransaction(this);
         } else {
             return new TrackingTestTransaction();
         }
+    }
+
+    public void Dispose() {
     }
 }
 

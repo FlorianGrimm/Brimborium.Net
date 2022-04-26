@@ -21,12 +21,13 @@ public abstract class TrackingObject {
 
     public abstract object GetValue();
 
-    public abstract Task ApplyChangesAsync(TrackingStatus status, TrackingTransConnection trackingTransaction);
+    public abstract Task ApplyChangesAsync(
+        TrackingStatus status,
+        ITrackingTransConnection trackingTransConnection);
 }
-public class TrackingObject<TValue> 
+public class TrackingObject<TValue>
     : TrackingObject
-    where TValue : class
-    {
+    where TValue : class {
     private TValue _Value;
     private readonly TrackingSet<TValue> _TrackingSet;
 
@@ -64,22 +65,24 @@ public class TrackingObject<TValue>
         this._TrackingSet.Delete(this);
     }
 
-    public override async Task ApplyChangesAsync(TrackingStatus status, TrackingTransConnection  trackingTransaction) {
+    public override async Task ApplyChangesAsync(
+        TrackingStatus status,
+        ITrackingTransConnection transConnection) {
         if (this.Status != status) {
             throw new System.InvalidOperationException($"{this.Status}!={status}");
         }
         if (this.Status == TrackingStatus.Original) {
             // all done
         } else if (this.Status == TrackingStatus.Added) {
-            var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this.Value, trackingTransaction);
+            var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this.Value, transConnection);
             this.Status = TrackingStatus.Original;
             this._Value = nextValue;
         } else if (this.Status == TrackingStatus.Modified) {
-            var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this.Value, trackingTransaction);
+            var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this.Value, transConnection);
             this.Status = TrackingStatus.Original;
             this._Value = nextValue;
         } else if (this.Status == TrackingStatus.Deleted) {
-            await this.TrackingSet.TrackingApplyChanges.Delete(this.Value, trackingTransaction);
+            await this.TrackingSet.TrackingApplyChanges.Delete(this.Value, transConnection);
 #warning TODO add TEST
             // this.TrackingSet.Detach(this); this should already be deleted!
         } else {

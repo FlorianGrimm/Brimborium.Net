@@ -1,16 +1,25 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace Brimborium.Tracking;
 
-namespace Brimborium.Tracking;
-
-public abstract class TrackingConnection {
-    protected TrackingConnection() {
-
-    }
-    public abstract TrackingTransConnection BeginTransaction();
+public interface ITrackingConnection : IDisposable {
+    Task<ITrackingTransConnection> BeginTrackingTransConnection();
 }
 
-public abstract class TrackingTransConnection : IDisposable {
+public interface ITrackingTransConnection : IDisposable {
+    Task CommitAsync();
+}
+
+public interface ITrackingAccessConnectionFactory {
+    TrackingSqlConnectionOption GetOptions();
+    void SetOptions(TrackingSqlConnectionOption value);
+
+    Task<ITrackingTransConnection> BeginTrackingTransConnection(
+        CancellationToken cancellationToken = default(CancellationToken)
+        );
+}
+
+public abstract class TrackingTransConnection
+    : ITrackingTransConnection
+    , IDisposable {
     protected TrackingTransConnection() {
     }
 

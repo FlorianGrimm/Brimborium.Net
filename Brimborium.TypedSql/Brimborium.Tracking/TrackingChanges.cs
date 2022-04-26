@@ -23,16 +23,18 @@ public class TrackingChanges {
         this._TrackingContext = trackingContext;
         this.Changes = new List<TrackingChange>();
     }
-    public async Task ApplyChangesAsync(TrackingConnection trackingConnection) {
+    public async Task ApplyChangesAsync(
+        ITrackingTransConnection transConnection,
+        CancellationToken cancellationToken = default(CancellationToken)
+        ) {
         if (this.Changes.Count > 0) {
             var changes = this.Changes.ToArray();
             this.Changes.Clear();
-            using (var trackingTransaction = trackingConnection.BeginTransaction()) { 
-                foreach (var chg in changes) {
-                    await chg.TrackingObject.ApplyChangesAsync(chg.Status, trackingTransaction);
-                }
-                await trackingTransaction.CommitAsync();
+            foreach (var chg in changes) {
+                await chg.TrackingObject.ApplyChangesAsync(chg.Status, transConnection);
+                cancellationToken.ThrowIfCancellationRequested();
             }
+            await transConnection.CommitAsync();
         }
     }
 

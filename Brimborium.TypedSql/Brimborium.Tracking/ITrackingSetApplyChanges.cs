@@ -5,38 +5,38 @@ namespace Brimborium.Tracking;
 
 public interface ITrackingSetApplyChanges<TValue> {
 
-    Task<TValue> Insert(TValue value, TrackingTransConnection trackingTransaction);
+    Task<TValue> Insert(TValue value, ITrackingTransConnection trackingTransaction);
 
-    Task<TValue> Update(TValue value, TrackingTransConnection trackingTransaction);
+    Task<TValue> Update(TValue value, ITrackingTransConnection trackingTransaction);
 
-    Task Delete(TValue value, TrackingTransConnection trackingTransaction);
+    Task Delete(TValue value, ITrackingTransConnection trackingTransaction);
 }
 
 public class TrackingSetApplyChangesDelegate<TValue>
     : ITrackingSetApplyChanges<TValue> {
-    private readonly Func<TValue, TrackingTransConnection, Task<TValue>> _ActionInsert;
-    private readonly Func<TValue, TrackingTransConnection, Task<TValue>> _ActionUpdate;
-    private readonly Func<TValue, TrackingTransConnection, Task> _ActionDelete;
+    private readonly Func<TValue, ITrackingTransConnection, Task<TValue>> _ActionInsert;
+    private readonly Func<TValue, ITrackingTransConnection, Task<TValue>> _ActionUpdate;
+    private readonly Func<TValue, ITrackingTransConnection, Task> _ActionDelete;
 
     public TrackingSetApplyChangesDelegate(
-        Func<TValue, TrackingTransConnection, Task<TValue>> actionInsert,
-        Func<TValue, TrackingTransConnection, Task<TValue>> actionUpdate,
-        Func<TValue, TrackingTransConnection, Task> actionDelete
+        Func<TValue, ITrackingTransConnection, Task<TValue>> actionInsert,
+        Func<TValue, ITrackingTransConnection, Task<TValue>> actionUpdate,
+        Func<TValue, ITrackingTransConnection, Task> actionDelete
         ) {
         this._ActionInsert = actionInsert;
         this._ActionUpdate = actionUpdate;
         this._ActionDelete = actionDelete;
     }
 
-    public Task<TValue> Insert(TValue value, TrackingTransConnection trackingTransaction) {
+    public Task<TValue> Insert(TValue value, ITrackingTransConnection trackingTransaction) {
         return this._ActionInsert(value, trackingTransaction);
     }
 
-    public Task<TValue> Update(TValue value, TrackingTransConnection trackingTransaction) {
+    public Task<TValue> Update(TValue value, ITrackingTransConnection trackingTransaction) {
         return this._ActionUpdate(value, trackingTransaction);
     }
 
-    public Task Delete(TValue value, TrackingTransConnection trackingTransaction) {
+    public Task Delete(TValue value, ITrackingTransConnection trackingTransaction) {
         return this._ActionDelete(value, trackingTransaction);
     }
 }

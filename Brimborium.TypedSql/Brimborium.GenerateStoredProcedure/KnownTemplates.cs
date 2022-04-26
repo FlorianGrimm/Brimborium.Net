@@ -7,6 +7,8 @@ namespace Brimborium.GenerateStoredProcedure {
         public readonly RenderTemplate<List<ColumnInfo>> Columns;
         public readonly RenderTemplate<TableInfo> ColumnRowversion;
 
+        public readonly RenderTemplate<TableInfo> SelectTableColumns;
+
         public readonly RenderTemplate<List<ColumnInfo>> ColumnsAsParameter;
 
         public readonly RenderTemplate<(
@@ -41,6 +43,22 @@ namespace Brimborium.GenerateStoredProcedure {
                         $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
                 }
             );
+
+            this.SelectTableColumns = new RenderTemplate<TableInfo>(
+                NameFn: t=>$"SelectTableColumns.{t.GetNameQ()}",
+                Render: (data, ctxt) => {
+                    ctxt.AppendList(
+                        data.Columns,
+                        (column, ctxt) => {
+                            ctxt.AppendPartsLine(
+                                column.GetNameQ(), ","
+                                );
+                        });
+                    ctxt.AppendLine(
+                        $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
+                }
+                );
+
 
             this.ColumnsAsParameter = new RenderTemplate<List<ColumnInfo>>(
                 Render: (columns, ctxt) => {

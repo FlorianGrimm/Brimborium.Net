@@ -1,42 +1,27 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿namespace Brimborium.SqlAccess;
 
-namespace Brimborium.SqlAccess;
-public class SqlAccessBase : IDisposable, ISqlAccessBase {
-    private Microsoft.Data.SqlClient.SqlConnection? _SQLConnection;
-    protected Microsoft.Data.SqlClient.SqlConnection SQLConnection => this._SQLConnection ?? throw new ObjectDisposedException(nameof(SQLConnection));
-    protected IDbConnection SQLDBConnection => this._SQLConnection ?? throw new ObjectDisposedException(nameof(SQLDBConnection));
+public class SqlDataAccessBase
+    : TrackingSqlTransConnection {
 
-    public IDbConnection Connection => this._SQLConnection ?? throw new ObjectDisposedException(nameof(Connection));
-
-    private bool _OwnsConnection;
-
-    protected SqlAccessBase(IDbConnection connection) {
-        this._SQLConnection = (Microsoft.Data.SqlClient.SqlConnection)connection;
-        this._OwnsConnection = false;
+    public SqlDataAccessBase(SqlConnection connection, IDbTransaction? transaction)
+        : base(connection, transaction) {
     }
-
-    protected SqlAccessBase(string connectionString) {
-        this._SQLConnection = new Microsoft.Data.SqlClient.SqlConnection(connectionString);
-        this._OwnsConnection = true;
-    }
-
-    public IDisposable Connected() => DbConnectionExtensions.Connected(this.SQLDBConnection);
-
-    public IDbTransaction BeginTransaction() => this.BeginTransaction();
 
     public Microsoft.Data.SqlClient.SqlCommand CreateCommand(
         string commandText,
-        CommandType commandType,
-        IDbTransaction? tx) {
-        var result = this.SQLConnection.CreateCommand();
+        CommandType commandType) {
+        var connection = this._Connection;
+        var transaction = this._Transaction as SqlTransaction;
+        if (connection is null) {
+            throw new ObjectDisposedException(this.GetType().FullName ?? "SqlDataAccessBase");
+        }
+
+        var result = connection.CreateCommand();
         result.CommandType = commandType;
         result.CommandText = commandText;
-        result.Transaction = tx as Microsoft.Data.SqlClient.SqlTransaction;
+        if (transaction is not null) {
+            result.Transaction = transaction;
+        }
         return result;
     }
 
@@ -122,6 +107,7 @@ public class SqlAccessBase : IDisposable, ISqlAccessBase {
         ) {
         return (T?)(await cmd.ExecuteScalarAsync());
     }
+
     protected T CommandQuerySingle<T>(
         Microsoft.Data.SqlClient.SqlCommand cmd,
         Func<Microsoft.Data.SqlClient.SqlDataReader, T> readRecord
@@ -419,33 +405,4 @@ public class SqlAccessBase : IDisposable, ISqlAccessBase {
     protected Nullable<T> ReadValueQ<T>(Microsoft.Data.SqlClient.SqlDataReader reader, int index)
         where T : struct
         => reader.IsDBNull(index) ? ((Nullable<T>)null) : ((Nullable<T>)reader.GetFieldValue<T>(index));
-
-    protected virtual void Dispose(bool disposing) {
-        if (this._OwnsConnection) {
-            if (disposing) {
-                using (var db = this._SQLConnection) {
-                    this._SQLConnection = null;
-                }
-            } else {
-                try {
-                    using (var db = this._SQLConnection) {
-                        this._SQLConnection = null;
-                    }
-                } catch {
-                    // since this is the destructor finalizer thread a exception will be thrown.
-                }
-            }
-        } else {
-            this._SQLConnection = null;
-        }
-    }
-
-    ~SqlAccessBase() {
-        this.Dispose(false);
-    }
-
-    public void Dispose() {
-        this.Dispose(true);
-        System.GC.SuppressFinalize(this);
-    }
 }

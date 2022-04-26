@@ -237,15 +237,16 @@ public class TrackingSet<TKey, TValue>
                 }
                 if (result.Status == TrackingStatus.Added) {
                     // created and deleted
+                    this.TrackingContext.TrackingChanges.Remove(TrackingStatus.Added, result);
                     result.Set(item, TrackingStatus.Deleted);
                     this._Items.Remove(key);
-                    this.TrackingContext.TrackingChanges.Remove(TrackingStatus.Added, result);
                     return;
                 }
                 if (result.Status == TrackingStatus.Modified) {
-                    result.Status = TrackingStatus.Deleted;
-                    this._Items.Remove(key);
                     this.TrackingContext.TrackingChanges.Remove(TrackingStatus.Modified, result);
+                    result.Set(item, TrackingStatus.Deleted);
+                    this._Items.Remove(key);
+                    this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Deleted, result));
                     return;
                 }
                 if (result.Status == TrackingStatus.Deleted) {
@@ -284,9 +285,10 @@ public class TrackingSet<TKey, TValue>
         } else {
             var key = this._ExtractKey(trackingObject.Value);
             if (this._Items.TryGetValue(key, out var found)) {
-                if (found.Status == TrackingStatus.Deleted) {
-                    // already deleted, but found???
+                if (found.Status == TrackingStatus.Original) {
+                    found.Set(trackingObject.Value, TrackingStatus.Deleted);
                     this._Items.Remove(key);
+                    this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Deleted, found));
                     return;
                 }
                 if (found.Status == TrackingStatus.Added) {
@@ -302,7 +304,7 @@ public class TrackingSet<TKey, TValue>
                     return;
                 }
                 if (found.Status == TrackingStatus.Deleted) {
-                    found.Status = TrackingStatus.Deleted;
+                    // already deleted, but found???
                     this._Items.Remove(key);
                     return;
                 }

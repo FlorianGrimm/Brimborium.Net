@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
-
-namespace Brimborium.Tracking;
+﻿namespace Brimborium.Tracking;
 public interface ITrackingContext {
     //void RegisterTrackingSet(TrackingSet trackingSet);
     
     TrackingChanges TrackingChanges { get; }
-    Task ApplyChangesAsync(TrackingConnection trackingConnection);
+
+    Task ApplyChangesAsync(
+        ITrackingTransConnection trackingTransConnection,
+        CancellationToken cancellationToken = default(CancellationToken));
 
     TrackingObject<TValue> Add<TValue>(TValue item) where TValue : class;
     TrackingObject<TValue> Attach<TValue>(TValue item) where TValue : class;

@@ -1,15 +1,9 @@
 #if true
 #nullable enable
-
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
-
 namespace Brimborium.TestSample.Service {
     public partial class SqlAccess {
-        public async Task<Brimborium.TestSample.Record.Activity> ExecuteActivityInsertAsync(Brimborium.TestSample.Record.Activity args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ActivityInsert]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.Activity> ExecuteActivityInsertAsync(Brimborium.TestSample.Record.Activity args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ActivityInsert]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 this.AddParameterString(cmd, "@Title", SqlDbType.NVarChar, 20, args.Title);
                 this.AddParameterString(cmd, "@Data", SqlDbType.NVarChar, -1, args.Data);
@@ -31,8 +25,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<Brimborium.TestSample.Record.Activity?> ExecuteActivitySelectPKAsync(Brimborium.TestSample.Record.ActivityPK args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ActivitySelectPK]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.Activity?> ExecuteActivitySelectPKAsync(Brimborium.TestSample.Record.ActivityPK args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ActivitySelectPK]", CommandType.StoredProcedure)) {
                 this.AddParameterDateTimeOffset(cmd, "@CreatedAt", args.CreatedAt);
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 return await this.CommandQuerySingleOrDefaultAsync<Brimborium.TestSample.Record.Activity>(cmd, ReadRecordActivitySelectPK);
@@ -52,8 +46,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<List<Brimborium.TestSample.Record.ProjectPK>> ExecuteProjectDeletePKAsync(Brimborium.TestSample.Record.Project args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ProjectDeletePK]", CommandType.StoredProcedure, tx)) {
+        public async Task<List<Brimborium.TestSample.Record.ProjectPK>> ExecuteProjectDeletePKAsync(Brimborium.TestSample.Record.Project args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ProjectDeletePK]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 this.AddParameterGuid(cmd, "@ActivityId", args.ActivityId);
                 this.AddParameterDateTimeOffset(cmd, "@ModifiedAt", args.ModifiedAt);
@@ -69,8 +63,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<Brimborium.TestSample.Record.Project?> ExecuteProjectSelectPKAsync(Brimborium.TestSample.Record.ProjectPK args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ProjectSelectPK]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.Project?> ExecuteProjectSelectPKAsync(Brimborium.TestSample.Record.ProjectPK args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ProjectSelectPK]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 return await this.CommandQuerySingleOrDefaultAsync<Brimborium.TestSample.Record.Project>(cmd, ReadRecordProjectSelectPK);
             }
@@ -88,8 +82,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<Brimborium.TestSample.Record.ProjectManipulationResult> ExecuteProjectUpsertAsync(Brimborium.TestSample.Record.Project args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ProjectUpsert]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.ProjectManipulationResult> ExecuteProjectUpsertAsync(Brimborium.TestSample.Record.Project args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ProjectUpsert]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 this.AddParameterString(cmd, "@Title", SqlDbType.NVarChar, 50, args.Title);
                 this.AddParameterGuid(cmd, "@ActivityId", args.ActivityId);
@@ -135,8 +129,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<List<Brimborium.TestSample.Record.ToDoPK>> ExecuteToDoDeletePKAsync(Brimborium.TestSample.Record.ToDo args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ToDoDeletePK]", CommandType.StoredProcedure, tx)) {
+        public async Task<List<Brimborium.TestSample.Record.ToDoPK>> ExecuteToDoDeletePKAsync(Brimborium.TestSample.Record.ToDo args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ToDoDeletePK]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 this.AddParameterGuid(cmd, "@ActivityId", args.ActivityId);
                 this.AddParameterDateTimeOffset(cmd, "@ModifiedAt", args.ModifiedAt);
@@ -152,8 +146,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<Brimborium.TestSample.Record.ToDo?> ExecuteToDoSelectPKAsync(Brimborium.TestSample.Record.ToDoPK args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ToDoSelectPK]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.ToDo?> ExecuteToDoSelectPKAsync(Brimborium.TestSample.Record.ToDoPK args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ToDoSelectPK]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 return await this.CommandQuerySingleOrDefaultAsync<Brimborium.TestSample.Record.ToDo>(cmd, ReadRecordToDoSelectPK);
             }
@@ -174,8 +168,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<Brimborium.TestSample.Record.ToDoManipulationResult> ExecuteToDoUpsertAsync(Brimborium.TestSample.Record.ToDo args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[ToDoUpsert]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.ToDoManipulationResult> ExecuteToDoUpsertAsync(Brimborium.TestSample.Record.ToDo args)  {
+            using(var cmd = this.CreateCommand("[dbo].[ToDoUpsert]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 this.AddParameterGuid(cmd, "@ProjectId", args.ProjectId);
                 this.AddParameterGuid(cmd, "@UserId", args.UserId);
@@ -227,8 +221,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<List<Brimborium.TestSample.Record.UserPK>> ExecuteUserDeletePKAsync(Brimborium.TestSample.Record.User args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[UserDeletePK]", CommandType.StoredProcedure, tx)) {
+        public async Task<List<Brimborium.TestSample.Record.UserPK>> ExecuteUserDeletePKAsync(Brimborium.TestSample.Record.User args)  {
+            using(var cmd = this.CreateCommand("[dbo].[UserDeletePK]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 this.AddParameterGuid(cmd, "@ActivityId", args.ActivityId);
                 this.AddParameterDateTimeOffset(cmd, "@ModifiedAt", args.ModifiedAt);
@@ -244,8 +238,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<Brimborium.TestSample.Record.User?> ExecuteUserSelectPKAsync(Brimborium.TestSample.Record.UserPK args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[UserSelectPK]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.User?> ExecuteUserSelectPKAsync(Brimborium.TestSample.Record.UserPK args)  {
+            using(var cmd = this.CreateCommand("[dbo].[UserSelectPK]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 return await this.CommandQuerySingleOrDefaultAsync<Brimborium.TestSample.Record.User>(cmd, ReadRecordUserSelectPK);
             }
@@ -263,8 +257,8 @@ namespace Brimborium.TestSample.Service {
             return result;
         } 
 
-        public async Task<Brimborium.TestSample.Record.UserManipulationResult> ExecuteUserUpsertAsync(Brimborium.TestSample.Record.User args, IDbTransaction? tx = null)  {
-            using(var cmd = this.CreateCommand("[dbo].[UserUpsert]", CommandType.StoredProcedure, tx)) {
+        public async Task<Brimborium.TestSample.Record.UserManipulationResult> ExecuteUserUpsertAsync(Brimborium.TestSample.Record.User args)  {
+            using(var cmd = this.CreateCommand("[dbo].[UserUpsert]", CommandType.StoredProcedure)) {
                 this.AddParameterGuid(cmd, "@Id", args.Id);
                 this.AddParameterString(cmd, "@UserName", SqlDbType.NVarChar, 50, args.UserName);
                 this.AddParameterGuid(cmd, "@ActivityId", args.ActivityId);

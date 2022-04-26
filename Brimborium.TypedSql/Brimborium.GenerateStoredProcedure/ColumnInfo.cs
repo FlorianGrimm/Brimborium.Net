@@ -59,7 +59,14 @@ namespace Brimborium.GenerateStoredProcedure {
                 }
             }
         }
-
+        public T GetExtraInfo<T>(string name, T defaultValue) {
+            var result = this.ExtraInfo[name];
+            if (result is T resultT) {
+                return resultT;
+            } else {
+                return defaultValue;
+            }
+        }
         public string GetNotNull() {
             if (this.Column.Nullable) {
                 return " NULL";

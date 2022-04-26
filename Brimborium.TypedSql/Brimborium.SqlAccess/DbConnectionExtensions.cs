@@ -1,8 +1,4 @@
-﻿
-using System;
-using System.Data;
-
-namespace Brimborium.SqlAccess;
+﻿namespace Brimborium.SqlAccess;
 
 public static class DbConnectionExtensions {
     public static IDisposable Connected(this IDbConnection dbConnection) {

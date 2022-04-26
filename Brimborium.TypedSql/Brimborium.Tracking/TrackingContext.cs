@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿namespace Brimborium.Tracking;
 
-namespace Brimborium.Tracking;
-
-public class TrackingContext 
+public class TrackingContext
     : ITrackingContext {
     private readonly Dictionary<Type, TrackingSet> _TrackingSetByType;
     public TrackingChanges TrackingChanges { get; }
@@ -55,7 +51,9 @@ public class TrackingContext
         }
     }
 
-    public async Task ApplyChangesAsync(TrackingConnection trackingConnection) {
-        await this.TrackingChanges.ApplyChangesAsync(trackingConnection);
+    public async Task ApplyChangesAsync(
+        ITrackingTransConnection trackingTransConnection,
+        CancellationToken cancellationToken = default(CancellationToken)) {
+        await this.TrackingChanges.ApplyChangesAsync(trackingTransConnection, cancellationToken);
     }
 }

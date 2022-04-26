@@ -368,13 +368,14 @@ public partial class Generator {
             || spDef_Argument.IsVoid();
         var csArgs = spDef_Argument is null || nonArgs
             ? ""
-            : $"{spDef_Argument.Name} args, ";
+            : $"{spDef_Argument.Name} args";
         //
-        var csMethod = $"{csCompleteReturnType} {methodName}({csArgs}IDbTransaction? tx = null) ";
+        //var csMethod = $"{csCompleteReturnType} {methodName}({csArgs}IDbTransaction? tx = null) ";
+        var csMethod = $"{csCompleteReturnType} {methodName}({csArgs})";
         lstInterfaceMethod.Add($"{csMethod};");
-        printCurly($"public {csAsyncModifier}{csMethod}", Environment.NewLine, ctxt, (ctxt) => {
+        printCurly($"public {csAsyncModifier}{csMethod} ", Environment.NewLine, ctxt, (ctxt) => {
             //
-            printCurly($"using(var cmd = this.CreateCommand(\"{dbSP.SPDefinition.SqlName}\", CommandType.StoredProcedure, tx))", "", ctxt, (ctxt) => {
+            printCurly($"using(var cmd = this.CreateCommand(\"{dbSP.SPDefinition.SqlName}\", CommandType.StoredProcedure))", "", ctxt, (ctxt) => {
                 var argument_Type = spDef_Argument?.Type;
                 if (spDef_Argument is object && argument_Type is object) {
                     #region Parameters
@@ -387,7 +388,7 @@ public partial class Generator {
                         if (dctProperties.TryGetValue(nameNoAt, out var property)) {
                             propertyName = property.Name;
                         } else {
-                            ctxt.AppendLineAndError($"#warning StoredProcedure defines parameter {parameterName} no matching property found.");
+                            ctxt.AppendLineAndError($"#warning StoredProcedure {dbSP.SPDefinition.SqlName} defines parameter {parameterName} no matching property found.");
                             continue;
                         }
 
@@ -413,7 +414,7 @@ public partial class Generator {
                                     ) {
                                     // OK 
                                 } else {
-                                    ctxt.AppendLineAndError($"#warning PropertyType parameter.Type.{property.PropertyType.FullName} {dbSPParameter.Type.Type.FullName}");
+                                    ctxt.AppendLineAndError($"#warning StoredProcedure {dbSP.SPDefinition.SqlName} PropertyType parameter.Type.{property.PropertyType.FullName} {dbSPParameter.Type.Type.FullName}");
                                 }
                             }
                         }
@@ -562,7 +563,7 @@ public partial class Generator {
                     }
                     #endregion Parameters
                 } else if (dbSP.Parameters.Length > 0) {
-                    ctxt.AppendLineAndError("#warning C#-Parameters is none but SQL-Parameters are defined.");
+                    ctxt.AppendLineAndError($"#warning {dbSP.SPDefinition.SqlName} C#-Parameters is none but SQL-Parameters are defined.");
                 }
                 printCommandExecuteMethod(
                     spDef_ExecutionMode,
@@ -593,9 +594,10 @@ public partial class Generator {
         PrintContext ctxt) {
         switch (executionMode) {
             case ExecutionMode.Unknown:
-                ctxt.Output.AppendLine("#warning ExecutionMode.Unknown.");
+                ctxt.AppendLineAndError($"#warning ExecutionMode.Unknown {dbSP.SPDefinition.SqlName}.");
                 ctxt.AppendLine("throw new NotImplementedException();");
                 break;
+
             case ExecutionMode.ExecuteNonQuery:
                 if (spDef_Return.Type == typeof(int)) {
                     if (spDef_Return.IsAsync) {
@@ -612,6 +614,7 @@ public partial class Generator {
                     ctxt.AppendLine("return;");
                 }
                 break;
+
             case ExecutionMode.ExecuteScalar:
                 if (spDef_Return.IsAsync) {
                     ctxt.AppendLine($"return await this.CommandExecuteScalarAsync<{csReturnTypeRecord}>(cmd);");
@@ -619,21 +622,31 @@ public partial class Generator {
                     ctxt.AppendLine($"return this.CommandExecuteScalar<{csReturnTypeRecord}>(cmd);");
                 }
                 break;
-            case ExecutionMode.QuerySingleOrDefault: {
-                    var readerName = $"ReadRecord{dbSP.SP.Name}";
-                    var readerDefinition = new ReaderDefinition(readerName, dbSP_ResultSets[0], spDef_Return, csReturnTypeRecord);
-                    lstReaderDefinition.Add(readerDefinition);
 
-                    if (spDef_Return.IsAsync) {
-                        ctxt.AppendLine($"return await this.CommandQuerySingleOrDefaultAsync<{csReturnTypeRecord}>(cmd, {readerName});");
+            case ExecutionMode.QuerySingleOrDefault: {
+                    if (dbSP_ResultSets.Length != 1) {
+                        ctxt.AppendLineAndError($"#warning {dbSP.SP.Name} #ResultSets {dbSP_ResultSets.Length} actual, expected one!");
+                        foreach (var dbResultSet in dbSP.ResultSetsToStrings()) {
+                            ctxt.AppendLineAndError($"#warning Database: {dbResultSet}!");
+                        }
+                        ctxt.AppendLine("throw new NotImplementedException();");
                     } else {
-                        ctxt.AppendLine($"return this.CommandQuerySingleOrDefault<{csReturnTypeRecord}>(cmd, {readerName});");
+                        var readerName = $"ReadRecord{dbSP.SP.Name}";
+                        var readerDefinition = new ReaderDefinition(readerName, dbSP_ResultSets[0], spDef_Return, csReturnTypeRecord);
+                        lstReaderDefinition.Add(readerDefinition);
+
+                        if (spDef_Return.IsAsync) {
+                            ctxt.AppendLine($"return await this.CommandQuerySingleOrDefaultAsync<{csReturnTypeRecord}>(cmd, {readerName});");
+                        } else {
+                            ctxt.AppendLine($"return this.CommandQuerySingleOrDefault<{csReturnTypeRecord}>(cmd, {readerName});");
+                        }
                     }
                 }
                 break;
+
             case ExecutionMode.QuerySingle: {
                     if (dbSP_ResultSets.Length != 1) {
-                        ctxt.AppendLineAndError($"#warning #ResultSets {dbSP_ResultSets.Length} actual, expected one!");
+                        ctxt.AppendLineAndError($"#warning {dbSP.SP.Name} #ResultSets {dbSP_ResultSets.Length} actual, expected one!");
                         foreach (var dbResultSet in dbSP.ResultSetsToStrings()) {
                             ctxt.AppendLineAndError($"#warning Database: {dbResultSet}!");
                         }
@@ -651,9 +664,10 @@ public partial class Generator {
                     }
                 }
                 break;
+
             case ExecutionMode.Query: {
                     if (dbSP_ResultSets.Length != 1) {
-                        ctxt.AppendLineAndError($"#warning #ResultSets {dbSP_ResultSets.Length} actual, expected one!");
+                        ctxt.AppendLineAndError($"#warning {dbSP.SP.Name} #ResultSets {dbSP_ResultSets.Length} actual, expected one!");
                         foreach (var dbResultSet in dbSP.ResultSetsToStrings()) {
                             ctxt.AppendLineAndError($"#warning Database: {dbResultSet}!");
                         }
@@ -671,21 +685,23 @@ public partial class Generator {
                     }
                 }
                 break;
+
             case ExecutionMode.QueryMultiple:
 
                 if (spDef_Return.Members is null || spDef_Return.Members.Length == 0) {
-                    ctxt.AppendLineAndError($"#warning No Members defined! {dbSP.ResultSets.Length} found in database!");
+                    ctxt.AppendLineAndError($"#warning No Members defined! {dbSP.SPDefinition.SqlName} - {dbSP.ResultSets.Length} found in database!");
                     foreach (var dbResultSet in dbSP.ResultSetsToStrings()) {
                         ctxt.AppendLineAndError($"#warning Database: {dbResultSet}!");
                     }
-                    ctxt.AppendLine("throw new NotImplementedException();");
-                } else if (dbSP_ResultSets.Length != spDef_Return.Members.Length) {
+                    ctxt.AppendLine("throw new NotImplementedException(\"{dbSP.SPDefinition.SqlName}\");");
 
+                } else if (dbSP_ResultSets.Length != spDef_Return.Members.Length) {
                     ctxt.AppendLineAndError($"#warning Different count of resultset({dbSP_ResultSets.Length}) and members({spDef_Return.Members.Length}) defined!");
                     foreach (var dbResultSet in dbSP.ResultSetsToStrings()) {
                         ctxt.AppendLineAndError($"#warning Database: {dbResultSet}!");
                     }
-                    ctxt.AppendLine("throw new NotImplementedException();");
+                    ctxt.AppendLine("throw new NotImplementedException(\"{dbSP.SPDefinition.SqlName}\");");
+
                 } else {
                     {
                         for (var idx = 0; idx < dbSP.ResultSets.Length; idx++) {
@@ -745,11 +761,11 @@ public partial class Generator {
 
                     printMultiReader(spDef_Return.Members, spDef_Return, csReturnTypeRecord, ctxt);
                 }
-
                 break;
+
             default:
-                ctxt.Output.AppendLine("#warning Unknown ExecutionMode");
-                ctxt.AppendLine("throw new NotImplementedException();");
+                ctxt.AppendLineAndError($"#warning Unknown ExecutionMode {dbSP.SPDefinition.SqlName}");
+                ctxt.AppendLine("throw new NotImplementedException(\"{dbSP.SPDefinition.SqlName}\");");
                 break;
         }
     }
