@@ -16,9 +16,6 @@ variables:
   ProjectName: 'Brimborium.Net'
   SolutionPath: 'Brimborium.Net.sln'
   projects: |
-    Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj
-    Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj
-    Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj
     Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj
     Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj
     Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj
@@ -27,13 +24,16 @@ variables:
     Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj
 
   later: |
+    Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj
     Brimborium.CodeBlocks\Brimborium.Typing\Brimborium.Typing.csproj
-    Brimborium.WebDavServer\Brimborium.WebDav.WebApp\Brimborium.WebDav.WebApp.csproj
-    Brimborium.WebDavServer\Brimborium.WebDavServer\Brimborium.WebDavServer.csproj
-    Brimborium.WebDavServer\Brimborium.WebDavServer.Model\Brimborium.WebDavServer.Model.csproj
+    Brimborium.CodeFlow\Brimborium.CodeFlow\Brimborium.CodeFlow.csproj
+    Brimborium.CodeFlow\Brimborium.CodeFlow.Abstracts\Brimborium.CodeFlow.Abstracts.csproj
     Brimborium.WebFlow\Brimborium.WebFlow\Brimborium.WebFlow.csproj
     Brimborium.WebFlow\Brimborium.WebFlow.Abstracts\Brimborium.WebFlow.Abstracts.csproj
     Brimborium.WebFlow\Brimborium.WebFlow.Web\Brimborium.WebFlow.Web.csproj
+    Brimborium.WebDavServer\Brimborium.WebDav.WebApp\Brimborium.WebDav.WebApp.csproj
+    Brimborium.WebDavServer\Brimborium.WebDavServer\Brimborium.WebDavServer.csproj
+    Brimborium.WebDavServer\Brimborium.WebDavServer.Model\Brimborium.WebDavServer.Model.csproj
     Brimborium.WebSocket\Brimborium.WebSockets\Brimborium.WebSockets.csproj
 
 

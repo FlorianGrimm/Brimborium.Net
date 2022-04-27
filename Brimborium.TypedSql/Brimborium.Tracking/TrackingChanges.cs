@@ -53,4 +53,8 @@ public class TrackingChanges {
             }
         }
     }
+
+    public void Clear() {
+        this.Changes.Clear();
+    }
 }

@@ -14,7 +14,8 @@ namespace Brimborium.GenerateStoredProcedure {
             string connectionString,
             string outputFolder,
             Configuration cfg,
-            Dictionary<string, string> templateVariables) {
+            Dictionary<string, string> templateVariables,
+            bool isForce) {
             using var connection = new SqlConnection(connectionString);
             var serverConnection = new ServerConnection(connection);
             var server = new Server(serverConnection);
@@ -36,20 +37,26 @@ namespace Brimborium.GenerateStoredProcedure {
                 .Select(fi => new FileContent(fi.FullName, System.IO.File.ReadAllText(fi.FullName)))
                 .Where(fc => ReplacementBindingExtension.ContainsReplace(fc.Content))
                 .ToList();
-            return GenerateCode(config, templateVariables, lstFileContent, WriteText);
+            return GenerateCode(config, templateVariables, lstFileContent, WriteText, isForce);
         }
 
         public static bool GenerateCode(
             ConfigurationBound config,
             Dictionary<string, string> templateVariables,
             List<FileContent> lstFileContent,
-            Func<string, string, bool> writeText) {
+            Func<string, string, bool> writeText, 
+            bool isForce) {
             var result = false;
+            var dctFileContent = lstFileContent.ToDictionary(fc=>fc.FileName, StringComparer.OrdinalIgnoreCase);
             var renderGenerator = new RenderGenerator(config.ReplacementBindings, templateVariables);
             foreach (var renderBinding in config.RenderBindings) {
                 var boundVariables = new Dictionary<string, string>(templateVariables);
                 var outputFilename = renderBinding.GetFilename(boundVariables);
                 if (string.IsNullOrEmpty(outputFilename)) {
+                    continue;
+                }
+                if (dctFileContent.ContainsKey(outputFilename)) {
+                    System.Console.WriteLine($"skip: {outputFilename}");
                     continue;
                 }
                 // System.Console.WriteLine(outputFilename);

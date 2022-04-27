@@ -10,6 +10,7 @@ public interface ITrackingSet<TKey, TValue>
     int Count { get; }
     ICollection<TKey> Keys { get; }
     ICollection<TValue> Values { get; }
+    void Clear();
 
     TrackingObject<TValue> Attach(TValue item);
     List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items);

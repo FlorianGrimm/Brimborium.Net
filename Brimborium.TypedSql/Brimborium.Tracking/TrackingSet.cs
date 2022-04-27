@@ -1,10 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Brimborium.Tracking;
+﻿namespace Brimborium.Tracking;
 
 public abstract class TrackingSet {
     protected TrackingSet(TrackingContext trackingContext) {
@@ -16,6 +10,7 @@ public abstract class TrackingSet {
 
     internal abstract Type GetItemType();
 }
+
 public abstract class TrackingSet<TValue>
     : TrackingSet
     where TValue : class {
@@ -55,8 +50,7 @@ public class TrackingSet<TKey, TValue>
     where TKey : notnull
     where TValue : class {
     private readonly Dictionary<TKey, TrackingObject<TValue>> _Items;
-    //private readonly List<TrackingObject<TItem>> _ItemsToDelete;
-    private readonly Func<TValue, TKey> _ExtractKey;
+    private readonly IExtractKey<TValue, TKey> _ExtractKey;
 
     public int Count => this._Items.Count;
 
@@ -80,17 +74,18 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
+    public void Clear() {
+        this._Items.Clear();
+    }
+
     public TValue this[TKey key] {
         get {
             return this._Items[key].Value;
         }
-        //set {
-        //    this.Upsert(value);
-        //}
     }
 
     public TrackingSet(
-        Func<TValue, TKey> extractKey,
+        IExtractKey<TValue, TKey> extractKey,
         IEqualityComparer<TKey> comparer,
         TrackingContext trackingContext,
         ITrackingSetApplyChanges<TValue> trackingApplyChanges
@@ -108,7 +103,7 @@ public class TrackingSet<TKey, TValue>
     /// a item with the same already exists
     /// </exception>
     public override TrackingObject<TValue> Attach(TValue item) {
-        var key = this._ExtractKey(item);
+        var key = this._ExtractKey.ExtractKey(item);
         if (this._Items.TryGetValue(key, out var found)) {
             if (found.Status == TrackingStatus.Original) {
                 found.Set(item, TrackingStatus.Original);
@@ -139,12 +134,12 @@ public class TrackingSet<TKey, TValue>
     }
 
     public override void Detach(TrackingObject<TValue> item) {
-        var key = this._ExtractKey(item.Value);
+        var key = this._ExtractKey.ExtractKey(item.Value);
         this._Items.Remove(key);
     }
 
     public override TrackingObject<TValue> Add(TValue item) {
-        var key = this._ExtractKey(item);
+        var key = this._ExtractKey.ExtractKey(item);
         if (this._Items.TryGetValue(key, out var result)) {
             throw new InvalidOperationException($"dupplicate key:{key}");
         } else {
@@ -160,7 +155,7 @@ public class TrackingSet<TKey, TValue>
     }
 
     public override TrackingObject<TValue> Update(TValue item) {
-        var key = this._ExtractKey(item);
+        var key = this._ExtractKey.ExtractKey(item);
         if (this._Items.TryGetValue(key, out var result)) {
             if (result.Status == TrackingStatus.Original) {
                 result.Set(item, TrackingStatus.Modified);
@@ -187,7 +182,7 @@ public class TrackingSet<TKey, TValue>
     }
 
     public override TrackingObject<TValue> Upsert(TValue item) {
-        var key = this._ExtractKey(item);
+        var key = this._ExtractKey.ExtractKey(item);
         if (this._Items.TryGetValue(key, out var result)) {
             if (result.Status == TrackingStatus.Original) {
                 result.Set(item, TrackingStatus.Modified);
@@ -215,13 +210,13 @@ public class TrackingSet<TKey, TValue>
                trackingSet: this
                );
             this._Items.Add(key, result);
-            this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Modified, result));
+            this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Added, result));
             return result;
         }
     }
 
     public void Delete(TValue item) {
-        var key = this._ExtractKey(item);
+        var key = this._ExtractKey.ExtractKey(item);
 
         if (this._Items.TryGetValue(key, out var result)) {
             if (ReferenceEquals(result.GetValue(), item)) {
@@ -283,7 +278,7 @@ public class TrackingSet<TKey, TValue>
         if (!ReferenceEquals(trackingObject.TrackingSet, this)) {
             throw new InvalidOperationException("wrong TrackingSet");
         } else {
-            var key = this._ExtractKey(trackingObject.Value);
+            var key = this._ExtractKey.ExtractKey(trackingObject.Value);
             if (this._Items.TryGetValue(key, out var found)) {
                 if (found.Status == TrackingStatus.Original) {
                     found.Set(trackingObject.Value, TrackingStatus.Deleted);

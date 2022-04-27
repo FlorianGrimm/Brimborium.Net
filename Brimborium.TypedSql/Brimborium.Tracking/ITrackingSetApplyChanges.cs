@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Brimborium.Tracking;
+﻿namespace Brimborium.Tracking;
 
 public interface ITrackingSetApplyChanges<TValue> {
 

@@ -16,7 +16,8 @@ public partial class Generator {
         string connectionString,
         string outputPath,
         DatabaseDefintion dbDef,
-        PrintClass printClass) {
+        PrintClass printClass,
+        bool isForce) {
 
         var sbOutputImplementation = new StringBuilder();
 
@@ -124,7 +125,7 @@ public partial class Generator {
                 }
             }
         }
-  
+
         {
             var success = sbOutputImplementation.Length == 0;
             var ctxt = new PrintContext(sbOutputImplementation);
@@ -145,11 +146,11 @@ public partial class Generator {
     }
 
     public static bool GenerateModel(
-                //IEnumerable<Type> types,
-                string connectionString,
-                string outputPath,
-                //DatabaseDefintion dbDef,
-                PrintClass printClass) {
+        //IEnumerable<Type> types,
+        string connectionString,
+        string outputPath,
+        //DatabaseDefintion dbDef,
+        PrintClass printClass) {
 
         var sbOutputImplementation = new StringBuilder();
 
@@ -171,7 +172,9 @@ public partial class Generator {
         // Solvin.OneTS.Model
         var ctxt = new PrintContext(sbOutputImplementation);
         sbOutputImplementation.AppendLine("#if true");
+        /*
         sbOutputImplementation.AppendLine("using System;");
+        */
         sbOutputImplementation.AppendLine("");
 
         sbOutputImplementation.Append("namespace ");
@@ -180,10 +183,13 @@ public partial class Generator {
 
         foreach (var t in lstTablePrimaryKey) {
             var (table, primaryKey) = t;
+            if (string.Equals(table.Schema, "sys", StringComparison.OrdinalIgnoreCase)) {
+                continue;
+            }
             if (string.Equals(table.Name, "sysdiagrams", StringComparison.OrdinalIgnoreCase)) {
                 continue;
             }
-            sbOutputImplementation.AppendLine($"    public sealed record {table.Name}PK (");
+            sbOutputImplementation.AppendLine($"    public sealed partial record {table.Name}PK (");
 
             var indexedColumns = primaryKey!.IndexedColumns.Cast<IndexedColumn>().Select(c => {
                 var cName = c.Name;
@@ -200,11 +206,11 @@ public partial class Generator {
                     } else if (sqlDataType == SqlDataType.BigInt) {
                         csType = "long";
                     } else if (sqlDataType == SqlDataType.Date) {
-                        csType = "DateTime";
+                        csType = "System.DateTime";
                     } else if (sqlDataType == SqlDataType.DateTime) {
-                        csType = "DateTime";
+                        csType = "System.DateTime";
                     } else if (sqlDataType == SqlDataType.DateTime2) {
-                        csType = "DateTime";
+                        csType = "System.DateTime";
                     } else if (sqlDataType == SqlDataType.VarChar) {
                         csType = "string";
                     } else if (sqlDataType == SqlDataType.VarCharMax) {
@@ -213,6 +219,8 @@ public partial class Generator {
                         csType = "string";
                     } else if (sqlDataType == SqlDataType.NVarCharMax) {
                         csType = "string";
+                    } else if (sqlDataType == SqlDataType.DateTimeOffset) {
+                        csType = "System.DateTimeOffset";
                     } else {
                         csType = "object";
                     }
@@ -283,7 +291,7 @@ public partial class Generator {
         ctxt.AppendLine("");
 
         printCurly($"namespace {printClass.Namespace}", "", ctxt, (ctxt) => {
-            
+
             var lstInterfaceMethod = new List<string>();
             printCurly($"partial class {printClass.ClassName}", "", ctxt, (ctxt) => {
                 var lstReaderDefinition = new List<ReaderDefinition>();
@@ -291,13 +299,13 @@ public partial class Generator {
                 foreach (var (dbSP, spDef) in lstUsed) {
                     if (dbSP is object && spDef is object) {
                         printExecuteMethod(
-                            dbSP, 
+                            dbSP,
                             spDef,
-                            hsReaderDefinition, 
+                            hsReaderDefinition,
                             lstReaderDefinition,
                             lstInterfaceMethod,
                             storedProcedureNames,
-                            ignoreTypePropertyNames, 
+                            ignoreTypePropertyNames,
                             ctxt);
                     }
                 }

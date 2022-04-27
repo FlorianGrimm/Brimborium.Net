@@ -82,7 +82,11 @@ namespace Brimborium.GenerateStoredProcedure {
                 if (rpStart.start < 0) { break; }
                 //
                 var rpStop = IndexOfReplaceStop(content, rpStart);
-                if (rpStop.start < 0) { break; }
+                if (rpStop.start < 0) {
+                    var startContent = content.Substring(rpStart.start, rpStart.len);
+                    System.Console.Error.WriteLine($"stop not found: {startContent}");
+                    break; 
+                }
                 //
                 var wsStart = 0;
                 while ((0 <= (rpStart.start - wsStart - 1)) && IsSpaceOrTab(content[(rpStart.start - wsStart - 1)])) {

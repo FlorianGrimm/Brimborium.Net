@@ -38,6 +38,7 @@ namespace Brimborium.GenerateStoredProcedure {
                 );
 
             this.ColumnRowversion = new RenderTemplate<TableInfo>(
+                NameFn: t => $"ColumnRowversion.{t.GetNameQ()}",
                 Render: (data, ctxt) => {
                     ctxt.AppendLine(
                         $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
@@ -83,7 +84,6 @@ namespace Brimborium.GenerateStoredProcedure {
                             column.GetNamePrefixed("@"),
                             " ",
                             column.GetParameterSqlDataType(),
-                            //ctxt.IfNotLast(",", (data.columnRowVersion is not null))
                             ((ctxt.IsLast && (data.columnRowVersion is null)) ? string.Empty : ",")
                             );
 

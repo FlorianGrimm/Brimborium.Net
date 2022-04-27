@@ -1,5 +1,5 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Brimborium.GenerateStoredProcedure {
@@ -34,6 +34,16 @@ namespace Brimborium.GenerateStoredProcedure {
                     printContext = printContext.GetIndented(new string(' ', ws));
                 }
                 replacementBinding.Render(printContext);
+                return sbOutput.ToString();
+            }
+            if (name == "HELP") {
+                var sbOutput = new StringBuilder();
+                var printContext = new PrintContext(sbOutput, this._TemplateVariables);
+                printContext = printContext.GetIndented(new string(' ', ws + 4));
+                var names = this._BindingByName.Keys.OrderBy(k => k, System.StringComparer.InvariantCultureIgnoreCase);
+                foreach (var n in names) {
+                    printContext.AppendLine($"-- {n}");
+                }
                 return sbOutput.ToString();
             }
             return string.Empty;
