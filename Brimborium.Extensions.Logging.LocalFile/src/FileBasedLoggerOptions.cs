@@ -21,14 +21,14 @@ public class FileBasedLoggerOptions : BatchingLoggerOptions
     /// </summary>
     public int? FileSizeLimit
     {
-        get { return _fileSizeLimit; }
+        get { return this._fileSizeLimit; }
         set
         {
             if (value <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FileSizeLimit)} must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(this.FileSizeLimit)} must be positive.");
             }
-            _fileSizeLimit = value;
+            this._fileSizeLimit = value;
         }
     }
 
@@ -38,14 +38,14 @@ public class FileBasedLoggerOptions : BatchingLoggerOptions
     /// </summary>
     public int? RetainedFileCountLimit
     {
-        get { return _retainedFileCountLimit; }
+        get { return this._retainedFileCountLimit; }
         set
         {
             if (value <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(RetainedFileCountLimit)} must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(this.RetainedFileCountLimit)} must be positive.");
             }
-            _retainedFileCountLimit = value;
+            this._retainedFileCountLimit = value;
         }
     }
 
@@ -56,14 +56,14 @@ public class FileBasedLoggerOptions : BatchingLoggerOptions
     /// </summary>
     public string FileName
     {
-        get { return _fileName; }
+        get { return this._fileName; }
         set
         {
             if (string.IsNullOrEmpty(value))
             {
                 throw new ArgumentNullException(nameof(value));
             }
-            _fileName = value;
+            this._fileName = value;
         }
     }
 

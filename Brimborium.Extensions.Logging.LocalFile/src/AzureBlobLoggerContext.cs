@@ -18,9 +18,9 @@ public readonly struct AzureBlobLoggerContext
     /// <param name="timestamp">The timestamp.</param>
     public AzureBlobLoggerContext(string appName, string identifier, DateTimeOffset timestamp)
     {
-        AppName = appName;
-        Identifier = identifier;
-        Timestamp = timestamp;
+        this.AppName = appName;
+        this.Identifier = identifier;
+        this.Timestamp = timestamp;
     }
 
     /// <summary>

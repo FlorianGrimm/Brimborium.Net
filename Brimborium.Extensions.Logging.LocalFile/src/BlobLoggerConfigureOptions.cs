@@ -17,18 +17,18 @@ public class BlobLoggerConfigureOptions : BatchLoggerConfigureOptions, IConfigur
     public BlobLoggerConfigureOptions(IConfiguration configuration, IWebAppContext context, Action<AzureBlobLoggerOptions> configureOptions)
         : base(configuration, "AzureBlobEnabled")
     {
-        _configuration = configuration;
-        _context = context;
-        _configureOptions = configureOptions;
+        this._configuration = configuration;
+        this._context = context;
+        this._configureOptions = configureOptions;
     }
 
     public void Configure(AzureBlobLoggerOptions options)
     {
         base.Configure(options);
-        options.ContainerUrl = _configuration.GetSection("APPSETTING_DIAGNOSTICS_AZUREBLOBCONTAINERSASURL")?.Value;
-        options.ApplicationName = _context.SiteName;
-        options.ApplicationInstanceId = _context.SiteInstanceId;
+        options.ContainerUrl = this._configuration.GetSection("APPSETTING_DIAGNOSTICS_AZUREBLOBCONTAINERSASURL")?.Value;
+        options.ApplicationName = this._context.SiteName;
+        options.ApplicationInstanceId = this._context.SiteInstanceId;
 
-        _configureOptions(options);
+        this._configureOptions(options);
     }
 }

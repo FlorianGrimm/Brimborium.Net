@@ -13,13 +13,13 @@ public class LocalFileLoggerConfigureOptions : BatchLoggerConfigureOptions, ICon
 
     public LocalFileLoggerConfigureOptions(IConfiguration configuration, IWebAppContext context)
         : base(configuration, "LocalFileEnabled") {
-        _context = context;
+        this._context = context;
     }
 
     public void Configure(LocalFileLoggerOptions options) {
         base.Configure(options);
         if (string.IsNullOrEmpty(options.LogDirectory)) {
-            options.LogDirectory = Path.Combine(_context.HomeFolder, "LogFiles", "Application");
+            options.LogDirectory = Path.Combine(this._context.HomeFolder, "LogFiles", "Application");
         } else if (!System.IO.Path.IsPathRooted(options.LogDirectory)) {
             options.LogDirectory = System.IO.Path.GetFullPath(options.LogDirectory);
         }

@@ -33,10 +33,10 @@ public class BlobLoggerProvider : BatchingLoggerProvider
     public BlobLoggerProvider(IOptionsMonitor<AzureBlobLoggerOptions> options)
         : this(options, null)
     {
-        _blobReferenceFactory = name => new BlobAppendReferenceWrapper(
+        this._blobReferenceFactory = name => new BlobAppendReferenceWrapper(
             options.CurrentValue.ContainerUrl,
             name,
-            _httpClient);
+            this._httpClient);
     }
 
     /// <summary>
@@ -49,15 +49,15 @@ public class BlobLoggerProvider : BatchingLoggerProvider
         Func<string, ICloudAppendBlob> blobReferenceFactory) :
         base(options)
     {
-        _options = options;
-        _blobReferenceFactory = blobReferenceFactory;
-        _httpClient = new HttpClient();
+        this._options = options;
+        this._blobReferenceFactory = blobReferenceFactory;
+        this._httpClient = new HttpClient();
     }
 
     internal protected override async Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken cancellationToken)
     {
-        var eventGroups = messages.GroupBy(GetBlobKey);
-        var options = _options.CurrentValue;
+        var eventGroups = messages.GroupBy(this.GetBlobKey);
+        var options = this._options.CurrentValue;
         var identifier = options.ApplicationInstanceId + "_" + options.BlobName;
 
         foreach (var eventGroup in eventGroups)
@@ -68,7 +68,7 @@ public class BlobLoggerProvider : BatchingLoggerProvider
                 identifier,
                 new DateTimeOffset(key.Year, key.Month, key.Day, key.Hour, 0, 0, TimeSpan.Zero)));
 
-            var blob = _blobReferenceFactory(blobName);
+            var blob = this._blobReferenceFactory(blobName);
 
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream))

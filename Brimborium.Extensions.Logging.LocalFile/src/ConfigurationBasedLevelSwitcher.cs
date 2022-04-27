@@ -2,39 +2,34 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Brimborium.Extensions.Logging.LocalFile;
 
-public class ConfigurationBasedLevelSwitcher : IConfigureOptions<LoggerFilterOptions>
-{
+public class ConfigurationBasedLevelSwitcher : IConfigureOptions<LoggerFilterOptions> {
     private readonly IConfiguration _configuration;
     private readonly Type _provider;
     private readonly string _levelKey;
 
-    public ConfigurationBasedLevelSwitcher(IConfiguration configuration, Type provider, string levelKey)
-    {
-        _configuration = configuration;
-        _provider = provider;
-        _levelKey = levelKey;
+    public ConfigurationBasedLevelSwitcher(IConfiguration configuration, Type provider, string levelKey) {
+        this._configuration = configuration;
+        this._provider = provider;
+        this._levelKey = levelKey;
     }
 
-    public void Configure(LoggerFilterOptions options)
-    {
-        options.Rules.Add(new LoggerFilterRule(_provider.FullName, null, GetLogLevel(), null));
+    public void Configure(LoggerFilterOptions options) {
+        options.Rules.Add(new LoggerFilterRule(this._provider.FullName, null, this.GetLogLevel(), null));
     }
 
-    private LogLevel GetLogLevel()
-    {
-        return TextToLogLevel(_configuration.GetSection(_levelKey)?.Value);
+    private LogLevel GetLogLevel() {
+        return TextToLogLevel(this._configuration.GetSection(this._levelKey)?.Value);
     }
 
-    private static LogLevel TextToLogLevel(string text)
-    {
-        switch (text?.ToUpperInvariant())
-        {
+    private static LogLevel TextToLogLevel(string text) {
+        switch (text?.ToUpperInvariant()) {
             case "ERROR":
                 return LogLevel.Error;
             case "WARNING":

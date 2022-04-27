@@ -16,8 +16,8 @@ public class BatchingLogger : ILogger
 
     public BatchingLogger(BatchingLoggerProvider loggerProvider, string categoryName)
     {
-        _provider = loggerProvider;
-        _category = categoryName;
+        this._provider = loggerProvider;
+        this._category = categoryName;
     }
 
     public IDisposable BeginScope<TState>(TState state)
@@ -27,12 +27,12 @@ public class BatchingLogger : ILogger
 
     public bool IsEnabled(LogLevel logLevel)
     {
-        return _provider.IsEnabled;
+        return this._provider.IsEnabled;
     }
 
     public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId _, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        if (!IsEnabled(logLevel))
+        if (!this.IsEnabled(logLevel))
         {
             return;
         }
@@ -42,9 +42,9 @@ public class BatchingLogger : ILogger
         builder.Append(" [");
         builder.Append(logLevel.ToString());
         builder.Append("] ");
-        builder.Append(_category);
+        builder.Append(this._category);
 
-        var scopeProvider = _provider.ScopeProvider;
+        var scopeProvider = this._provider.ScopeProvider;
         if (scopeProvider != null)
         {
             scopeProvider.ForEachScope((scope, stringBuilder) =>
@@ -66,11 +66,11 @@ public class BatchingLogger : ILogger
             builder.AppendLine(exception.ToString());
         }
 
-        _provider.AddMessage(timestamp, builder.ToString());
+        this._provider.AddMessage(timestamp, builder.ToString());
     }
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        Log(DateTimeOffset.Now, logLevel, eventId, state, exception, formatter);
+        this.Log(DateTimeOffset.Now, logLevel, eventId, state, exception, formatter);
     }
 }

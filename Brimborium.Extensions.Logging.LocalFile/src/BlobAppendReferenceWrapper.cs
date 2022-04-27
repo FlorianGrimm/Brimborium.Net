@@ -20,11 +20,11 @@ public class BlobAppendReferenceWrapper : ICloudAppendBlob
     {
         var uriBuilder = new UriBuilder(containerUrl);
         uriBuilder.Path += "/" + name;
-        _fullUri = uriBuilder.Uri;
+        this._fullUri = uriBuilder.Uri;
 
         AppendBlockQuery(uriBuilder);
-        _appendUri = uriBuilder.Uri;
-        _client = client;
+        this._appendUri = uriBuilder.Uri;
+        this._client = client;
     }
 
     /// <inheritdoc />
@@ -32,13 +32,13 @@ public class BlobAppendReferenceWrapper : ICloudAppendBlob
     {
         Task<HttpResponseMessage> AppendDataAsync()
         {
-            var message = new HttpRequestMessage(HttpMethod.Put, _appendUri)
+            var message = new HttpRequestMessage(HttpMethod.Put, this._appendUri)
             {
                 Content = new ByteArrayContent(data.Array, data.Offset, data.Count)
             };
             AddCommonHeaders(message);
 
-            return _client.SendAsync(message, cancellationToken);
+            return this._client.SendAsync(message, cancellationToken);
         }
 
         var response = await AppendDataAsync().ConfigureAwait(false);
@@ -46,7 +46,7 @@ public class BlobAppendReferenceWrapper : ICloudAppendBlob
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
             // If no blob exists try creating it
-            var message = new HttpRequestMessage(HttpMethod.Put, _fullUri)
+            var message = new HttpRequestMessage(HttpMethod.Put, this._fullUri)
             {
                 // Set Content-Length to 0 to create "Append Blob"
                 Content = new ByteArrayContent(Array.Empty<byte>()),
@@ -58,7 +58,7 @@ public class BlobAppendReferenceWrapper : ICloudAppendBlob
 
             AddCommonHeaders(message);
 
-            response = await _client.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            response = await this._client.SendAsync(message, cancellationToken).ConfigureAwait(false);
 
             // If result is 2** or 412 try to append again
             if (response.IsSuccessStatusCode ||

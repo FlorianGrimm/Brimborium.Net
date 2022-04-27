@@ -13,13 +13,13 @@ public class BatchLoggerConfigureOptions : IConfigureOptions<BatchingLoggerOptio
 
     public BatchLoggerConfigureOptions(IConfiguration configuration, string isEnabledKey)
     {
-        _configuration = configuration;
-        _isEnabledKey = isEnabledKey;
+        this._configuration = configuration;
+        this._isEnabledKey = isEnabledKey;
     }
 
     public void Configure(BatchingLoggerOptions options)
     {
-        options.IsEnabled = TextToBoolean(_configuration.GetSection(_isEnabledKey)?.Value);
+        options.IsEnabled = TextToBoolean(this._configuration.GetSection(this._isEnabledKey)?.Value);
     }
 
     private static bool TextToBoolean(string text)

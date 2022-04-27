@@ -15,12 +15,12 @@ public class AzureAppServicesFileLoggerConfigureOptions : BatchLoggerConfigureOp
     public AzureAppServicesFileLoggerConfigureOptions(IConfiguration configuration, IWebAppContext context)
         : base(configuration, "AzureDriveEnabled")
     {
-        _context = context;
+        this._context = context;
     }
 
     public void Configure(AzureAppServicesFileLoggerOptions options)
     {
         base.Configure(options);
-        options.LogDirectory = Path.Combine(_context.HomeFolder, "LogFiles", "Application");
+        options.LogDirectory = Path.Combine(this._context.HomeFolder, "LogFiles", "Application");
     }
 }

@@ -28,6 +28,6 @@ public class WebAppContext : IWebAppContext
     public string SiteInstanceId { get; } = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID");
 
     /// <inheritdoc />
-    public bool IsRunningInAzureWebApp => !string.IsNullOrEmpty(HomeFolder) &&
-                                          !string.IsNullOrEmpty(SiteName);
+    public bool IsRunningInAzureWebApp => !string.IsNullOrEmpty(this.HomeFolder) &&
+                                          !string.IsNullOrEmpty(this.SiteName);
 }

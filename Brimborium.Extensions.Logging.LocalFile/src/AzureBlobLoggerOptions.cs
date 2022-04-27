@@ -18,14 +18,14 @@ public class AzureBlobLoggerOptions : BatchingLoggerOptions
     /// </summary>
     public string BlobName
     {
-        get { return _blobName; }
+        get { return this._blobName; }
         set
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new ArgumentException($"{nameof(BlobName)} must be non-empty string.", nameof(value));
+                throw new ArgumentException($"{nameof(this.BlobName)} must be non-empty string.", nameof(value));
             }
-            _blobName = value;
+            this._blobName = value;
         }
     }
 

@@ -19,14 +19,14 @@ public class BatchingLoggerOptions
     /// </summary>
     public TimeSpan FlushPeriod
     {
-        get { return _flushPeriod; }
+        get { return this._flushPeriod; }
         set
         {
             if (value <= TimeSpan.Zero)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(FlushPeriod)} must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(this.FlushPeriod)} must be positive.");
             }
-            _flushPeriod = value;
+            this._flushPeriod = value;
         }
     }
 
@@ -37,14 +37,14 @@ public class BatchingLoggerOptions
     /// </summary>
     public int? BackgroundQueueSize
     {
-        get { return _backgroundQueueSize; }
+        get { return this._backgroundQueueSize; }
         set
         {
             if (value < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(BackgroundQueueSize)} must be non-negative.");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(this.BackgroundQueueSize)} must be non-negative.");
             }
-            _backgroundQueueSize = value;
+            this._backgroundQueueSize = value;
         }
     }
 
@@ -54,14 +54,14 @@ public class BatchingLoggerOptions
     /// Defaults to <c>null</c>.
     public int? BatchSize
     {
-        get { return _batchSize; }
+        get { return this._batchSize; }
         set
         {
             if (value <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(BatchSize)} must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(this.BatchSize)} must be positive.");
             }
-            _batchSize = value;
+            this._batchSize = value;
         }
     }
 
