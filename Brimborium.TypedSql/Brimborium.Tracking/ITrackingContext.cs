@@ -8,8 +8,8 @@ public interface ITrackingContext {
         ITrackingTransConnection trackingTransConnection,
         CancellationToken cancellationToken = default(CancellationToken));
 
+    TrackingObject<TValue>? Attach<TValue>(TValue item) where TValue : class;
     TrackingObject<TValue> Add<TValue>(TValue item) where TValue : class;
-    TrackingObject<TValue> Attach<TValue>(TValue item) where TValue : class;
     TrackingObject<TValue> Update<TValue>(TValue item) where TValue : class;
     TrackingObject<TValue> Upsert<TValue>(TValue item) where TValue : class;
 }

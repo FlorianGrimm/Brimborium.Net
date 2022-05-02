@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Brimborium.Tracking;
+﻿namespace Brimborium.Tracking;
 
 public class TrackingChange {
     public TrackingChange(
@@ -17,12 +14,14 @@ public class TrackingChange {
 }
 
 public class TrackingChanges {
-    private TrackingContext _TrackingContext;
+    private readonly TrackingContext _TrackingContext;
     public readonly List<TrackingChange> Changes;
+
     public TrackingChanges(TrackingContext trackingContext) {
         this._TrackingContext = trackingContext;
         this.Changes = new List<TrackingChange>();
     }
+
     public async Task ApplyChangesAsync(
         ITrackingTransConnection transConnection,
         CancellationToken cancellationToken = default(CancellationToken)

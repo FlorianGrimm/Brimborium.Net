@@ -1,15 +1,15 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Brimborium.GenerateStoredProcedure {
     public class KnownTemplates {
-        public readonly RenderTemplate<List<ColumnInfo>> Columns;
-        public readonly RenderTemplate<TableInfo> ColumnRowversion;
-
         public readonly RenderTemplate<TableInfo> SelectTableColumns;
+        public readonly RenderTemplate<List<ColumnInfo>> Columns;
 
         public readonly RenderTemplate<List<ColumnInfo>> ColumnsAsParameter;
+        public readonly RenderTemplate<TableInfo> TableColumnsAsParameter;
+
+        public readonly RenderTemplate<TableInfo> ColumnRowversion;
 
         public readonly RenderTemplate<(
             List<ColumnInfo> columns,
@@ -61,6 +61,20 @@ namespace Brimborium.GenerateStoredProcedure {
                 );
 
 
+            this.TableColumnsAsParameter = new RenderTemplate<TableInfo>(
+                NameFn: t=>$"TableColumnsAsParameter.{t.GetNameQ()}",
+                Render: (tableInfo, ctxt) => {
+                    var columns = tableInfo.Columns;
+                    ctxt.AppendList(columns, (column, ctxt) => {
+                        ctxt.AppendPartsLine(
+                            column.GetNamePrefixed("@"),
+                            " ",
+                            column.GetParameterSqlDataType(),
+                            ctxt.IfNotLast(",")
+                            );
+                    });
+                }
+            );
             this.ColumnsAsParameter = new RenderTemplate<List<ColumnInfo>>(
                 Render: (columns, ctxt) => {
                     ctxt.AppendList(columns, (column, ctxt) => {

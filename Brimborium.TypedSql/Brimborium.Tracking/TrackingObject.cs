@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿namespace Brimborium.Tracking;
 
-namespace Brimborium.Tracking;
 public abstract class TrackingObject {
     protected TrackingStatus _Status;
 
@@ -53,7 +52,7 @@ public class TrackingObject<TValue>
             return this._Value;
         }
         set {
-            this._TrackingSet.Upsert(value, this);
+            this._TrackingSet.ValueSet(this, value);
         }
     }
 
@@ -67,7 +66,8 @@ public class TrackingObject<TValue>
 
     public override async Task ApplyChangesAsync(
         TrackingStatus status,
-        ITrackingTransConnection transConnection) {
+        ITrackingTransConnection transConnection
+        ) {
         if (this.Status != status) {
             throw new System.InvalidOperationException($"{this.Status}!={status}");
         }

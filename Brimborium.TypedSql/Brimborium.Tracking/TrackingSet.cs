@@ -26,7 +26,7 @@ public abstract class TrackingSet<TValue>
 
     internal override Type GetItemType() => typeof(TValue);
 
-    public abstract TrackingObject<TValue> Attach(TValue item);
+    public abstract TrackingObject<TValue>? Attach(TValue? item);
     
     public abstract List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items);
 
@@ -40,7 +40,7 @@ public abstract class TrackingSet<TValue>
 
     public abstract void Delete(TrackingObject<TValue> trackingObject);
 
-    internal protected abstract void Upsert(TValue value, TrackingObject<TValue> trackingObject);
+    internal protected abstract void ValueSet(TrackingObject<TValue> trackingObject, TValue value);
 
 }
 
@@ -102,28 +102,34 @@ public class TrackingSet<TKey, TValue>
     /// <exception cref="System.ArgumentException">
     /// a item with the same already exists
     /// </exception>
-    public override TrackingObject<TValue> Attach(TValue item) {
-        var key = this._ExtractKey.ExtractKey(item);
-        if (this._Items.TryGetValue(key, out var found)) {
-            if (found.Status == TrackingStatus.Original) {
-                found.Set(item, TrackingStatus.Original);
+    [return: NotNullIfNotNull("item")]
+    public override TrackingObject<TValue>? Attach(TValue? item) {
+        if (item is null) {
+            return default;
+        } else {
+            var key = this._ExtractKey.ExtractKey(item);
+            if (this._Items.TryGetValue(key, out var found)) {
+                this.AttachValidate(item);
+                var replace = ((found.Status == TrackingStatus.Original) || this.AttachConflictReplace(item, found));
+                if (replace) {
+                    found.Set(item, TrackingStatus.Original);
+                } else { 
+                    // TODO remove changes ?
+                }
                 return found;
             } else {
-#warning Conflict?
-                return found;
+                this.AttachValidate(item);
+                var result = new TrackingObject<TValue>(
+                    value: item,
+                    status: TrackingStatus.Original,
+                    trackingSet: this
+                );
+                this._Items.Add(key, result);
+                return result;
             }
-        } else {
-            var result = new TrackingObject<TValue>(
-                value: item,
-                status: TrackingStatus.Original,
-                trackingSet: this
-            );
-            this._Items.Add(key, result);
-            return result;
         }
     }
-
-
+    
     public override List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items) {
         var result = new List<TrackingObject<TValue>>();
         foreach (var item in items) {
@@ -133,18 +139,18 @@ public class TrackingSet<TKey, TValue>
         return result;
     }
 
-    public override void Detach(TrackingObject<TValue> item) {
-        var key = this._ExtractKey.ExtractKey(item.Value);
+    public override void Detach(TrackingObject<TValue> value) {
+        var key = this._ExtractKey.ExtractKey(value.Value);
         this._Items.Remove(key);
     }
 
-    public override TrackingObject<TValue> Add(TValue item) {
-        var key = this._ExtractKey.ExtractKey(item);
+    public override TrackingObject<TValue> Add(TValue value) {
+        var key = this._ExtractKey.ExtractKey(value);
         if (this._Items.TryGetValue(key, out var result)) {
             throw new InvalidOperationException($"dupplicate key:{key}");
         } else {
             result = new TrackingObject<TValue>(
-               value: item,
+               value: value,
                status: TrackingStatus.Added,
                trackingSet: this
                );
@@ -154,21 +160,24 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    public override TrackingObject<TValue> Update(TValue item) {
-        var key = this._ExtractKey.ExtractKey(item);
+    public override TrackingObject<TValue> Update(TValue value) {
+        var key = this._ExtractKey.ExtractKey(value);
         if (this._Items.TryGetValue(key, out var result)) {
             if (result.Status == TrackingStatus.Original) {
-                result.Set(item, TrackingStatus.Modified);
+                result.Set(value, TrackingStatus.Modified);
+                this.Updating(value);
                 this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Modified, result));
                 return result;
             }
             if (result.Status == TrackingStatus.Added) {
-                result.Set(item, TrackingStatus.Added);
+                this.Updating(value);
+                result.Set(value, TrackingStatus.Added);
                 // skip this.TrackingContext.TrackingChanges
                 return result;
             }
             if (result.Status == TrackingStatus.Modified) {
-                result.Set(item, TrackingStatus.Modified);
+                this.Updating(value);
+                result.Set(value, TrackingStatus.Modified);
                 // skip this.TrackingContext.TrackingChanges
                 return result;
             }
@@ -181,21 +190,24 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    public override TrackingObject<TValue> Upsert(TValue item) {
-        var key = this._ExtractKey.ExtractKey(item);
+    public override TrackingObject<TValue> Upsert(TValue value) {
+        var key = this._ExtractKey.ExtractKey(value);
         if (this._Items.TryGetValue(key, out var result)) {
             if (result.Status == TrackingStatus.Original) {
-                result.Set(item, TrackingStatus.Modified);
+                this.Updating(value);
+                result.Set(value, TrackingStatus.Modified);
                 this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Modified, result));
                 return result;
             }
             if (result.Status == TrackingStatus.Added) {
-                result.Set(item, TrackingStatus.Added);
+                this.Updating(value);
+                result.Set(value, TrackingStatus.Added);
                 // skip this.TrackingContext.TrackingChanges
                 return result;
             }
             if (result.Status == TrackingStatus.Modified) {
-                result.Set(item, TrackingStatus.Modified);
+                this.Updating(value);
+                result.Set(value, TrackingStatus.Modified);
                 // skip this.TrackingContext.TrackingChanges
                 return result;
             }
@@ -204,8 +216,9 @@ public class TrackingSet<TKey, TValue>
             }
             throw new InvalidOperationException($"unknown state:{result.Status}");
         } else {
+            this.Adding(value);
             result = new TrackingObject<TValue>(
-               value: item,
+               value: value,
                status: TrackingStatus.Added,
                trackingSet: this
                );
@@ -215,13 +228,14 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    public void Delete(TValue item) {
-        var key = this._ExtractKey.ExtractKey(item);
+    public void Delete(TValue value) {
+        var key = this._ExtractKey.ExtractKey(value);
 
         if (this._Items.TryGetValue(key, out var result)) {
-            if (ReferenceEquals(result.GetValue(), item)) {
+            if (ReferenceEquals(result.GetValue(), value)) {
                 if (result.Status == TrackingStatus.Original) {
-                    result.Set(item, TrackingStatus.Deleted);
+                    this.Deleting(value);
+                    result.Set(value, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Deleted, result));
                     return;
@@ -232,14 +246,16 @@ public class TrackingSet<TKey, TValue>
                 }
                 if (result.Status == TrackingStatus.Added) {
                     // created and deleted
+                    this.Deleting(value);
                     this.TrackingContext.TrackingChanges.Remove(TrackingStatus.Added, result);
-                    result.Set(item, TrackingStatus.Deleted);
+                    result.Set(value, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     return;
                 }
                 if (result.Status == TrackingStatus.Modified) {
+                    this.Deleting(value);
                     this.TrackingContext.TrackingChanges.Remove(TrackingStatus.Modified, result);
-                    result.Set(item, TrackingStatus.Deleted);
+                    result.Set(value, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Deleted, result));
                     return;
@@ -256,17 +272,20 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    protected internal override void Upsert(TValue value, TrackingObject<TValue> trackingObject) {
+    protected internal override void ValueSet(TrackingObject<TValue> trackingObject, TValue value) {
         if (trackingObject.Status == TrackingStatus.Original) {
+            this.Updating(value);
             trackingObject.Set(value, TrackingStatus.Modified);
             this.TrackingContext.TrackingChanges.Add(
                 new TrackingChange(Tracking.TrackingStatus.Modified, trackingObject)
                 ); ;
         } else if (trackingObject.Status == TrackingStatus.Added) {
+            this.Updating(value);
             trackingObject.Set(value, TrackingStatus.Added);
             // TrackingChange should be there
         } else if (trackingObject.Status == TrackingStatus.Modified) {
             trackingObject.Set(value, TrackingStatus.Modified);
+            this.Updating(value);
             // TrackingChange should be there
         } else if (trackingObject.Status == TrackingStatus.Deleted) {
             throw new System.InvalidOperationException("The object is deleted.");
@@ -281,6 +300,7 @@ public class TrackingSet<TKey, TValue>
             var key = this._ExtractKey.ExtractKey(trackingObject.Value);
             if (this._Items.TryGetValue(key, out var found)) {
                 if (found.Status == TrackingStatus.Original) {
+                    this.Deleting(trackingObject.Value);
                     found.Set(trackingObject.Value, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     this.TrackingContext.TrackingChanges.Add(new TrackingChange(TrackingStatus.Deleted, found));
@@ -288,12 +308,14 @@ public class TrackingSet<TKey, TValue>
                 }
                 if (found.Status == TrackingStatus.Added) {
                     // created and deleted
+                    this.Deleting(trackingObject.Value);
                     found.Set(trackingObject.Value, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     this.TrackingContext.TrackingChanges.Remove(TrackingStatus.Added, found);
                     return;
                 }
                 if (found.Status == TrackingStatus.Modified) {
+                    this.Deleting(trackingObject.Value);
                     found.Status = TrackingStatus.Deleted;
                     this._Items.Remove(key);
                     return;
@@ -326,5 +348,18 @@ public class TrackingSet<TKey, TValue>
 
     public bool TryTrackingObject(TKey key, [MaybeNullWhen(false)] out TrackingObject<TValue> value) {
         return this._Items.TryGetValue(key, out value);
+    }
+
+    public virtual void AttachValidate(TValue item) {
+    }
+
+    public virtual bool AttachConflictReplace(TValue item, TrackingObject<TValue> found) {
+        return true;
+    }
+    public virtual void Adding(TValue item) {
+    }
+    public virtual void Updating(TValue item) {
+    }
+    public virtual void Deleting(TValue item) {
     }
 }

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿namespace Brimborium.Tracking;
 
-namespace Brimborium.Tracking;
 public interface ITrackingSet<TKey, TValue>
     where TKey : notnull
     where TValue : class {
@@ -12,7 +10,8 @@ public interface ITrackingSet<TKey, TValue>
     ICollection<TValue> Values { get; }
     void Clear();
 
-    TrackingObject<TValue> Attach(TValue item);
+    [return: NotNullIfNotNull("item")]
+    TrackingObject<TValue>? Attach(TValue? item);
     List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items);
     void Detach(TrackingObject<TValue> item);
 

@@ -15,7 +15,7 @@ public class TrackingContext
         this._TrackingSetByType.Add(itemType, trackingSet);
     }
 
-    public TrackingObject<TValue> Attach<TValue>(TValue item)
+    public TrackingObject<TValue>? Attach<TValue>(TValue item)
         where TValue : class {
         if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
             return ((TrackingSet<TValue>)trackingSet).Attach(item);
@@ -56,4 +56,23 @@ public class TrackingContext
         CancellationToken cancellationToken = default(CancellationToken)) {
         await this.TrackingChanges.ApplyChangesAsync(trackingTransConnection, cancellationToken);
     }
+
+#if no
+    public object SaveSate() {
+        if (this.TrackingChanges.Changes.Count > 0) {
+            throw new NotSupportedException("TrackingChanges.Changes is not empty");
+        }
+        var result = new Dictionary<Type, TrackingSet>();
+        foreach (var (type, trackingSet) in this._TrackingSetByType) {
+            result.Add(type, trackingSet.SaveState());
+        }
+        return result;
+    }
+    public void RestoreSate(object state) {
+        var stateDict = (Dictionary<Type, TrackingSet>) state;
+        foreach (var (type, trackingSet) in stateDict) {
+            this._TrackingSetByType[type].RestoreState(trackingSet);
+        }
+    }
+#endif
 }
