@@ -46,6 +46,19 @@ namespace Brimborium.GenerateStoredProcedure {
                 }
                 return sbOutput.ToString();
             }
+            if (name == "SNIPPETS") {
+                var sbOutput = new StringBuilder();
+                var printContext = new PrintContext(sbOutput, this._TemplateVariables);
+                printContext = printContext.GetIndented(new string(' ', ws + 4));
+                var names = this._BindingByName.Keys.OrderBy(k => k, System.StringComparer.InvariantCultureIgnoreCase);
+                foreach (var n in names) {
+                    printContext.AppendLine($"-- Replace={n} --");
+                    this._BindingByName[n].Render(printContext);                    
+                    printContext.AppendLine($"-- Replace#{n} --");
+                    printContext.AppendLine("");
+                }
+                return sbOutput.ToString();
+            }
             return string.Empty;
         }
     }

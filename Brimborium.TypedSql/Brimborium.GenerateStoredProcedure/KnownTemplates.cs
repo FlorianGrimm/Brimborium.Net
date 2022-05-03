@@ -46,8 +46,18 @@ namespace Brimborium.GenerateStoredProcedure {
             );
 
             this.SelectTableColumns = new RenderTemplate<TableInfo>(
-                NameFn: t=>$"SelectTableColumns.{t.GetNameQ()}",
+                NameFn: t => $"SelectTableColumns.{t.GetNameQ()}",
                 Render: (data, ctxt) => {
+                    ctxt.AppendList(
+                        data.ColumnsWithRowversion,
+                        (column, ctxt) => {
+                            ctxt.AppendPartsLine(
+                                column.GetReadNamedQ(),
+                                ctxt.IfNotLast(",")
+                                );
+                        }
+                        );
+                    /*
                     ctxt.AppendList(
                         data.Columns,
                         (column, ctxt) => {
@@ -57,12 +67,13 @@ namespace Brimborium.GenerateStoredProcedure {
                         });
                     ctxt.AppendLine(
                         $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
+                    */
                 }
                 );
 
 
             this.TableColumnsAsParameter = new RenderTemplate<TableInfo>(
-                NameFn: t=>$"TableColumnsAsParameter.{t.GetNameQ()}",
+                NameFn: t => $"TableColumnsAsParameter.{t.GetNameQ()}",
                 Render: (tableInfo, ctxt) => {
                     var columns = tableInfo.Columns;
                     ctxt.AppendList(columns, (column, ctxt) => {
@@ -250,12 +261,27 @@ namespace Brimborium.GenerateStoredProcedure {
             PrintContext ctxt,
             string target,
             Action<T, PrintContext> nameBlock,
-            Action<T, PrintContext> valuesBlock
+            Action<T, PrintContext> valuesBlock,
+            Action<T, PrintContext>? outputBlock = default,
+            Action<T, PrintContext>? outputIntoBlock = default
             ) {
             var ctxtIndented = ctxt.GetIndented();
             ctxt.AppendLine($"INSERT INTO {target} (");
             nameBlock(data, ctxtIndented);
-            ctxt.AppendLine($") Values (");
+            ctxt.AppendLine(")");
+            if (outputBlock is not null) {
+                ctxt.AppendLine("OUTPUT");
+                ctxt.AppendIndented(
+                    data,
+                    outputBlock);
+
+                if (outputIntoBlock is not null) {
+                    ctxt.Append("INTO ");
+                    outputIntoBlock(data, ctxt);
+                }
+            }
+
+            ctxt.AppendLine("VALUES (");
             valuesBlock(data, ctxtIndented);
             ctxt.AppendLine(");");
         }

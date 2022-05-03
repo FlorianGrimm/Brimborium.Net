@@ -37,6 +37,11 @@ namespace Brimborium.GenerateStoredProcedure {
                 .Select(fi => new FileContent(fi.FullName, System.IO.File.ReadAllText(fi.FullName)))
                 .Where(fc => ReplacementBindingExtension.ContainsReplace(fc.Content))
                 .ToList();
+            /*
+            foreach (var fc in lstFileContent) {
+                System.Console.WriteLine(fc.FileName);
+            }
+            */
             return GenerateCode(config, templateVariables, lstFileContent, WriteText, isForce);
         }
 

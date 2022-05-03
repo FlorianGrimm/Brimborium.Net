@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 using Microsoft.SqlServer.Management.Smo;
 
@@ -13,6 +14,11 @@ namespace Brimborium.GenerateStoredProcedure {
         public Hashtable ExtraInfo { get; } = new Hashtable();
         public string? ParameterSqlDataType { get; set; }
 
+        // alias
+        public Func<string?, string>? ReadExpression { get; set; }
+        public Func<string?, string?, string>? ReadAsExpression { get; set; }
+        public Func<string?, string?, string>? ReadNamedExpression { get; set; }
+
         public static ColumnInfo Create(
             Column column
             ) {
@@ -24,8 +30,47 @@ namespace Brimborium.GenerateStoredProcedure {
             };
         }
         public bool Identity => this.Column.Identity;
-        public string GetNameQ(string? alias = null) => string.IsNullOrEmpty(alias) ? $"[{this.Name}]" : $"{alias}.[{this.Name}]";
+
+        public string GetNameQ(string? sourceAlias = null) => string.IsNullOrEmpty(sourceAlias) ? $"[{this.Name}]" : $"{sourceAlias}.[{this.Name}]";
+
         public string GetNamePrefixed(string prefix) => prefix + this.Name;
+
+        public string GetReadQ(string? sourceAlias = null) {
+            if (sourceAlias is not null && sourceAlias.Length == 0) { sourceAlias = null; }
+
+            if (this.ReadExpression is not null) {
+                return this.ReadExpression(sourceAlias);
+            } else {
+                return this.GetNameQ(sourceAlias);
+            }
+        }
+
+        public string GetReadAsQ(string? sourceAlias = null, string? expressionAlias = null) {
+            if (sourceAlias is not null && sourceAlias.Length == 0) { sourceAlias = null; }
+            if (expressionAlias is not null && expressionAlias.Length == 0) { expressionAlias = null; }
+
+            if (this.ReadAsExpression is not null) {
+                return this.ReadAsExpression(sourceAlias, expressionAlias);
+            } else {
+                var n = this.GetReadQ(sourceAlias);
+                var a = expressionAlias ?? this.GetNameQ();
+                return $"{n} as {a}";
+            }
+        }
+
+        public string GetReadNamedQ(string? sourceAlias = null, string? expressionAlias = null) {
+            if (sourceAlias is not null && sourceAlias.Length == 0) { sourceAlias = null; }
+            if (expressionAlias is not null && expressionAlias.Length == 0) { expressionAlias = null; }
+
+            if (this.ReadNamedExpression is not null) {
+                return this.ReadNamedExpression(sourceAlias, expressionAlias);
+            } else {
+                var n = this.GetReadQ(sourceAlias);
+                var a = expressionAlias ?? this.GetNameQ();
+                return $"{a} = {n}";
+            }
+        }
+
         public string GetSqlDataType(bool addNotNull = false) {
             var dataType = this.Column.DataType;
             var sqlName = dataType.GetSqlName(dataType.SqlDataType);

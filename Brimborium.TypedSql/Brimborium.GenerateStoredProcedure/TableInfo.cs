@@ -48,5 +48,16 @@ namespace Brimborium.GenerateStoredProcedure {
                 : this.IndexPrimaryKey.Columns;
 
         public string GetNameQ() => $"[{this.Schema}].[{this.Name}]";
+
+        public List<ColumnInfo> ColumnsWithRowversion {
+            get {
+                var result = new List<ColumnInfo>();
+                result.AddRange(this.Columns);
+                if (this.ColumnRowversion is not null) { 
+                    result.Add(this.ColumnRowversion);
+                }
+                return result;
+            }
+        }
     };
 }

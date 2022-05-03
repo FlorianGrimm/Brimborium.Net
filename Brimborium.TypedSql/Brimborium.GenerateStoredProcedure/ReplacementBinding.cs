@@ -61,7 +61,9 @@ namespace Brimborium.GenerateStoredProcedure {
                     posStop--;
                     len++;
                 }
-                if (posStop > 2 && content.Substring(posStop - 2, 2) == "\r\n") {
+                if (startat == posStop) { 
+                    //
+                } else if (posStop > 2 && content.Substring(posStop - 2, 2) == "\r\n") {
                     posStop -= 2;
                     len += 2;
                 } else if (posStop > 2 && (content[posStop - 1] == '\r' || content[posStop - 1] == '\n')) {
@@ -75,6 +77,8 @@ namespace Brimborium.GenerateStoredProcedure {
         }
 
         public static (bool changed, string content) Replace(string content, Func<string, int, string> replace) {
+            if (content.StartsWith("-- Replace=SNIPPETS --")) { 
+            }
             var posStart = 0;
             var changed = false;
             while (posStart < content.Length) {
@@ -102,6 +106,10 @@ namespace Brimborium.GenerateStoredProcedure {
                 if (string.IsNullOrEmpty(rpValue)) {
                     posStart = rpStop.start + rpStop.tokenStop.Length;
                 } else {
+                    try {
+                        content.Substring(rpStart.start + rpStart.len, rpStop.start - rpStart.start - rpStart.len);
+                    } catch { 
+                    }
                     var oldContent = content.Substring(rpStart.start + rpStart.len, rpStop.start - rpStart.start - rpStart.len);
                     if (string.Equals(rpValue, oldContent, StringComparison.Ordinal)) {
                         posStart = rpStart.start + rpStart.len + rpValue.Length + rpStop.prefixTokenLen;
