@@ -1,13 +1,22 @@
 echo %~dp0
-cd %~dp0Brimborium.CodeFlow
-dotnet build
-@IF ERRORLEVEL 1 GOTO :fail
 
 cd %~dp0Brimborium.Registrator
 dotnet build
 @IF ERRORLEVEL 1 GOTO :fail
 
 cd %~dp0Brimborium.TypedSql
+dotnet build
+@IF ERRORLEVEL 1 GOTO :fail
+
+cd %~dp0Brimborium.RowVersion
+dotnet build
+@IF ERRORLEVEL 1 GOTO :fail
+
+cd %~dp0Brimborium.Extensions.Logging.LocalFile
+dotnet build
+@IF ERRORLEVEL 1 GOTO :fail
+
+cd %~dp0Brimborium.CodeFlow
 dotnet build
 @IF ERRORLEVEL 1 GOTO :fail
 
