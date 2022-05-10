@@ -22,6 +22,8 @@ variables:
     Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj
     Brimborium.TypedSql\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj
     Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj
+    Brimborium.RowVersion\Brimborium.RowVersion.Contracts\Brimborium.RowVersion.Contracts.csproj
+    Brimborium.RowVersion\Brimborium.RowVersion\Brimborium.RowVersion.csproj
 
   later: |
     Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj
@@ -151,9 +153,23 @@ steps:
     packagesToPack: 'Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj'
     nobuild: false
     includesymbols: true
-   
-    #versioningScheme: 'off'
-    #verbosityPack: 'Diagnostic'
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.RowVersion.Contracts'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.RowVersion\Brimborium.RowVersion.Contracts\Brimborium.RowVersion.Contracts.csproj'
+    nobuild: false
+    includesymbols: true       
+    
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.RowVersion'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.RowVersion\Brimborium.RowVersion\Brimborium.RowVersion.csproj'
+    nobuild: false
+    includesymbols: true
+
 
 - task: NuGetCommand@2
   inputs:

@@ -20,13 +20,13 @@ namespace Brimborium.GenerateStoredProcedure {
 
         public virtual void AddKnownReplacementBindings(DatabaseInfo databaseInfo, ConfigurationBound result) {
             result.AddReplacementBindings(
-                "ColumnRowversion", 
+                nameof(KnownTemplates.ColumnRowversion), 
                 databaseInfo.Tables.Select(t=>new TableBinding(t, this.KnownTemplates.ColumnRowversion)));
             result.AddReplacementBindings(
-                "SelectTableColumns", 
+                nameof(KnownTemplates.SelectTableColumns), 
                 databaseInfo.Tables.Select(t=>new TableBinding(t, this.KnownTemplates.SelectTableColumns)));
             result.AddReplacementBindings(
-                "TableColumnsAsParameter", 
+                nameof(KnownTemplates.TableColumnsAsParameter),
                 databaseInfo.Tables.Select(t=>new TableBinding(t, this.KnownTemplates.TableColumnsAsParameter)));
         }
     }
