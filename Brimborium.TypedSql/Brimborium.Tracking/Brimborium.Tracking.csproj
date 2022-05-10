@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
-	<Import Project="..\..\build\package.targets" />
+	<Import Project="..\..\build\package.targets" Condition="Exist('..\..\build\package.targets')" />
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />

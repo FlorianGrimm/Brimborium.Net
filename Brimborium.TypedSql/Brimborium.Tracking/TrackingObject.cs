@@ -64,6 +64,10 @@ public class TrackingObject<TValue>
         this._TrackingSet.Delete(this);
     }
 
+    public void Detach() {
+        this._TrackingSet.Detach(this);
+    }
+
     public override async Task ApplyChangesAsync(
         TrackingStatus status,
         ITrackingTransConnection transConnection

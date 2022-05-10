@@ -13,7 +13,7 @@ public interface ITrackingSet<TKey, TValue>
     [return: NotNullIfNotNull("item")]
     TrackingObject<TValue>? Attach(TValue? item);
     List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items);
-    void Detach(TrackingObject<TValue> item);
+    void Detach(TrackingObject<TValue>? item);
 
     TrackingObject<TValue> Add(TValue item);
     TrackingObject<TValue> Update(TValue item);
