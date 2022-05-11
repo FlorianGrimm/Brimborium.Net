@@ -120,7 +120,8 @@ public static class Program {
             connectionString,
             outputFolder,
             cfg,
-            templateVariables);
+            templateVariables,
+            true);
     }
 
     public static string GetUpperDirectoryPath() {

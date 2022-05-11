@@ -40,7 +40,7 @@ public static partial class Program {
                 var(outputPath, outputNamespace, outputClassName) = Brimborium.TestSample.Service.SqlAccessLocation.GetPrimaryKeyOutputInfo();
                 //var outputFolder = System.IO.Path.GetDirectoryName(outputPath);
 
-                MainGenerateOneTSSqlAccess(connectionString, defintions, outputPath, outputNamespace, outputClassName);
+                MainGenerateSqlAccess(connectionString, defintions, outputPath, outputNamespace, outputClassName);
             }
 #endif
 
@@ -144,7 +144,7 @@ public static partial class Program {
         Generator.GenerateModel(connectionString, outputFilePrimaryKey, printClass);
     }
 
-    private static void MainGenerateOneTSSqlAccess(
+    private static void MainGenerateSqlAccess(
         string connectionString, 
         DatabaseDefintion dbDefs,
         string outputPath,
@@ -158,9 +158,8 @@ public static partial class Program {
         var printClass = new PrintClass(
             outputNamespace,
             outputClassName
-            /*"OneTSSqlAccess"*/
             );
-        Generator.GenerateSqlAccessWrapper(types, connectionString, outputPath, dbDefs, printClass);
+        Generator.GenerateSqlAccessWrapper(types, connectionString, outputPath, dbDefs, printClass, false);
     }
 
     public static IConfigurationRoot GetConfiguration(string[] args) {
@@ -173,12 +172,12 @@ public static partial class Program {
 
     //public static bool MainGenerate(string connectionString, string outputFolder) {
     //    var templateVariables = new Dictionary<string, string>();
-    //    //var cfg = new GenerateConfiguration();
-    //    //return Brimborium.GenerateStoredProcedure.Generator.GenerateSql(
-    //    //    connectionString,
-    //    //    outputFolder,
-    //    //    cfg,
-    //    //    templateVariables);
+    //    var cfg = new GenerateConfiguration();
+    //    return Brimborium.GenerateStoredProcedure.Generator.GenerateSql(
+    //        connectionString,
+    //        outputFolder,
+    //        cfg,
+    //        templateVariables);
     //    return true;
     //}
 

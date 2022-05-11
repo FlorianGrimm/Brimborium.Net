@@ -1,5 +1,6 @@
 ﻿global using System;
 global using System.Collections.Generic;
+global using System.Diagnostics.CodeAnalysis;
 global using System.Data;
 global using System.Diagnostics;
 global using System.Linq;
@@ -18,3 +19,5 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.DependencyInjection;
 
 global using Microsoft.OpenApi.Models;
+global using Brimborium.SqlAccess;
+global using Microsoft.Data.SqlClient;

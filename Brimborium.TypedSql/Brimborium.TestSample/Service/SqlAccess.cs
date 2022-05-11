@@ -1,16 +1,9 @@
-﻿using Brimborium.SqlAccess;
+﻿namespace Brimborium.TestSample.Service;
 
-using System.Data;
-
-namespace Brimborium.TestSample.Service;
-
+[ExcludeFromCodeCoverage]
 public partial class SqlAccess : SqlDataAccessBase {
-    public SqlAccess(IDbConnection connection, IDbTransaction transaction)
+    public SqlAccess(SqlConnection connection, IDbTransaction transaction)
         : base(connection, transaction) {
-
-    }
-    public SqlAccess(string connectionString)
-        : base(connectionString) {
     }
 }
 

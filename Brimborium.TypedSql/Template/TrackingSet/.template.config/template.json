@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Florian Grimm",
+  "classifications": [
+    "Brimborium.Tracking",
+    "TrackingSet"
+  ],
+  "identity": "Brimborium.Tracking.TrackingSet",
+  "name": "Brimborium.Tracking.TrackingSet",
+  "shortName": "TrackingSet",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "TrackingSetData",
+  "preferNameDirectory": false,
+  "symbols": {
+    "root": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "Replacement",
+      "replaces": "Replacement",
+      "isRequired": false
+    },
+    "name": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "Data",
+      "replaces": "Data",
+      "isRequired": false
+    },
+    "trackingSetData": {
+      "type": "generated",
+      "generator": "join",
+      "fileRename": "TrackingSetData",
+      "replaces": "TrackingSetData",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "const",
+            "value": "TrackingSet"
+          },
+          {
+            "type": "ref",
+            "value": "name"
+          }
+        ]
+      }
+    },
+    "datapk": {
+      "type": "generated",
+      "generator": "join",
+      "replaces": "DataPK",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "name"
+          },
+          {
+            "type": "const",
+            "value": "PK"
+          }
+        ]
+      }
+    },
+    "dataentity": {
+      "type": "generated",
+      "generator": "join",
+      "replaces": "DataEntity",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "name"
+          },
+          {
+            "type": "const",
+            "value": "Entity"
+          }
+        ]
+      }
+    },
+    "datautiltiy": {
+      "type": "generated",
+      "generator": "join",
+      "replaces": "DataUtiltiy",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "name"
+          },
+          {
+            "type": "const",
+            "value": "Utiltiy"
+          }
+        ]
+      }
+    }
+    
+
+  }
+}

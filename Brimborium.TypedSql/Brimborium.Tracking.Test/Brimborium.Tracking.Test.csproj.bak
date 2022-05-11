@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Brimborium.RowVersion\Brimborium.RowVersion.Contracts\Brimborium.RowVersion.Contracts.csproj" />
     <ProjectReference Include="..\Brimborium.Tracking\Brimborium.Tracking.csproj" />
   </ItemGroup>
 
