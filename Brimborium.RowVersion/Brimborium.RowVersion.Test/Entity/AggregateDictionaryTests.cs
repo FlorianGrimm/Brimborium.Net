@@ -11,8 +11,8 @@ public class AggregateDictionaryTests {
             input.Add(idx, new TestEntityWithVersion(idx));
         }
         var act = input.ToAggregateDictionary();
-        Assert.Equal(input.Last().Value.EntityVersion, act.EntityVersion.EntityVersion);
-        Assert.Equal(input.Count, act.EntityVersion.CountVersion);
+        Assert.Equal(input.Last().Value.EntityVersion, act.AggregationVersion.EntityVersion);
+        Assert.Equal(input.Count, act.AggregationVersion.CountVersion);
     }
 
     [Fact()]
@@ -26,8 +26,8 @@ public class AggregateDictionaryTests {
             input.Add(new TestEntityWithVersion(idx));
         }
         var act = input.ToAggregateDictionary(getKey: (i)=>i.EntityVersion, (i)=>i);
-        Assert.Equal(input.Last().EntityVersion, act.EntityVersion.EntityVersion);
-        Assert.Equal(input.Count, act.EntityVersion.CountVersion);
+        Assert.Equal(input.Last().EntityVersion, act.AggregationVersion.EntityVersion);
+        Assert.Equal(input.Count, act.AggregationVersion.CountVersion);
     }
 
     /*

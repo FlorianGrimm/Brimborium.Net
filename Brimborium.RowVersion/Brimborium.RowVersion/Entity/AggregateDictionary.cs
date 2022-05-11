@@ -24,7 +24,7 @@ public static class AggregateDictionary {
     }
 
 
-    public static AggregateDictionary<K, V> ToAggregateDictionaryValidRange<T, K, V>(this IEnumerable<T> src, DateTime at, Func<T, K> getKey, Func<T, V> getValue)
+    public static AggregateDictionary<K, V> ToAggregateDictionaryValidRange<T, K, V>(this IEnumerable<T> src, DateTimeOffset at, Func<T, K> getKey, Func<T, V> getValue)
         where K : notnull
         where V : notnull, IDTOValidRange, IEntityWithVersion {
         var result = new AggregateDictionary<K, V>();
@@ -38,7 +38,7 @@ public static class AggregateDictionary {
         return result;
     }
 
-    public static AggregateDictionary<K, V> ToAggregateDictionaryValidRangeQ<T, K, V>(this IEnumerable<T> src, DateTime at, Func<T, K> getKey, Func<T, V> getValue)
+    public static AggregateDictionary<K, V> ToAggregateDictionaryValidRangeQ<T, K, V>(this IEnumerable<T> src, DateTimeOffset at, Func<T, K> getKey, Func<T, V> getValue)
         where K : notnull
         where V : notnull, IDTOValidRangeQ, IEntityWithVersion {
         var result = new AggregateDictionary<K, V>();
@@ -65,7 +65,7 @@ public class AggregateDictionary<K, V>
 
     public Dictionary<K, V> Dict => this._Dict;
 
-    public AggregationEntityVersion EntityVersion => this._EntityVersion;
+    public AggregationEntityVersion AggregationVersion => this._EntityVersion;
 
     public void Add(K key, V item) {
         this._Dict[key] = item;

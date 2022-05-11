@@ -1,6 +1,6 @@
 ﻿namespace Brimborium.RowVersion.Extensions;
-public static class ListExtension {
-    public static int BinarySearchByValue<T, K>(this List<T> list, K value, Func<T, K, int> compare) {
+internal static class ListExtension {
+    internal static int BinarySearchByValue<T, K>(this List<T> list, K value, Func<T, K, int> compare) {
         var low = 0;
         var high = list.Count - 1;
 
@@ -20,7 +20,7 @@ public static class ListExtension {
         return ~low;
     }
 
-    public static bool TryGetByValue<T, K>(this List<T> list, K value, Func<T, K, int> compare, [MaybeNullWhen(false)] out T result, out int position) {
+    internal static bool TryGetByValue<T, K>(this List<T> list, K value, Func<T, K, int> compare, [MaybeNullWhen(false)] out T result, out int position) {
         var low = 0;
         var high = list.Count - 1;
 

@@ -1,4 +1,6 @@
-﻿namespace Brimborium.RowVersion.Entity;
+﻿#warning WEICHEI
+#if false
+namespace Brimborium.RowVersion.Entity;
 
 public class DataAPIWithVersionClass
     : IEntityWithDataEntityVersion {
@@ -21,3 +23,4 @@ public class DataAPIWithVersionClass
     [JsonIgnore]
     public DataEntityVersion DataEntityVersion { get => this._EntryVersion; set => this._EntryVersion = value; }
 }
+#endif
