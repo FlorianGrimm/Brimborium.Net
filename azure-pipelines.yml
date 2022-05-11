@@ -24,7 +24,7 @@ variables:
     Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj
     Brimborium.RowVersion\Brimborium.RowVersion.Contracts\Brimborium.RowVersion.Contracts.csproj
     Brimborium.RowVersion\Brimborium.RowVersion\Brimborium.RowVersion.csproj
-    Brimborium.Net\Brimborium.Functional\Brimborium.Functional\Brimborium.Functional.csproj
+    Brimborium.Functional\Brimborium.Functional\Brimborium.Functional.csproj
 
   later: |
     Brimborium.CodeBlocks\Brimborium.CodeBlocks.Library\Brimborium.CodeBlocks.Library.csproj
@@ -175,7 +175,7 @@ steps:
   displayName: 'pack Brimborium.Functional'
   inputs:
     command: 'pack'
-    packagesToPack: 'Brimborium.Net\Brimborium.Functional\Brimborium.Functional\Brimborium.Functional.csproj'
+    packagesToPack: 'Brimborium.Functional\Brimborium.Functional\Brimborium.Functional.csproj'
     nobuild: false
     includesymbols: true
 
