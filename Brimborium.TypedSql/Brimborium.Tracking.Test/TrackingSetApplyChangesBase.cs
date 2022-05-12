@@ -1,16 +1,22 @@
-﻿namespace Brimborium.Tracking.Test;
+﻿namespace Brimborium.Tracking;
 
 public abstract class TrackingSetApplyChangesBase<TValue, TPrimaryKey>
     : ITrackingSetApplyChanges<TValue>
     where TValue : class, Brimborium.RowVersion.Entity.IEntityWithVersion
     where TPrimaryKey : IEquatable<TPrimaryKey> {
     private string _TypeName;
+    private readonly IExtractKey<TValue, TPrimaryKey> _ExtractKey;
 
-    protected TrackingSetApplyChangesBase() {
+    protected TrackingSetApplyChangesBase(
+        IExtractKey<TValue, TPrimaryKey> extractKey
+    ) {
         this._TypeName = typeof(TValue).Name ?? string.Empty;
+        this._ExtractKey = extractKey;
     }
 
-    protected abstract TPrimaryKey ExtractKey(TValue value);
+    protected virtual TPrimaryKey ExtractKey(TValue value){
+        return this._ExtractKey.ExtractKey(value);
+    }
 
     public abstract Task<TValue> Insert(TValue value, ITrackingTransConnection trackingTransaction);
 

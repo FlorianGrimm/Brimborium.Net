@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 using Xunit;
 
-namespace Brimborium.Tracking.Test;
+namespace Brimborium.Tracking;
 
 public class TrackingContextTest {
     private Guid id1;
@@ -34,8 +34,10 @@ public class TrackingContextTest {
         id6 = Guid.NewGuid();
     }
 
-    private Test1TrackingContext CreateTrackingContext() {
-        var sut = new Test1TrackingContext();
+    private Test1TrackingContext CreateTrackingContext(
+        ITrackingSet<EbbesPK, EbbesEntity>? ebbes = default
+    ) {
+        var sut = new Test1TrackingContext(ebbes);
         Assert.NotNull(sut);
         sut.Ebbes.Attach(new EbbesEntity(id1, Title1));
         sut.Ebbes.Attach(new EbbesEntity(id2, Title2));
@@ -49,7 +51,7 @@ public class TrackingContextTest {
 
     [Fact]
     public void TrackingContext_001_Attach_WrongType() {
-        Assert.Throws<System.InvalidOperationException>(
+        Assert.Throws<InvalidOperationException>(
             () => {
                 var sut = new Test1TrackingContext();
                 sut.Attach(new Ebbes(id1, Title1));
@@ -76,6 +78,8 @@ public class TrackingContextTest {
     [Fact]
     public void TrackingContext_003_Add() {
         var sut = CreateTrackingContext();
+        Assert.Equal(5, sut.Ebbes.Count);
+
         sut.Ebbes.Add(new EbbesEntity(Id: id6, Title: Title6));
         Assert.Equal(EbbesCnt + 1, sut.Ebbes.Count);
         Assert.Equal(Title6, sut.Ebbes[new EbbesPK(Id: id6)].Title);
@@ -83,8 +87,42 @@ public class TrackingContextTest {
 
         var chg = sut.TrackingChanges.Changes[0];
         Assert.Equal(TrackingStatus.Added, chg.Status);
-        Assert.Equal(TrackingStatus.Added, chg.TrackingObject.Status);
-        Assert.Equal(Title6, ((EbbesEntity)chg.TrackingObject.GetValue()).Title);
+        Assert.Equal(Title6, ((EbbesEntity)chg.GetValue()).Title);
+        Assert.Equal(6, sut.Ebbes.Count);
+    }
+
+    [Fact]
+    public async Task TrackingContext_013_AddUndo() {
+        var sut = CreateTrackingContext();
+        Assert.Equal(5, sut.Ebbes.Count);
+
+        sut.Ebbes.Add(new EbbesEntity(Id: id6, Title: Title6));
+        Assert.Equal(EbbesCnt + 1, sut.Ebbes.Count);
+        Assert.Equal(Title6, sut.Ebbes[new EbbesPK(Id: id6)].Title);
+        Assert.Equal(1, sut.TrackingChanges.Changes.Count);
+
+        var chg = sut.TrackingChanges.Changes[0];
+        Assert.Equal(TrackingStatus.Added, chg.Status);
+        Assert.Equal(Title6, ((EbbesEntity)chg.GetValue()).Title);
+        Assert.Equal(6, sut.Ebbes.Count);
+
+        sut.TrackingChanges.Undo(chg);
+        Assert.Equal(5, sut.Ebbes.Count);
+
+        foreach (var idx in System.Linq.Enumerable.Range(1, 50)) {
+            sut.Ebbes.Add(new EbbesEntity(Id: Guid.NewGuid(), Title: idx.ToString()));
+        }
+        var to = sut.Ebbes.Add(new EbbesEntity(Id: id6, Title: Title6));
+        foreach (var idx in System.Linq.Enumerable.Range(100, 50)) {
+            sut.Ebbes.Add(new EbbesEntity(Id: Guid.NewGuid(), Title: idx.ToString()));
+        }
+        Assert.Equal(5 + 50 + 1 + 50, sut.Ebbes.Count);
+        sut.TrackingChanges.Undo(to);
+        Assert.Equal(5 + 50 + 0 + 50, sut.Ebbes.Count);
+        var mockITrackingTransConnection = new Mock<ITrackingTransConnection>();
+        await sut.ApplyChangesAsync(
+            mockITrackingTransConnection.Object
+        );
     }
 
     [Fact]
@@ -97,14 +135,14 @@ public class TrackingContextTest {
 
         var chg = sut.TrackingChanges.Changes[0];
         Assert.Equal(TrackingStatus.Modified, chg.Status);
-        Assert.Equal(TrackingStatus.Modified, chg.TrackingObject.Status);
-        Assert.Equal(Title1V2, ((EbbesEntity)chg.TrackingObject.GetValue()).Title);
+        Assert.Equal(TrackingStatus.Modified, chg.Status);
+        Assert.Equal(Title1V2, ((EbbesEntity)chg.GetValue()).Title);
     }
 
     [Fact]
     public void TrackingContext_004_Update_UnknownKey() {
         var sut = CreateTrackingContext();
-        Assert.Throws<System.InvalidOperationException>(() => {
+        Assert.Throws<InvalidOperationException>(() => {
             sut.Ebbes.Update(new EbbesEntity(Id: id6, Title: Title6));
         });
     }
@@ -121,14 +159,14 @@ public class TrackingContextTest {
         {
             var chg = sut.TrackingChanges.Changes[0];
             Assert.Equal(TrackingStatus.Modified, chg.Status);
-            Assert.Equal(TrackingStatus.Modified, chg.TrackingObject.Status);
-            Assert.Equal(Title1V2, ((EbbesEntity)chg.TrackingObject.GetValue()).Title);
+            Assert.Equal(TrackingStatus.Modified, chg.Status);
+            Assert.Equal(Title1V2, ((EbbesEntity)chg.GetValue()).Title);
         }
         {
             var chg = sut.TrackingChanges.Changes[1];
             Assert.Equal(TrackingStatus.Added, chg.Status);
-            Assert.Equal(TrackingStatus.Added, chg.TrackingObject.Status);
-            Assert.Equal(Title6, ((EbbesEntity)chg.TrackingObject.GetValue()).Title);
+            Assert.Equal(TrackingStatus.Added, chg.Status);
+            Assert.Equal(Title6, ((EbbesEntity)chg.GetValue()).Title);
         }
     }
     [Fact]
@@ -141,7 +179,7 @@ public class TrackingContextTest {
 
         var chg = sut.TrackingChanges.Changes[0];
         Assert.Equal(TrackingStatus.Deleted, chg.Status);
-        Assert.Equal(TrackingStatus.Deleted, chg.TrackingObject.Status);
-        Assert.Equal(Title1, ((EbbesEntity)chg.TrackingObject.GetValue()).Title);
+        Assert.Equal(TrackingStatus.Deleted, chg.Status);
+        Assert.Equal(Title1, ((EbbesEntity)chg.GetValue()).Title);
     }
 }

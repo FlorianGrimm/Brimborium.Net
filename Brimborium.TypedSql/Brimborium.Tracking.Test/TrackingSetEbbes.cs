@@ -1,23 +1,28 @@
-﻿namespace Brimborium.Tracking.Test;
+﻿namespace Brimborium.Tracking;
 
 public sealed class TrackingSetEbbes : TrackingSet<EbbesPK, EbbesEntity> {
-    public TrackingSetEbbes(Test1TrackingContext context, ITrackingSetApplyChanges<EbbesEntity> trackingApplyChanges)
-        : base(
+    public TrackingSetEbbes(
+        Test1TrackingContext trackingContext,
+        ITrackingSetApplyChanges<EbbesEntity>? trackingApplyChanges = default
+        ) : base(
             extractKey: EbbesUtiltiy.Instance,
             comparer: EbbesUtiltiy.Instance,
-            trackingContext: context,
-            trackingApplyChanges: trackingApplyChanges) {
+            trackingContext: trackingContext,
+            trackingApplyChanges: trackingApplyChanges ?? TrackingSetApplyChangesEbbes.Instance) {
 
     }
 }
 
-public sealed class TrackingSetApplyChangesEbbes : TrackingSetApplyChangesBase<EbbesEntity, EbbesPK> {
+public sealed class TrackingSetApplyChangesEbbes
+    : TrackingSetApplyChangesBase<EbbesEntity, EbbesPK> {
     private static TrackingSetApplyChangesEbbes? _Instance;
     public static TrackingSetApplyChangesEbbes Instance => _Instance ??= new TrackingSetApplyChangesEbbes();
 
-    private TrackingSetApplyChangesEbbes() : base() { }
+    private TrackingSetApplyChangesEbbes() 
+        : base(EbbesUtiltiy.Instance) { 
+        }
 
-    protected override EbbesPK ExtractKey(EbbesEntity value) => value.GetPrimaryKey();
+    // protected override EbbesPK ExtractKey(EbbesEntity value) => value.GetPrimaryKey();
 
     public override Task<EbbesEntity> Insert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
         return this.Upsert(value, trackingTransaction);
@@ -45,15 +50,15 @@ public sealed class EbbesUtiltiy
     : IEqualityComparer<EbbesPK>
     , IExtractKey<EbbesEntity, EbbesPK> {
     private static EbbesUtiltiy? _Instance;
-    public static EbbesUtiltiy Instance => (_Instance ??= new EbbesUtiltiy());
+    public static EbbesUtiltiy Instance => _Instance ??= new EbbesUtiltiy();
     private EbbesUtiltiy() { }
 
     public EbbesPK ExtractKey(EbbesEntity that) => that.GetPrimaryKey();
 
     bool IEqualityComparer<EbbesPK>.Equals(EbbesPK? x, EbbesPK? y) {
-        if (object.ReferenceEquals(x, y)) {
+        if (ReferenceEquals(x, y)) {
             return true;
-        } else if ((x is null) || (y is null)) {
+        } else if (x is null || y is null) {
             return false;
         } else {
             return x.Equals(y);

@@ -1,25 +1,12 @@
 ﻿namespace Brimborium.Tracking;
 
-public class TrackingChange {
-    public TrackingChange(
-        TrackingStatus status,
-        TrackingObject trackingObject
-        ) {
-        this.Status = status;
-        this.TrackingObject = trackingObject;
-    }
-
-    public TrackingStatus Status { get; }
-    public TrackingObject TrackingObject { get; }
-}
-
 public class TrackingChanges {
     private readonly TrackingContext _TrackingContext;
-    public readonly List<TrackingChange> Changes;
+    public readonly List<TrackingObject> Changes;
 
     public TrackingChanges(TrackingContext trackingContext) {
         this._TrackingContext = trackingContext;
-        this.Changes = new List<TrackingChange>();
+        this.Changes = new List<TrackingObject>();
     }
 
     public async Task ApplyChangesAsync(
@@ -29,31 +16,56 @@ public class TrackingChanges {
         if (this.Changes.Count > 0) {
             var changes = this.Changes.ToArray();
             this.Changes.Clear();
-            foreach (var chg in changes) {
-                await chg.TrackingObject.ApplyChangesAsync(chg.Status, transConnection);
+            foreach (var to in changes) {
+                await to.ApplyChangesAsync(transConnection);
                 cancellationToken.ThrowIfCancellationRequested();
             }
             await transConnection.CommitAsync();
         }
     }
 
-    public void Add(TrackingChange change) {
+    public void Add(TrackingObject change) {
         this.Changes.Add(change);
     }
 
-    public void Remove(TrackingStatus status, TrackingObject trackingObject) {
+    public void Remove(TrackingObject trackingObject) {
         var value = trackingObject.GetValue();
         for (int idx = 0; idx < this.Changes.Count; idx++) {
-            if (this.Changes[idx].Status == status) {
-                if (ReferenceEquals(this.Changes[idx].TrackingObject.GetValue(), value)) {
-                    this.Changes.RemoveAt(idx);
-                    return;
-                }
+            if (ReferenceEquals(this.Changes[idx], trackingObject)) {
+                this.Changes.RemoveAt(idx);
+                return;
+            }
+            if (ReferenceEquals(this.Changes[idx].GetValue(), value)) {
+                this.Changes.RemoveAt(idx);
+                return;
             }
         }
     }
 
     public void Clear() {
         this.Changes.Clear();
+    }
+
+    public void Undo() {
+        for (int idx = this.Changes.Count - 1; idx >= 0; idx--) {
+            var to = this.Changes[idx];
+            to.Undo();
+        }
+    }
+
+    public void Undo(TrackingObject trackingObject) {
+        var value = trackingObject.GetValue();
+        for (int idx = 0; idx < this.Changes.Count; idx++) {
+            if (ReferenceEquals(this.Changes[idx], trackingObject)) {
+                var to = this.Changes[idx];
+                to.Undo();
+                return;
+            }
+            if (ReferenceEquals(this.Changes[idx].GetValue(), value)) {
+                var to = this.Changes[idx];
+                to.Undo();
+                return;
+            }
+        }
     }
 }

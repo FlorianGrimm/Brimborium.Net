@@ -1,4 +1,4 @@
-﻿namespace Brimborium.Tracking.Test;
+﻿namespace Brimborium.Tracking;
 
 public interface ISqlAccess {
     Task<IDataManipulationResult<EbbesEntity>> ExecuteEbbesUpsertAsync(EbbesEntity value);
