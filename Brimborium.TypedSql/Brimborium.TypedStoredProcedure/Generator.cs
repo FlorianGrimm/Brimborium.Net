@@ -129,12 +129,10 @@ public partial class Generator {
         {
             var success = sbOutputImplementation.Length == 0;
             var ctxt = new PrintContext(sbOutputImplementation);
-            sbOutputImplementation.AppendLine("#if true");
             sbOutputImplementation.AppendLine("#nullable enable");
             sbOutputImplementation.AppendLine("");
             printFileImplementation(lstUsed, printClass, storedProcedureNames, ignoreTypePropertyNames, ctxt);
             sbOutputImplementation.AppendLine("");
-            sbOutputImplementation.AppendLine("#endif");
 
             if (WriteText(outputPath, sbOutputImplementation.ToString())) {
                 Console.WriteLine($"Modfied: {outputPath}");

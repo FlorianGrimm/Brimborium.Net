@@ -10,8 +10,8 @@ public static partial class Program {
         //SQLUtility.AddTypeConverter(
         //    typeof(int),
         //    typeof(bool),
-        //    typeof(Replacement.Services.SqlHelpers.Int32Converter),
-        //    nameof(Replacement.Services.SqlHelpers.Int32Converter.ToBool));
+        //    typeof(TestOrleans2.Services.SqlHelpers.Int32Converter),
+        //    nameof(TestOrleans2.Services.SqlHelpers.Int32Converter.ToBool));
     }
 
     private static CSTypeDefinition TypeOfTManipulationResult<TManipulationResult, TRecord>() {

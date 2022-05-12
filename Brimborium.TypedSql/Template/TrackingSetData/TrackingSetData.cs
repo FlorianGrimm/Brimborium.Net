@@ -1,6 +1,6 @@
-﻿using Replacement.Contracts.Entity;
+﻿using TrackingSet.Contracts.Entity;
 
-namespace Replacement.Repository.Service;
+namespace TrackingSet.Repository.Service;
 
 public sealed class TrackingSetData : TrackingSet<DataPK, DataEntity> {
     public TrackingSetData(DBContext context, ITrackingSetApplyChanges<DataEntity> trackingApplyChanges)
