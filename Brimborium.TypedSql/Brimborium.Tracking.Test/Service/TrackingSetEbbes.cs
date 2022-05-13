@@ -1,4 +1,7 @@
-﻿namespace Brimborium.Tracking;
+﻿using Brimborium.Tracking.API;
+using Brimborium.Tracking.Entity;
+
+namespace Brimborium.Tracking.Service;
 
 public sealed class TrackingSetEbbes : TrackingSet<EbbesPK, EbbesEntity> {
     public TrackingSetEbbes(
@@ -9,7 +12,6 @@ public sealed class TrackingSetEbbes : TrackingSet<EbbesPK, EbbesEntity> {
             comparer: EbbesUtiltiy.Instance,
             trackingContext: trackingContext,
             trackingApplyChanges: trackingApplyChanges ?? TrackingSetApplyChangesEbbes.Instance) {
-
     }
 }
 
@@ -18,30 +20,33 @@ public sealed class TrackingSetApplyChangesEbbes
     private static TrackingSetApplyChangesEbbes? _Instance;
     public static TrackingSetApplyChangesEbbes Instance => _Instance ??= new TrackingSetApplyChangesEbbes();
 
-    private TrackingSetApplyChangesEbbes() 
-        : base(EbbesUtiltiy.Instance) { 
-        }
-
-    // protected override EbbesPK ExtractKey(EbbesEntity value) => value.GetPrimaryKey();
+    public long EntityVersion;
+    private TrackingSetApplyChangesEbbes()
+        : base(EbbesUtiltiy.Instance) {
+        this.EntityVersion = 1;
+    }
 
     public override Task<EbbesEntity> Insert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
-        return this.Upsert(value, trackingTransaction);
+        if (value.Title == "fail") {
+            throw new InvalidOperationException();
+        }
+        value = value with { EntityVersion = this.EntityVersion++ };
+        return Task.FromResult(value);
     }
 
     public override Task<EbbesEntity> Update(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
-        return this.Upsert(value, trackingTransaction);
+        if (value.Title == "fail") {
+            throw new InvalidOperationException();
+        }
+        value = value with { EntityVersion = this.EntityVersion++ };
+        return Task.FromResult(value);
     }
 
-    private async Task<EbbesEntity> Upsert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
-        var sqlAccess = (ISqlAccess)trackingTransaction;
-        var result = await sqlAccess.ExecuteEbbesUpsertAsync(value);
-        return this.ValidateUpsertDataManipulationResult(value, result);
-    }
-
-    public override async Task Delete(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
-        var sqlAccess = (ISqlAccess)trackingTransaction;
-        var result = await sqlAccess.ExecuteEbbesDeletePKAsync(value);
-        this.ValidateDelete(value, result);
+    public override Task Delete(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+        if (value.Title == "fail") {
+            throw new InvalidOperationException();
+        }
+        return Task.CompletedTask;
     }
 }
 
@@ -69,3 +74,4 @@ public sealed class EbbesUtiltiy
         return obj.GetHashCode();
     }
 }
+

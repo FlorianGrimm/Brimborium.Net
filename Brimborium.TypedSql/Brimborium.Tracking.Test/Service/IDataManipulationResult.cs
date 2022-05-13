@@ -1,4 +1,4 @@
-﻿namespace Brimborium.Tracking;
+﻿namespace Brimborium.Tracking.Service;
 
 public interface IDataManipulationResult<T> {
     T DataResult { get; }

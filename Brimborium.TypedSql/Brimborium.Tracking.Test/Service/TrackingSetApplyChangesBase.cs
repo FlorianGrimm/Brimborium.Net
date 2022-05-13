@@ -1,8 +1,8 @@
-﻿namespace Brimborium.Tracking;
+﻿namespace Brimborium.Tracking.Service;
 
 public abstract class TrackingSetApplyChangesBase<TValue, TPrimaryKey>
     : ITrackingSetApplyChanges<TValue>
-    where TValue : class, Brimborium.RowVersion.Entity.IEntityWithVersion
+    where TValue : class, RowVersion.Entity.IEntityWithVersion
     where TPrimaryKey : IEquatable<TPrimaryKey> {
     private string _TypeName;
     private readonly IExtractKey<TValue, TPrimaryKey> _ExtractKey;
@@ -14,7 +14,7 @@ public abstract class TrackingSetApplyChangesBase<TValue, TPrimaryKey>
         this._ExtractKey = extractKey;
     }
 
-    protected virtual TPrimaryKey ExtractKey(TValue value){
+    protected virtual TPrimaryKey ExtractKey(TValue value) {
         return this._ExtractKey.ExtractKey(value);
     }
 

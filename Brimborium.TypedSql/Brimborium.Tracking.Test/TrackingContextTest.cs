@@ -1,5 +1,9 @@
 #pragma warning disable xUnit2013 // Do not use equality check to check for collection size.
 
+using Brimborium.Tracking.API;
+using Brimborium.Tracking.Entity;
+using Brimborium.Tracking.Service;
+
 using System;
 using System.Collections.Generic;
 

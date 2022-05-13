@@ -19,12 +19,13 @@ variables:
     Brimborium.Functional\Brimborium.Functional\Brimborium.Functional.csproj
     Brimborium.RowVersion\Brimborium.RowVersion.Contracts\Brimborium.RowVersion.Contracts.csproj
     Brimborium.RowVersion\Brimborium.RowVersion\Brimborium.RowVersion.csproj
-    Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj
     Brimborium.Registrator\Brimborium.Registrator.Abstractions\Brimborium.Registrator.Abstractions.csproj
-    Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj
+    Brimborium.Registrator\Brimborium.Registrator\Brimborium.Registrator.csproj
     Brimborium.TypedSql\Brimborium.Tracking\Brimborium.Tracking.csproj
+    Brimborium.TypedSql\Brimborium.Tracking.Extensions\Brimborium.Tracking.Extensions.csproj
     Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj
     Brimborium.TypedSql\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj
+    Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj
     Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj
 
   later: |
@@ -149,6 +150,14 @@ steps:
     includesymbols: true
 
 - task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.Tracking.Extensions'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.TypedSql\Brimborium.Tracking.Extensions\Brimborium.Tracking.Extensions.csproj'
+    nobuild: false
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
   displayName: 'pack Brimborium.SqlAccess'
   inputs:
     command: 'pack'
@@ -187,7 +196,6 @@ steps:
     packagesToPack: 'Brimborium.RowVersion\Brimborium.RowVersion\Brimborium.RowVersion.csproj'
     nobuild: false
     includesymbols: true
-   
 
 - task: NuGetCommand@2
   inputs:

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Brimborium.RowVersion\Brimborium.RowVersion.Contracts\Brimborium.RowVersion.Contracts.csproj" />
+    <ProjectReference Include="..\..\Brimborium.RowVersion\Brimborium.RowVersion\Brimborium.RowVersion.csproj" />
+    <ProjectReference Include="..\Brimborium.Tracking\Brimborium.Tracking.csproj" />
+  </ItemGroup>
+
+</Project>

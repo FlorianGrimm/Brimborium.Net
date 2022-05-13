@@ -2,21 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	<ImplicitUsings>disable</ImplicitUsings>
-	<Nullable>enable</Nullable>
+    <Nullable>enable</Nullable>
+
     <IsPackable>false</IsPackable>
-    <RootNamespace>Brimborium.Tracking</RootNamespace>
+
+    <RootNamespace>Brimborium.Tracking.Extensions</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.18.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.1.2">
+    <PackageReference Include="coverlet.collector" Version="3.1.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -24,6 +24,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Brimborium.RowVersion\Brimborium.RowVersion.Contracts\Brimborium.RowVersion.Contracts.csproj" />
+    <ProjectReference Include="..\..\Brimborium.RowVersion\Brimborium.RowVersion\Brimborium.RowVersion.csproj" />
+    <ProjectReference Include="..\Brimborium.Tracking.Extensions\Brimborium.Tracking.Extensions.csproj" />
     <ProjectReference Include="..\Brimborium.Tracking\Brimborium.Tracking.csproj" />
   </ItemGroup>
 
