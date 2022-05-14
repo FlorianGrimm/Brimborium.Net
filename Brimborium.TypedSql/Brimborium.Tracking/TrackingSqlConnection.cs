@@ -35,9 +35,9 @@ public class TrackingSqlTransConnection
 
     public override async Task CommitAsync() {
         if (this._Connection is null) {
-            throw new System.InvalidOperationException("no connection");
+            throw new InvalidModificationException("no connection");
         } else if (this._Transaction is null) {
-            throw new System.InvalidOperationException("no transaction");
+            throw new InvalidModificationException("no transaction");
         } else if (this._Transaction is Microsoft.Data.SqlClient.SqlTransaction sqlTransaction) {
             await sqlTransaction.CommitAsync();
             await sqlTransaction.DisposeAsync();

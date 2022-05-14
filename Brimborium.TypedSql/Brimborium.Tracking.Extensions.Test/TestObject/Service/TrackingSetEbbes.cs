@@ -1,50 +1,47 @@
-﻿using Brimborium.Tracking.API;
-using Brimborium.Tracking.Entity;
-
-namespace Brimborium.Tracking.Service;
+﻿namespace Brimborium.Tracking.Extensions.TestObject.Service;
 
 public sealed class TrackingSetEbbes : TrackingSet<EbbesPK, EbbesEntity> {
     public TrackingSetEbbes(
-        Test1TrackingContext trackingContext,
+        DBContext trackingContext,
         ITrackingSetApplyChanges<EbbesEntity>? trackingApplyChanges = default
         ) : base(
             extractKey: EbbesUtiltiy.Instance,
             comparer: EbbesUtiltiy.Instance,
             trackingContext: trackingContext,
             trackingApplyChanges: trackingApplyChanges ?? TrackingSetApplyChangesEbbes.Instance) {
+        this.TrackingSetEvents.Add(ValidateEntityVersion<EbbesEntity>.Instance);
     }
 }
 
 public sealed class TrackingSetApplyChangesEbbes
-    : TrackingSetApplyChangesBase<EbbesEntity, EbbesPK> {
+    : ITrackingSetApplyChanges<EbbesEntity> {
     private static TrackingSetApplyChangesEbbes? _Instance;
     public static TrackingSetApplyChangesEbbes Instance => _Instance ??= new TrackingSetApplyChangesEbbes();
 
     public long EntityVersion;
-    private TrackingSetApplyChangesEbbes()
-        : base(EbbesUtiltiy.Instance) {
+    private TrackingSetApplyChangesEbbes(){
         this.EntityVersion = 1;
     }
 
-    public override Task<EbbesEntity> Insert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public Task<EbbesEntity> Insert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
         if (value.Title == "fail") {
-            throw new InvalidModificationException("Insert");
+            throw new InvalidModificationException("fail");
         }
         value = value with { EntityVersion = this.EntityVersion++ };
         return Task.FromResult(value);
     }
 
-    public override Task<EbbesEntity> Update(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public Task<EbbesEntity> Update(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
         if (value.Title == "fail") {
-            throw new InvalidModificationException("Update");
+            throw new InvalidModificationException("fail");
         }
         value = value with { EntityVersion = this.EntityVersion++ };
         return Task.FromResult(value);
     }
 
-    public override Task Delete(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public Task Delete(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
         if (value.Title == "fail") {
-            throw new InvalidModificationException("Delete");
+            throw new InvalidModificationException("fail");
         }
         return Task.CompletedTask;
     }

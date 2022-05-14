@@ -165,8 +165,9 @@ public class TrackingSet<TKey, TValue>
     public override TrackingObject<TValue> Add(TValue value) {
         var key = this._ExtractKey.ExtractKey(value);
         if (this._Items.TryGetValue(key, out var result)) {
-            throw new InvalidOperationException($"dupplicate key:{key}");
+            throw new InvalidModificationException($"dupplicate key:{key}");
         } else {
+            this.OnAdding(value);
             result = new TrackingObject<TValue>(
                value: value,
                status: TrackingStatus.Added,
@@ -200,11 +201,11 @@ public class TrackingSet<TKey, TValue>
                 return result;
             }
             if (result.Status == TrackingStatus.Deleted) {
-                throw new InvalidOperationException("item is already deleted.");
+                throw new InvalidModificationException("item is already deleted.");
             }
-            throw new InvalidOperationException($"unknown status {result.Status}");
+            throw new InvalidModificationException($"unknown status {result.Status}");
         } else {
-            throw new InvalidOperationException($"item:{key} does not exists.");
+            throw new InvalidModificationException($"item:{key} does not exists.");
         }
     }
 
@@ -230,9 +231,9 @@ public class TrackingSet<TKey, TValue>
                 return result;
             }
             if (result.Status == TrackingStatus.Deleted) {
-                throw new InvalidOperationException("item is already deleted.");
+                throw new InvalidModificationException("item is already deleted.");
             }
-            throw new InvalidOperationException($"unknown state:{result.Status}");
+            throw new InvalidModificationException($"unknown state:{result.Status}");
         } else {
             this.OnAdding(value);
             result = new TrackingObject<TValue>(
@@ -260,7 +261,7 @@ public class TrackingSet<TKey, TValue>
             }
             if (result.Status == TrackingStatus.Deleted) {
                 // already deleted, but found???
-                throw new InvalidOperationException("item not found.");
+                throw new InvalidModificationException("item not found.");
             }
             if (result.Status == TrackingStatus.Added) {
                 // created and deleted
@@ -279,14 +280,14 @@ public class TrackingSet<TKey, TValue>
                 return;
             }
             if (result.Status == TrackingStatus.Deleted) {
-                throw new InvalidOperationException("item Delete found.");
+                throw new InvalidModificationException("item Delete found.");
             }
-            throw new InvalidOperationException($"unknown state:{result.Status}");
+            throw new InvalidModificationException($"unknown state:{result.Status}");
             //} else {
-            //    throw new InvalidOperationException("item not found.");
+            //    throw new InvalidModificationException("item not found.");
             //}
         } else {
-            throw new InvalidOperationException("item not found.");
+            throw new InvalidModificationException("item not found.");
         }
     }
 
@@ -311,7 +312,7 @@ public class TrackingSet<TKey, TValue>
     public override void Delete(TrackingObject<TValue> trackingObject) {
         //base.Delete(trackingObject);
         if (!ReferenceEquals(trackingObject.TrackingSet, this)) {
-            throw new InvalidOperationException("wrong TrackingSet");
+            throw new InvalidModificationException("wrong TrackingSet");
         } else {
             var key = this._ExtractKey.ExtractKey(trackingObject.Value);
             if (this._Items.TryGetValue(key, out var found)) {
@@ -342,7 +343,7 @@ public class TrackingSet<TKey, TValue>
                     return;
                 }
             } else {
-                throw new InvalidOperationException("item not found.");
+                throw new InvalidModificationException("item not found.");
             }
         }
     }
@@ -374,21 +375,21 @@ public class TrackingSet<TKey, TValue>
     }
 
     public virtual void OnAdding(TValue value) {
-        for (int idx = 0; idx <= this._TrackingSetEvents.Count; idx++) {
+        for (int idx = 0; idx < this._TrackingSetEvents.Count; idx++) {
             var trackingSetEvent = this._TrackingSetEvents[idx];
             trackingSetEvent.OnAdding(value: value, trackingSet: this, trackingContext: this.TrackingContext);
         }
     }
 
     public virtual void OnUpdating(TValue newValue, TValue oldValue, TrackingStatus oldTrackingStatus) {
-        for (int idx = 0; idx <= this._TrackingSetEvents.Count; idx++) {
+        for (int idx = 0; idx < this._TrackingSetEvents.Count; idx++) {
             var trackingSetEvent = this._TrackingSetEvents[idx];
             trackingSetEvent.OnUpdating(newValue: newValue, oldValue: oldValue, oldTrackingStatus: oldTrackingStatus, trackingSet: this, trackingContext: this.TrackingContext);
         }
     }
 
     public virtual void OnDeleting(TValue newValue, TValue oldValue, TrackingStatus oldTrackingStatus) {
-        for (int idx = 0; idx <= this._TrackingSetEvents.Count; idx++) {
+        for (int idx = 0; idx < this._TrackingSetEvents.Count; idx++) {
             var trackingSetEvent = this._TrackingSetEvents[idx];
             trackingSetEvent.OnDeleting(newValue: newValue, oldValue: oldValue, oldTrackingStatus: oldTrackingStatus, trackingSet: this, trackingContext: this.TrackingContext);
         }

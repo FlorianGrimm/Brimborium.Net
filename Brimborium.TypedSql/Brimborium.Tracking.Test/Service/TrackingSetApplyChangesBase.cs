@@ -39,9 +39,9 @@ public abstract class TrackingSetApplyChangesBase<TValue, TPrimaryKey>
             return result.DataResult;
         }
         if (result.OperationResult.ResultValue == ResultValue.RowVersionMismatch) {
-            throw new InvalidOperationException($"RowVersionMismatch {value.EntityVersion}!={result.DataResult.EntityVersion}");
+            throw new InvalidModificationException($"RowVersionMismatch {value.EntityVersion}!={result.DataResult.EntityVersion}");
         }
-        throw new InvalidOperationException($"Unknown error {result.OperationResult.ResultValue} {this._TypeName} {this.ExtractKey(value)}");
+        throw new InvalidModificationException($"Unknown error {result.OperationResult.ResultValue} {this._TypeName} {this.ExtractKey(value)}");
     }
 
     protected void ValidateDelete(
@@ -53,10 +53,10 @@ public abstract class TrackingSetApplyChangesBase<TValue, TPrimaryKey>
             if (pkValue.Equals(result[0])) {
                 return;
             } else {
-                throw new InvalidOperationException($"Unknown error {this._TypeName}: {result[0]} != {pkValue}");
+                throw new InvalidModificationException($"Unknown error {this._TypeName}: {result[0]} != {pkValue}");
             }
         } else {
-            throw new InvalidOperationException($"Cannot delete {this._TypeName}: {result.FirstOrDefault()}");
+            throw new InvalidModificationException($"Cannot delete {this._TypeName}: {result.FirstOrDefault()}");
         }
     }
 }

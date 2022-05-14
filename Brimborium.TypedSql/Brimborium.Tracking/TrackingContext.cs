@@ -20,7 +20,7 @@ public class TrackingContext
         if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
             return ((TrackingSet<TValue>)trackingSet).Attach(item);
         } else {
-            throw new InvalidOperationException();
+            throw new InvalidModificationException("Unknown type");
         }
     }
 
@@ -29,7 +29,7 @@ public class TrackingContext
         if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
             return ((TrackingSet<TValue>)trackingSet).Add(item);
         } else {
-            throw new InvalidOperationException();
+            throw new InvalidModificationException("Unknown type");
         }
     }
 
@@ -38,7 +38,7 @@ public class TrackingContext
         if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
             return ((TrackingSet<TValue>)trackingSet).Update(item);
         } else {
-            throw new InvalidOperationException();
+            throw new InvalidModificationException("Unknown type");
         }
     }
 
@@ -47,7 +47,7 @@ public class TrackingContext
         if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
             return ((TrackingSet<TValue>)trackingSet).Upsert(item);
         } else {
-            throw new InvalidOperationException();
+            throw new InvalidModificationException("Unknown type");
         }
     }
 

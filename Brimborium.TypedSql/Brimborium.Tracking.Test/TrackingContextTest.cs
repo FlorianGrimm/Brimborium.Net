@@ -55,7 +55,7 @@ public class TrackingContextTest {
 
     [Fact]
     public void TrackingContext_001_Attach_WrongType() {
-        Assert.Throws<InvalidOperationException>(
+        Assert.Throws<InvalidModificationException>(
             () => {
                 var sut = new Test1TrackingContext();
                 sut.Attach(new Ebbes(id1, Title1));
@@ -146,7 +146,7 @@ public class TrackingContextTest {
     [Fact]
     public void TrackingContext_004_Update_UnknownKey() {
         var sut = CreateTrackingContext();
-        Assert.Throws<InvalidOperationException>(() => {
+        Assert.Throws<InvalidModificationException>(() => {
             sut.Ebbes.Update(new EbbesEntity(Id: id6, Title: Title6));
         });
     }

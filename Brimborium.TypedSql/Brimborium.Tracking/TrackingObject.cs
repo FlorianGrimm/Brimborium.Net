@@ -92,7 +92,7 @@ public class TrackingObject<TValue>
         } else if (this.Status == TrackingStatus.Deleted) {
             await this.TrackingSet.TrackingApplyChanges.Delete(this.Value, transConnection);
         } else {
-            throw new System.InvalidOperationException($"{this.Status} unknown.");
+            throw new InvalidModificationException($"{this.Status} unknown.");
         }
     }
 
@@ -117,7 +117,6 @@ public class TrackingObject<TValue>
                 return;
             } 
         }
-        throw new System.InvalidOperationException($"{this._OrginalStatus}-{this._Status} unknown.");
-
+        throw new InvalidModificationException($"{this._OrginalStatus}-{this._Status} unknown.");
     }
 }
