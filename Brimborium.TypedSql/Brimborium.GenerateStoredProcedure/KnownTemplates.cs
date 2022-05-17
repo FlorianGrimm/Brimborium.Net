@@ -40,8 +40,10 @@ namespace Brimborium.GenerateStoredProcedure {
             this.ColumnRowversion = new RenderTemplate<TableInfo>(
                 NameFn: t => $"ColumnRowversion.{t.GetNameQ()}",
                 Render: (data, ctxt) => {
-                    ctxt.AppendLine(
-                        $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
+                    if (data.ColumnRowversion is not null) {
+                        ctxt.AppendLine(
+                            $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
+                    }
                 }
             );
 

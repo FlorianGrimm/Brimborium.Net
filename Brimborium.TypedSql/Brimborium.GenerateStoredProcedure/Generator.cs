@@ -35,24 +35,36 @@ namespace Brimborium.GenerateStoredProcedure {
             var di = new System.IO.DirectoryInfo(outputFolder);
             var lstFileContent = di.GetFiles("*.sql", System.IO.SearchOption.AllDirectories)
                 .Select(fi => new FileContent(fi.FullName, System.IO.File.ReadAllText(fi.FullName)))
-                .Where(fc => ReplacementBindingExtension.ContainsReplace(fc.Content))
+                .OrderBy(fi => fi.FileName)
                 .ToList();
             /*
             foreach (var fc in lstFileContent) {
                 System.Console.WriteLine(fc.FileName);
             }
             */
-            return GenerateSqlCode(config, templateVariables, lstFileContent, WriteText, isForce);
+            var lstFileContentGenerated = new List<FileContent>();
+            var lstFileContentReplacements = new List<FileContent>();
+            foreach (var fc in lstFileContent) {
+                if (ReplacementBindingExtension.ContainsReplace(fc.Content)) {
+                    lstFileContentReplacements.Add(fc);
+                } else {
+                    lstFileContentGenerated.Add(fc);
+                }
+            }
+            return GenerateSqlCode(config, templateVariables, lstFileContentGenerated, lstFileContentReplacements, WriteText, isForce);
         }
 
         public static bool GenerateSqlCode(
             ConfigurationBound config,
             Dictionary<string, string> templateVariables,
-            List<FileContent> lstFileContent,
-            Func<string, string, bool> writeText, 
+            List<FileContent> lstFileContentGenerated,
+            List<FileContent> lstFileContentReplacements,
+            Func<string, string, bool> writeText,
             bool isForce) {
             var result = false;
-            var dctFileContent = lstFileContent.ToDictionary(fc=>fc.FileName, StringComparer.OrdinalIgnoreCase);
+            var dctFileContent = lstFileContentReplacements.ToDictionary(fc => fc.FileName, StringComparer.OrdinalIgnoreCase);
+
+            System.Exception? lastError = null;
             var renderGenerator = new RenderGenerator(config.ReplacementBindings, templateVariables);
             foreach (var renderBinding in config.RenderBindings) {
                 var boundVariables = new Dictionary<string, string>(templateVariables);
@@ -64,30 +76,57 @@ namespace Brimborium.GenerateStoredProcedure {
                     System.Console.WriteLine($"skip: {outputFilename}");
                     continue;
                 }
-                // System.Console.WriteLine(outputFilename);
-                var fileContent = lstFileContent.FirstOrDefault(fc => string.Equals(fc.FileName, outputFilename, StringComparison.OrdinalIgnoreCase));
-                if (fileContent is not null) {
-                    lstFileContent.Remove(fileContent);
+                var codeIdentity = renderBinding.GetCodeIdentity();
+                if (!string.IsNullOrEmpty(codeIdentity)) {
+                    var fileContentGenerated = lstFileContentGenerated.FirstOrDefault(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase));
+                    if (fileContentGenerated is not null) {
+                        System.Console.WriteLine($"redirect {outputFilename}->{fileContentGenerated.FileName}");
+                        outputFilename = fileContentGenerated.FileName;
+                    }
                 }
-                var sbOutput = new StringBuilder();
-                var printCtxt = new PrintContext(sbOutput, boundVariables);
-                renderBinding.Render(printCtxt);
-                var (changed, content) = ReplacementBindingExtension.Replace(sbOutput.ToString(), renderGenerator.GetValue);
-                if (writeText(outputFilename, content)) {
-                    Console.WriteLine($"changed: {outputFilename}");
-                    result = true;
-                } else {
-                    Console.WriteLine($"ok     : {outputFilename}");
+
+                // System.Console.WriteLine(outputFilename);
+                var fileContent = lstFileContentReplacements.FirstOrDefault(fc => string.Equals(fc.FileName, outputFilename, StringComparison.OrdinalIgnoreCase));
+                if (fileContent is not null) {
+                    lstFileContentReplacements.Remove(fileContent);
+                }
+                try {
+                    var sbOutput = new StringBuilder();
+                    var printCtxt = new PrintContext(sbOutput, boundVariables);
+                    renderBinding.Render(printCtxt);
+                    var (changed, content) = ReplacementBindingExtension.Replace(sbOutput.ToString(), renderGenerator.GetValue);
+                    if (writeText(outputFilename, content)) {
+                        Console.WriteLine($"changed: {outputFilename}");
+                        result = true;
+                    } else {
+                        Console.WriteLine($"ok     : {outputFilename}");
+                    }
+                } catch (System.Exception error) {
+                    lastError = error;
+                    Console.WriteLine($"error     : {outputFilename}");
+                    System.Console.Error.WriteLine(error.ToString());
+                    Console.WriteLine($"error     : {outputFilename}");
                 }
             }
-            foreach (var fileContent in lstFileContent) {
-                var outputFilename = fileContent.FileName;
-                var (changed, content) = ReplacementBindingExtension.Replace(fileContent.Content, renderGenerator.GetValue);
-                if (changed && writeText(outputFilename, content)) {
-                    Console.WriteLine($"changed: {outputFilename}");
-                    result = true;
-                } else {
-                    Console.WriteLine($"ok     : {outputFilename}");
+
+            foreach (var fileContent in lstFileContentReplacements) {
+                try {
+                    var outputFilename = fileContent.FileName;
+                    var (changed, content) = ReplacementBindingExtension.Replace(fileContent.Content, renderGenerator.GetValue);
+                    if (changed && writeText(outputFilename, content)) {
+                        Console.WriteLine($"changed: {outputFilename}");
+                        result = true;
+                    } else {
+                        Console.WriteLine($"ok     : {outputFilename}");
+                    }
+                } catch (System.Exception error) {
+                    lastError = error;
+                    Console.WriteLine($"error     : {fileContent.FileName}");
+                    System.Console.Error.WriteLine(error.ToString());
+                    Console.WriteLine($"error     : {fileContent.FileName}");
+                }
+                if (lastError is not null) {
+                    throw lastError;
                 }
             }
             return result;
@@ -138,8 +177,16 @@ namespace Brimborium.GenerateStoredProcedure {
                     }
                 }
 
+                if (indexPrimaryKey is null) {
+                    System.Console.WriteLine($"hint: no PrimaryKey {table.Schema}.{table.Name}");
+                }
+                if (columnRowversion is null) {
+                    System.Console.WriteLine($"hint: no columnRowversion {table.Schema}.{table.Name}");
+                }
+
                 if (indexPrimaryKey is not null
-                    && columnRowversion is not null) {
+                    //&& columnRowversion is not null
+                    ) {
                     bool clusteredIndexContainsPrimaryKey;
                     if (indexClustered is null) {
                         clusteredIndexContainsPrimaryKey = false;
@@ -160,6 +207,7 @@ namespace Brimborium.GenerateStoredProcedure {
                         clusteredIndexContainsPrimaryKey,
                         lstIndexes
                         ));
+                } else {
                 }
             }
             var dctTables = lstTables.ToDictionary(ti => ti.GetNameQ(), ti => ti, StringComparer.OrdinalIgnoreCase);
@@ -171,22 +219,23 @@ namespace Brimborium.GenerateStoredProcedure {
                     var dctColumns = tableInfo.Columns.ToDictionary(c => c.Name, c => c, StringComparer.OrdinalIgnoreCase);
 
                     foreach (ForeignKey foreignKey in table.ForeignKeys) {
-                        var tableInfoReferenced = dctTables[$"[{foreignKey.ReferencedTableSchema}].[{foreignKey.ReferencedTable}]"];
-                        var lstForeignKeyColumns = foreignKey.Columns.Cast<ForeignKeyColumn>()
-                            .OrderBy(fkc => fkc.ID)
-                            .Select(fkc => dctColumns[fkc.Name])
-                            .ToList();
-                        var referencedKeyName = foreignKey.ReferencedKey;
-                        var indexInfoReferenced = tableInfoReferenced.Indices.Single(i => string.Equals(i.Name, referencedKeyName, StringComparison.OrdinalIgnoreCase));
-                        var foreignKeyInfo = ForeignKeyInfo.Create(
-                                foreignKey,
-                                tableInfo,
-                                lstForeignKeyColumns,
-                                tableInfoReferenced,
-                                indexInfoReferenced
-                            );
-                        tableInfo.ForeignKeys.Add(foreignKeyInfo);
-                        tableInfoReferenced.ForeignKeysReferenced.Add(foreignKeyInfo);
+                        if (dctTables.TryGetValue($"[{foreignKey.ReferencedTableSchema}].[{foreignKey.ReferencedTable}]", out var tableInfoReferenced)) {
+                            var lstForeignKeyColumns = foreignKey.Columns.Cast<ForeignKeyColumn>()
+                                .OrderBy(fkc => fkc.ID)
+                                .Select(fkc => dctColumns[fkc.Name])
+                                .ToList();
+                            var referencedKeyName = foreignKey.ReferencedKey;
+                            var indexInfoReferenced = tableInfoReferenced.Indices.Single(i => string.Equals(i.Name, referencedKeyName, StringComparison.OrdinalIgnoreCase));
+                            var foreignKeyInfo = ForeignKeyInfo.Create(
+                                    foreignKey,
+                                    tableInfo,
+                                    lstForeignKeyColumns,
+                                    tableInfoReferenced,
+                                    indexInfoReferenced
+                                );
+                            tableInfo.ForeignKeys.Add(foreignKeyInfo);
+                            tableInfoReferenced.ForeignKeysReferenced.Add(foreignKeyInfo);
+                        }
                     }
                 }
             }

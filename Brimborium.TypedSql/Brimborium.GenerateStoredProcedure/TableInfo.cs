@@ -9,7 +9,7 @@ namespace Brimborium.GenerateStoredProcedure {
             string Schema,
             string Name,
             List<ColumnInfo> Columns,
-            ColumnInfo ColumnRowversion,
+            ColumnInfo? ColumnRowversion,
             IndexInfo IndexPrimaryKey,
             IndexInfo? IndexClustered,
             bool ClusteredIndexContainsPrimaryKey,
@@ -20,7 +20,7 @@ namespace Brimborium.GenerateStoredProcedure {
         public static TableInfo Create(
             Table table,
             List<ColumnInfo> Columns,
-            ColumnInfo ColumnRowversion,
+            ColumnInfo? ColumnRowversion,
             IndexInfo IndexPrimaryKey,
             IndexInfo? IndexClustered,
             bool clusteredIndexContainsPrimaryKey,

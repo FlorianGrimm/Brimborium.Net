@@ -9,6 +9,9 @@ namespace Brimborium.GenerateStoredProcedure {
         public virtual string GetName()
             => string.Empty;
 
+        public virtual string GetCodeIdentity()
+            => string.Empty;
+
         public virtual string GetFilename(Dictionary<string, string> boundVariables)
             => string.Empty;
 
@@ -26,7 +29,7 @@ namespace Brimborium.GenerateStoredProcedure {
     public record RenderBinding<T>(
        T Data,
        RenderTemplate<T> Template
-    ) : RenderBinding() {
+    ) : RenderBinding() {        
         public override void Render(PrintContext printContext) {
             this.Template.Render(this.Data, printContext);
         }
