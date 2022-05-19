@@ -143,7 +143,7 @@ public partial class Generator {
         }
     }
 
-    public static bool GenerateModel(
+    public static bool GeneratePrimaryKey(
         //IEnumerable<Type> types,
         string connectionString,
         string outputPath,
