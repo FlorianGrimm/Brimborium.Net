@@ -63,6 +63,9 @@ namespace Brimborium.GenerateStoredProcedure {
             bool isForce) {
             var result = false;
             var dctFileContent = lstFileContentReplacements.ToDictionary(fc => fc.FileName, StringComparer.OrdinalIgnoreCase);
+            var lstFileContent = new List<FileContent>(lstFileContentGenerated.Count + lstFileContentReplacements.Count);
+            lstFileContent.AddRange(lstFileContentGenerated);
+            lstFileContent.AddRange(lstFileContentReplacements);
 
             System.Exception? lastError = null;
             var renderGenerator = new RenderGenerator(config.ReplacementBindings, templateVariables);
@@ -78,10 +81,10 @@ namespace Brimborium.GenerateStoredProcedure {
                 }
                 var codeIdentity = renderBinding.GetCodeIdentity();
                 if (!string.IsNullOrEmpty(codeIdentity)) {
-                    var fileContentGenerated = lstFileContentGenerated.FirstOrDefault(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase));
-                    if (fileContentGenerated is not null) {
-                        System.Console.WriteLine($"redirect {outputFilename}->{fileContentGenerated.FileName}");
-                        outputFilename = fileContentGenerated.FileName;
+                    var fileContentFound = lstFileContent.FirstOrDefault(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase));
+                    if (fileContentFound is not null) {
+                        System.Console.WriteLine($"redirect {outputFilename}->{fileContentFound.FileName}");
+                        outputFilename = fileContentFound.FileName;
                     }
                 }
 
