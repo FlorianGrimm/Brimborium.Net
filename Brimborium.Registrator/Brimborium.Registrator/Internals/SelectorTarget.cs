@@ -39,13 +39,26 @@ namespace Brimborium.Registrator {
                             strategy.Apply(services, descriptor);
                         }
                         if (servicePopulation.ServiceTypes.Length > 0) {
-                            Func<IServiceProvider, object> factory = (new FactoryOfType(implementationType)).factory;
+                            Func<IServiceProvider, object>? factory = null;
                             foreach (var serviceType in servicePopulation.ServiceTypes) {
-                                var descriptor = new ServiceDescriptor(
-                                    serviceType,
-                                    factory,
-                                    servicePopulation.Lifetime.GetValueOrDefault(ServiceLifetime.Transient));
-                                strategy.Apply(services, descriptor);
+                                if (serviceType.Equals(implementationType)) {
+                                    /*
+                                    var descriptor = new ServiceDescriptor(
+                                        implementationType,
+                                        implementationType,
+                                        servicePopulation.Lifetime.GetValueOrDefault(ServiceLifetime.Transient));
+                                    strategy.Apply(services, descriptor);
+                                    */
+                                } else {
+                                    if (factory is null) {
+                                        factory = (new FactoryOfType(implementationType)).factory;
+                                    }
+                                    var descriptor = new ServiceDescriptor(
+                                        serviceType,
+                                        factory,
+                                        servicePopulation.Lifetime.GetValueOrDefault(ServiceLifetime.Transient));
+                                    strategy.Apply(services, descriptor);
+                                }
                             }
                         }
                     }
@@ -79,13 +92,26 @@ namespace Brimborium.Registrator {
                                 strategy.Apply(services, descriptor);
                             }
                             if (hsServiceTypes.Count > 0) {
-                                Func<IServiceProvider, object> factory = (new FactoryOfType(implementationType)).factory;
+                                Func<IServiceProvider, object>? factory = null;
                                 foreach (var serviceType in hsServiceTypes) {
-                                    var descriptor = new ServiceDescriptor(
-                                        serviceType, 
-                                        factory, 
-                                        servicePopulation.Lifetime.GetValueOrDefault(ServiceLifetime.Transient));
-                                    strategy.Apply(services, descriptor);
+                                    if (serviceType.Equals(implementationType)) {
+                                        /*
+                                        var descriptor = new ServiceDescriptor(
+                                            implementationType,
+                                            implementationType,
+                                            servicePopulation.Lifetime.GetValueOrDefault(ServiceLifetime.Transient));
+                                        strategy.Apply(services, descriptor);
+                                        */
+                                    } else {
+                                        if (factory is null) {
+                                            factory = (new FactoryOfType(implementationType)).factory;
+                                        }
+                                        var descriptor = new ServiceDescriptor(
+                                            serviceType,
+                                            factory,
+                                            servicePopulation.Lifetime.GetValueOrDefault(ServiceLifetime.Transient));
+                                        strategy.Apply(services, descriptor);
+                                    }
                                 }
                             }
                         }
