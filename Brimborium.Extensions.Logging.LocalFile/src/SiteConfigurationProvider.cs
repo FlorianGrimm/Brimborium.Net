@@ -8,14 +8,16 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 
 public class SiteConfigurationProvider
 {
-    public static IConfiguration GetAzureLoggingConfiguration(IWebAppContext context)
+    public static IConfiguration GetAzureLoggingConfiguration(IWebAppContext context, string configurationFile)
     {
         var settingsFolder = Path.Combine(context.HomeFolder, "site", "diagnostics");
         var settingsFile = Path.Combine(settingsFolder, "settings.json");
-
-        return new ConfigurationBuilder()
+        var configurationBuilder=new ConfigurationBuilder()
             .AddEnvironmentVariables()
-            .AddJsonFile(settingsFile, optional: true, reloadOnChange: true)
-            .Build();
+        if (!string.IsNullOrEmpty(configurationFile)){
+            configurationBuilder
+                .AddJsonFile(configurationFile, optional: true, reloadOnChange: true);
+        }
+        return configurationBuilder.Build();
     }
 }

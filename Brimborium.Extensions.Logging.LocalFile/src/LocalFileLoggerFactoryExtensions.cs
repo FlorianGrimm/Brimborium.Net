@@ -27,7 +27,7 @@ public static class LocalFileLoggerFactoryExtensions {
         var context = WebAppContext.Default;
 
         // Only add the provider if we're in Azure WebApp. That cannot change once the apps started
-        return builder.AddWebAppDiagnostics(context, _ => { });
+        return builder.AddWebAppDiagnostics(context, "appsettings.json", _ => { });
     }
 
     /// <summary>
@@ -36,20 +36,20 @@ public static class LocalFileLoggerFactoryExtensions {
     /// <param name="builder">The extension method argument.</param>
     /// <param name="configureBlobLoggerOptions">An Action to configure the <see cref="AzureBlobLoggerOptions"/>.</param>
     /// <returns></returns>
-    public static ILoggingBuilder AddWebAppDiagnostics(this ILoggingBuilder builder, Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
+    public static ILoggingBuilder AddWebAppDiagnostics(this ILoggingBuilder builder, string configurationFile, Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
         var context = WebAppContext.Default;
 
         // Only add the provider if we're in Azure WebApp. That cannot change once the apps started
-        return builder.AddWebAppDiagnostics(context, configureBlobLoggerOptions);
+        return builder.AddWebAppDiagnostics(context, configurationFile, configureBlobLoggerOptions);
     }
 
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static ILoggingBuilder AddWebAppDiagnostics(this ILoggingBuilder builder, IWebAppContext context, Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
+    public static ILoggingBuilder AddWebAppDiagnostics(this ILoggingBuilder builder, IWebAppContext context, string configurationFile, Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
         var isRunningInAzureWebApp = context.IsRunningInAzureWebApp;
 
         builder.AddConfiguration();
 
-        var config = SiteConfigurationProvider.GetAzureLoggingConfiguration(context);
+        var config = SiteConfigurationProvider.GetAzureLoggingConfiguration(context,  configurationFile);
         var services = builder.Services;
 
         var addedAzureFileLogger = (isRunningInAzureWebApp) && TryAddEnumerable(services, Singleton<ILoggerProvider, AzureAppServicesFileLoggerProvider>());
