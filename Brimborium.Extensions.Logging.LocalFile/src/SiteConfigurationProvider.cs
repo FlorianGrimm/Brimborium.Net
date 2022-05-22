@@ -13,7 +13,7 @@ public class SiteConfigurationProvider
         var settingsFolder = Path.Combine(context.HomeFolder, "site", "diagnostics");
         var settingsFile = Path.Combine(settingsFolder, "settings.json");
         var configurationBuilder=new ConfigurationBuilder()
-            .AddEnvironmentVariables()
+            .AddEnvironmentVariables();
         if (!string.IsNullOrEmpty(configurationFile)){
             configurationBuilder
                 .AddJsonFile(configurationFile, optional: true, reloadOnChange: true);
