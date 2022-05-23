@@ -19,7 +19,7 @@ public class AzureDiagnosticsConfigurationProviderTests
         contextMock.SetupGet(c => c.HomeFolder)
             .Returns(tempFolder);
 
-        var config = SiteConfigurationProvider.GetAzureLoggingConfiguration(contextMock.Object);
+        var config = SiteConfigurationProvider.GetAzureLoggingConfiguration(contextMock.Object, "");
 
         Assert.NotNull(config);
     }
@@ -45,7 +45,7 @@ public class AzureDiagnosticsConfigurationProviderTests
             contextMock.SetupGet(c => c.HomeFolder)
                 .Returns(tempFolder);
 
-            var config = SiteConfigurationProvider.GetAzureLoggingConfiguration(contextMock.Object);
+            var config = SiteConfigurationProvider.GetAzureLoggingConfiguration(contextMock.Object, "");
 
             Assert.Equal("test value", config["key"]);
             Assert.Equal("USEFUL_VALUE", config["RANDOM_ENVIRONMENT_VARIABLE"]);
