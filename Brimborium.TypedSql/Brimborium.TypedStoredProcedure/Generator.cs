@@ -145,122 +145,6 @@ public partial class Generator {
         }
     }
 
-    public static bool GeneratePrimaryKey(
-        //IEnumerable<Type> types,
-        string connectionString,
-        string outputPath,
-        //DatabaseDefintion dbDef,
-        PrintClass printClass) {
-
-        var sbOutputImplementation = new StringBuilder();
-
-        using var connection = new SqlConnection(connectionString);
-        var serverConnection = new ServerConnection(connection);
-        var server = new Server(serverConnection);
-        var database = server.Databases[connection.Database];
-        var lstTablePrimaryKey = database.Tables.Cast<Table>().OrderBy(table => table.Schema).ThenBy(table => table.Name).Select(table => {
-            var primaryKey = table.Indexes.Cast<Microsoft.SqlServer.Management.Smo.Index>().FirstOrDefault(index => index.IndexKeyType == IndexKeyType.DriPrimaryKey);
-            if (primaryKey is not null) {
-                foreach (var indexedColumn in primaryKey.IndexedColumns.Cast<IndexedColumn>()) {
-
-                }
-            }
-            return (table, primaryKey);
-        }).Where(t => t.primaryKey != null).ToList();
-        //printClass.ClassName
-
-        // Solvin.OneTS.Model
-        var ctxt = new PrintContext(sbOutputImplementation);
-        sbOutputImplementation.AppendLine("#if true");
-        /*
-        sbOutputImplementation.AppendLine("using System;");
-        */
-        sbOutputImplementation.AppendLine("");
-
-        sbOutputImplementation.Append("namespace ");
-        sbOutputImplementation.Append(printClass.Namespace);
-        sbOutputImplementation.AppendLine(" {");
-
-        foreach (var t in lstTablePrimaryKey) {
-            var (table, primaryKey) = t;
-            if (string.Equals(table.Schema, "sys", StringComparison.OrdinalIgnoreCase)) {
-                continue;
-            }
-            if (string.Equals(table.Name, "sysdiagrams", StringComparison.OrdinalIgnoreCase)) {
-                continue;
-            }
-            sbOutputImplementation.AppendLine($"    public sealed partial record {table.Name}PK (");
-
-            var indexedColumns = primaryKey!.IndexedColumns.Cast<IndexedColumn>().Select(c => {
-                var cName = c.Name;
-                var column = table.Columns.Cast<Column>().FirstOrDefault(column => string.Equals(column.Name, cName, StringComparison.InvariantCultureIgnoreCase));
-                if (column is null) {
-                    return string.Empty;
-                } else {
-                    var sqlDataType = column.DataType.SqlDataType;
-                    string csType;
-                    if (sqlDataType == SqlDataType.UniqueIdentifier) {
-                        csType = "Guid";
-                    } else if (sqlDataType == SqlDataType.Int) {
-                        csType = "int";
-                    } else if (sqlDataType == SqlDataType.BigInt) {
-                        csType = "long";
-                    } else if (sqlDataType == SqlDataType.Date) {
-                        csType = "System.DateTime";
-                    } else if (sqlDataType == SqlDataType.DateTime) {
-                        csType = "System.DateTime";
-                    } else if (sqlDataType == SqlDataType.DateTime2) {
-                        csType = "System.DateTime";
-                    } else if (sqlDataType == SqlDataType.VarChar) {
-                        csType = "string";
-                    } else if (sqlDataType == SqlDataType.VarCharMax) {
-                        csType = "string";
-                    } else if (sqlDataType == SqlDataType.NVarChar) {
-                        csType = "string";
-                    } else if (sqlDataType == SqlDataType.NVarCharMax) {
-                        csType = "string";
-                    } else if (sqlDataType == SqlDataType.DateTimeOffset) {
-                        csType = "System.DateTimeOffset";
-                    } else {
-                        csType = "object";
-                    }
-                    return $"{csType} {cName}";
-                }
-            }).Where(line => !string.IsNullOrEmpty(line)).ToList();
-            sbOutputImplementation.AppendLine("        " + string.Join(",\r\n        ", indexedColumns));
-            sbOutputImplementation.AppendLine("        ) : IPrimaryKey;");
-            sbOutputImplementation.AppendLine("");
-        }
-
-        sbOutputImplementation.AppendLine("}");
-        sbOutputImplementation.AppendLine("");
-        sbOutputImplementation.AppendLine("#endif");
-
-        if (WriteText(outputPath, sbOutputImplementation.ToString())) {
-            Console.WriteLine($"Modfied: {outputPath}");
-            return true;
-        } else {
-            Console.WriteLine($"not changed: {outputPath}");
-            return false;
-        }
-    }
-
-    public static bool WriteText(string fileName, string fileContent) {
-#if true
-        if (System.IO.File.Exists(fileName)) {
-            var oldContent = System.IO.File.ReadAllText(fileName);
-            if (string.CompareOrdinal(oldContent, fileContent) == 0) {
-                return false;
-            }
-        }
-        System.IO.File.WriteAllText(fileName, fileContent);
-        return true;
-#else
-            System.Console.WriteLine(fileName);
-            System.Console.WriteLine(fileContent);
-            return true;
-#endif
-    }
     private static MemberDefinition[] ConvertParameter(StoredProcedureParameterCollection parameters) {
         var result = new List<MemberDefinition>();
         foreach (StoredProcedureParameter? spParameter in parameters) {
@@ -369,7 +253,7 @@ public partial class Generator {
             methodName = $"Execute{dbSP.SP.Name}";
         }
         if (spDef_Return.IsAsync) {
-            methodName = $"{methodName }Async";
+            methodName = $"{methodName}Async";
             csAsyncModifier = "async ";
         }
         var nonArgs = spDef_Argument.IsNone()
@@ -796,7 +680,7 @@ public partial class Generator {
             if (nonmappingResults.Count > 0) {
                 ctxt.AppendLineAndError($"#warning not loaded from SQL {csReturnTypeRecord}");
                 ctxt.AppendLine($"/*");
-                var ctxtIndented = ctxt.Indented();
+                var ctxtIndented = ctxt.GetIndented();
                 ctxtIndented.AppendLine($"new TypePropertyNames(");
 
                 ctxtIndented.AppendLine($"    typeof({csReturnTypeRecord}),");
@@ -981,7 +865,57 @@ public partial class Generator {
 
     private static void printCurly(string line1, string line2, PrintContext ctxt, Action<PrintContext> inner) {
         if (string.IsNullOrEmpty(line1)) { ctxt.AppendLine($"{{"); } else { ctxt.AppendLine($"{line1} {{"); }
-        inner(ctxt.Indented());
+        inner(ctxt.GetIndented());
         if (string.IsNullOrEmpty(line2)) { ctxt.AppendLine($"}}"); } else { ctxt.AppendLine($"}} {line2}"); }
     }
+
+    public static string ConvertTypeSqlToCS(SqlDataType sqlDataType) {
+        string csType;
+        if (sqlDataType == SqlDataType.UniqueIdentifier) {
+            csType = "Guid";
+        } else if (sqlDataType == SqlDataType.Int) {
+            csType = "int";
+        } else if (sqlDataType == SqlDataType.BigInt) {
+            csType = "long";
+        } else if (sqlDataType == SqlDataType.Date) {
+            csType = "System.DateTime";
+        } else if (sqlDataType == SqlDataType.DateTime) {
+            csType = "System.DateTime";
+        } else if (sqlDataType == SqlDataType.DateTime2) {
+            csType = "System.DateTime";
+        } else if (sqlDataType == SqlDataType.VarChar) {
+            csType = "string";
+        } else if (sqlDataType == SqlDataType.VarCharMax) {
+            csType = "string";
+        } else if (sqlDataType == SqlDataType.NVarChar) {
+            csType = "string";
+        } else if (sqlDataType == SqlDataType.NVarCharMax) {
+            csType = "string";
+        } else if (sqlDataType == SqlDataType.DateTimeOffset) {
+            csType = "System.DateTimeOffset";
+        } else if (sqlDataType == SqlDataType.Timestamp) {
+            csType = "long";
+        } else {
+            csType = "object";
+        }
+        return csType;
+    }
+  
+    public static bool WriteText(string fileName, string fileContent) {
+#if true
+        if (System.IO.File.Exists(fileName)) {
+            var oldContent = System.IO.File.ReadAllText(fileName);
+            if (string.CompareOrdinal(oldContent, fileContent) == 0) {
+                return false;
+            }
+        }
+        System.IO.File.WriteAllText(fileName, fileContent);
+        return true;
+#else
+            System.Console.WriteLine(fileName);
+            System.Console.WriteLine(fileContent);
+            return true;
+#endif
+    }
+
 }
