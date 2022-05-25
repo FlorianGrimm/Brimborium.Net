@@ -119,7 +119,9 @@ public partial class Generator {
                         ? "CSTypeDefinition.None"
                         : $"CSTypeDefinition.TypeOf<{argsTypeFullName}>()"
                         ;
-                    var line = $"#warning new StoredProcedureDefintion(\"{dbSP.SPDefinition.Schema}\", \"{dbSP.SPDefinition.Name}\", {argsCSTypeDefinition}, ExecutionMode.Unknown, {returnCSTypeDefinition}),";
+                    //var line = $"#warning new StoredProcedureDefintion(\"{dbSP.SPDefinition.Schema}\", \"{dbSP.SPDefinition.Name}\", {argsCSTypeDefinition}, ExecutionMode.Unknown, {returnCSTypeDefinition}),";
+                    var line = $"storedProcedureDefintion.Add(new StoredProcedureDefintion(\"{dbSP.SPDefinition.Schema}\", \"{dbSP.SPDefinition.Name}\", {argsCSTypeDefinition}, ExecutionMode.Unknown, {returnCSTypeDefinition}));";
+                    //
                     sbOutputImplementation.AppendLine(line);
                     System.Console.Error.WriteLine(line);
                 }
@@ -533,16 +535,19 @@ public partial class Generator {
                                     ctxt.AppendLine($"this.AddParameterDecimal(cmd, \"{parameterName}\", SqlDbType.Decimal, args.{propertyName});");
                                     break;
                                 case SqlDataType.Date:
-                                    ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.Date, {maximumLength}, args.{propertyName});");
+                                    //ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.Date, {maximumLength}, args.{propertyName});");
+                                    ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.Date, args.{propertyName});");
                                     break;
                                 case SqlDataType.Time:
-                                    ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.Time, {maximumLength}, args.{propertyName});");
+                                    //ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.Time, {maximumLength}, args.{propertyName});");
+                                    ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.Time, args.{propertyName});");
                                     break;
                                 case SqlDataType.DateTimeOffset:
                                     ctxt.AppendLine($"this.AddParameterDateTimeOffset(cmd, \"{parameterName}\", args.{propertyName});");
                                     break;
                                 case SqlDataType.DateTime2:
-                                    ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.DateTime2, {maximumLength}, args.{propertyName});");
+                                    //ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.DateTime2, {maximumLength}, args.{propertyName});");
+                                    ctxt.AppendLine($"this.AddParameterDateTime(cmd, \"{parameterName}\", SqlDbType.DateTime2, args.{propertyName});");
                                     break;
                                 case SqlDataType.UserDefinedTableType:
                                     if (spDef_Argument_Member is null || spDef_Argument_Member.Type.ParameterConverter is null) {
