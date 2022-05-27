@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeGeneration", "Brimborium.CodeGeneration\Brimborium.CodeGeneration.csproj", "{0E28CA3C-8A96-44E4-B46E-E13F2B4CB5AB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeGeneration.Test", "Brimborium.CodeGeneration.Test\Brimborium.CodeGeneration.Test.csproj", "{9A4B636D-DEED-4F4D-B7D6-A5BB0F55B24D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E28CA3C-8A96-44E4-B46E-E13F2B4CB5AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E28CA3C-8A96-44E4-B46E-E13F2B4CB5AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E28CA3C-8A96-44E4-B46E-E13F2B4CB5AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E28CA3C-8A96-44E4-B46E-E13F2B4CB5AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A4B636D-DEED-4F4D-B7D6-A5BB0F55B24D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A4B636D-DEED-4F4D-B7D6-A5BB0F55B24D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A4B636D-DEED-4F4D-B7D6-A5BB0F55B24D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A4B636D-DEED-4F4D-B7D6-A5BB0F55B24D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5C1D5CA9-20F0-4573-BDD8-74531EAC8F12}
+	EndGlobalSection
+EndGlobal

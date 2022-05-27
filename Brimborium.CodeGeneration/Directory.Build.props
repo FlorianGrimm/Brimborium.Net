@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <Company></Company>
+    <Authors>Florian Grimm</Authors>
+    <Product>Brimborium.CodeFlow</Product>
+    <Title>Brimborium.CodeFlow</Title>
+    <RootDirectory>$(MSBuildThisFileDirectory)</RootDirectory>
+    <BaseIntermediateOutputPath>$(RootDirectory)output\$(MSBuildProjectName)\obj\$(PlatformName)</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(RootDirectory)output\$(MSBuildProjectName)\bin\$(PlatformName)</BaseOutputPath>
+    <LangVersion>Latest</LangVersion>
+    <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+  </PropertyGroup>
+  
+  <PropertyGroup>    
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/FlorianGrimm/Brimborium.Net/tree/main/Brimborium.CodeFlow</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/FlorianGrimm/Brimborium.Net.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <MinClientVersion>3.5</MinClientVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
+      <Version>3.5.104</Version>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
