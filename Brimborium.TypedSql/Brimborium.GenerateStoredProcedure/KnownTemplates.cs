@@ -273,9 +273,7 @@ namespace Brimborium.GenerateStoredProcedure {
             ctxt.AppendLine(")");
             if (outputBlock is not null) {
                 ctxt.AppendLine("OUTPUT");
-                ctxt.AppendIndented(
-                    data,
-                    outputBlock);
+                outputBlock(data, ctxt.GetIndented());
 
                 if (outputIntoBlock is not null) {
                     ctxt.Append("INTO ");

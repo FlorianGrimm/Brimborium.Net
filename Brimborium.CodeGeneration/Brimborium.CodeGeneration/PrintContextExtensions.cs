@@ -12,10 +12,10 @@
         //    return ctxt;
         //}
 
-        //public static PrintContext RenderTemplate<T>(this PrintContext ctxt, T data, RenderTemplate<T> template) {
-        //    template.Render(data, ctxt);
-        //    return ctxt;
-        //}
+        public static PrintContext RenderTemplate<T>(this PrintContext ctxt, T data, RenderTemplate<T> template) {
+            template.Render(data, ctxt);
+            return ctxt;
+        }
 
         public static PrintContext AppendList<T>(this PrintContext ctxt, IEnumerable<T> src, Action<T, PrintContext> render) {
             var list = src as List<T> ?? src.ToList();

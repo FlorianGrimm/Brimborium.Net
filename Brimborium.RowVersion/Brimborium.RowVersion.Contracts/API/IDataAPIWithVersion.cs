@@ -1,6 +1,9 @@
-﻿namespace Brimborium.RowVersion.API;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Brimborium.RowVersion.API;
 
 public interface IDataAPIWithVersion {
+    [Column("EntityVersion")]
     string DataVersion { get; }
 }
 
