@@ -1,16 +1,13 @@
-﻿
-using Microsoft.SqlServer.Management.Smo;
-
-using System.Collections.Generic;
+﻿using SmoIndex = Microsoft.SqlServer.Management.Smo.Index;
 
 namespace Brimborium.GenerateStoredProcedure {
     public sealed record IndexInfo(
-        Index Index,
+        SmoIndex Index,
         string Schema,
         string Name,
         List<ColumnInfo> Columns
         ) {
-        public static IndexInfo Create(Index index) {
+        public static IndexInfo Create(SmoIndex index) {
             var table = (Table)index.Parent;
             return new IndexInfo(
                 index,

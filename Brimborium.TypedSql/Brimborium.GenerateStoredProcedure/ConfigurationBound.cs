@@ -1,8 +1,4 @@
-﻿
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.GenerateStoredProcedure {
     public class ConfigurationBound {
         public ConfigurationBound() {
             this.RenderBindings = new List<RenderBinding>();

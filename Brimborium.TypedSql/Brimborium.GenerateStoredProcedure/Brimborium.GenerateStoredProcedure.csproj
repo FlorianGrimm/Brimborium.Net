@@ -18,4 +18,8 @@
 		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="161.47008.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Brimborium.CodeGeneration\Brimborium.CodeGeneration\Brimborium.CodeGeneration.csproj" />
+	</ItemGroup>
+
 </Project>

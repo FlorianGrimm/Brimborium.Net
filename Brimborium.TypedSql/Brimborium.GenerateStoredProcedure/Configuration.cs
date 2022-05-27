@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.GenerateStoredProcedure {
     public class Configuration {
         public readonly KnownTemplates KnownTemplates;
         //public readonly List<ReplacementTemplate<TableInfo>> ReplacementTableTemplates;

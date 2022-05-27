@@ -1,11 +1,11 @@
-﻿
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.GenerateStoredProcedure {
     public sealed record DatabaseInfo() {
         public List<TableInfo> Tables { get; init; } = new List<TableInfo>();
-        public List<ForeignKeyInfo> ForeignKey
-            => this.Tables.SelectMany(t => t.ForeignKeys).ToList();
+        public List<ForeignKeyInfo> ForeignKey { get; init; } = new List<ForeignKeyInfo>();
+
+        public DatabaseInfo Build() {
+            this.ForeignKey.AddRange(this.Tables.SelectMany(t => t.ForeignKeys));
+            return this;
+        }
     };
 }

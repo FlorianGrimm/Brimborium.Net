@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Brimborium.TypedStoredProcedure;
-public partial class Generator {
+public partial class GeneratorForTypedSqlAccess {
     public static bool GenerateSqlAccessWrapper(
         IEnumerable<Type> types,
         string connectionString,
@@ -877,6 +877,8 @@ public partial class Generator {
             csType = "int";
         } else if (sqlDataType == SqlDataType.BigInt) {
             csType = "long";
+        } else if (sqlDataType == SqlDataType.Bit) {
+            csType = "bool";
         } else if (sqlDataType == SqlDataType.Date) {
             csType = "System.DateTime";
         } else if (sqlDataType == SqlDataType.DateTime) {
@@ -894,9 +896,9 @@ public partial class Generator {
         } else if (sqlDataType == SqlDataType.DateTimeOffset) {
             csType = "System.DateTimeOffset";
         } else if (sqlDataType == SqlDataType.Timestamp) {
-            csType = "long";
+            csType = "byte[]";
         } else {
-            csType = "object";
+            csType = $"object /*{sqlDataType}*/";
         }
         return csType;
     }

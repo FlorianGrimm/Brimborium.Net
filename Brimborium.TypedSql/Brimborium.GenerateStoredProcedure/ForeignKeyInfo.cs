@@ -1,10 +1,4 @@
-﻿
-using Microsoft.SqlServer.Management.Smo;
-
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.GenerateStoredProcedure {
     public sealed record ForeignKeyInfo(
         ForeignKey ForeignKey,
         TableInfo TableInfo,

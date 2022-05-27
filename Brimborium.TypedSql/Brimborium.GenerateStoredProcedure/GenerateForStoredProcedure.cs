@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 
 namespace Brimborium.GenerateStoredProcedure {
-    public partial class Generator {
+    public partial class GenerateForStoredProcedure {
         public static bool GenerateSql(
             string connectionString,
             string outputFolder,

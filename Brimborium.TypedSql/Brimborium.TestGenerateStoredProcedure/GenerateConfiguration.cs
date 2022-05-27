@@ -1,4 +1,5 @@
-﻿using Brimborium.GenerateStoredProcedure;
+﻿using Brimborium.CodeGeneration;
+using Brimborium.GenerateStoredProcedure;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -6,9 +7,9 @@ using System.Linq;
 namespace Brimborium.TestGenerateStoredProcedure {
     public class GenerateConfiguration : Brimborium.GenerateStoredProcedure.Configuration {
         public readonly RenderTemplate<TableInfo> SelectPKTempate;
-        
+
         public readonly RenderTemplate<TableInfo> SelectAtTimeTempate;
-        
+
         public readonly RenderTemplate<ForeignKeyInfo> SelectByReferencedPKTempate;
 
         public record TableDataHistory(
@@ -23,7 +24,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
         public readonly RenderTemplate<TableDataHistory> UpdateTempate;
 
         public readonly RenderTemplate<TableDataHistory> DeletePKTempate;
-        
+
         public readonly List<ReplacementTemplate<TableInfo>> ReplacementTableTemplates;
 
         public GenerateConfiguration() {
@@ -50,14 +51,12 @@ namespace Brimborium.TestGenerateStoredProcedure {
                                 top: null,
                                 columnsBlock: (data, ctxt) => {
                                     ctxt.AppendList(
-                                        data.Columns,
+                                        data.ColumnsWithRowversion,
                                         (column, ctxt) => {
                                             ctxt.AppendPartsLine(
-                                                column.GetNameQ(), ","
+                                                column.GetReadNamedQ(), ctxt.IfNotLast(",")
                                                 );
                                         });
-                                    ctxt.AppendLine(
-                                        $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
                                 },
                                 fromBlock: (data, ctxt) => {
                                     ctxt.AppendLine(data.GetNameQ());
@@ -69,7 +68,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
                                             ctxt.AppendPartsLine(
                                                 ctxt.IfNotFirst(" AND "),
                                                 "(",
-                                                column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
+                                                column.GetNamePrefixed("@"), " = ", column.GetReadQ(),
                                                 ")"
                                                 );
                                         });
@@ -107,14 +106,12 @@ namespace Brimborium.TestGenerateStoredProcedure {
                                top: null,
                                columnsBlock: (data, ctxt) => {
                                    ctxt.AppendList(
-                                       data.Columns,
+                                       data.ColumnsWithRowversion,
                                        (column, ctxt) => {
                                            ctxt.AppendPartsLine(
-                                               column.GetNameQ(), ","
+                                               column.GetReadNamedQ(), ctxt.IfNotLast(",")
                                                );
                                        });
-                                   ctxt.AppendLine(
-                                       $"{data.ColumnRowversion.GetNameQ()} = CAST({data.ColumnRowversion.GetNameQ()} as BIGINT)");
                                },
                                fromBlock: (data, ctxt) => {
                                    ctxt.AppendLine(data.GetNameQ());
@@ -189,458 +186,468 @@ namespace Brimborium.TestGenerateStoredProcedure {
             this.UpdateTempate = new RenderTemplate<TableDataHistory>(
                 FileNameFn: RenderTemplateExtentsions.GetFileNameBind<TableDataHistory>(@"[Schema]\StoredProcedures\[Schema].[Name]Upsert.sql"),
                 Render: (TableDataHistory data, PrintContext ctxt) => {
+                    var tableData_ColumnRowversion = data.TableData.ColumnRowversion;
+                    if (tableData_ColumnRowversion is not null) {
+                        KnownTemplates.SqlCreateProcedure<TableDataHistory>(
+                            data,
+                            ctxt,
+                            schema: data.TableData.Table.Schema,
+                            name: $"{data.TableData.Table.Name}Upsert",
+                            parameter: (data, ctxt) => {
+                                ctxt.RenderTemplate(
+                                    (columns: data.TableData.Columns, columnRowVersion: tableData_ColumnRowversion),
+                                    KT.ColumnsAsParameterWithRowVersion
+                                    );
+                            },
+                            bodyBlock: (data, ctxt) => {
+                                ctxt.RenderTemplate(
+                                    (columns: data.TableData.Columns, columnRowVersion: tableData_ColumnRowversion, prefix: "@Current"),
+                                    KT.ColumnsAsDeclareParameterWithRowVersion
+                                    );
+                                ctxt.AppendLine("DECLARE @ResultValue INT;");
+                                ctxt.AppendLine("");
+                                KnownTemplates.SqlIf(
+                                    data,
+                                    ctxt,
+                                    condition: (data, ctxt) => {
+                                        ctxt.Append(tableData_ColumnRowversion.GetNamePrefixed("@Current")).Append(" > 0");
+                                    },
+                                    thenBlock: (data, ctxt) => {
+                                        KnownTemplates.SqlSelect(
+                                            data.TableData,
+                                            ctxt,
+                                            top: 1,
+                                            columnsBlock: (data, ctxt) => {
+                                                ctxt.AppendList(
+                                                    data.Columns,
+                                                    (column, ctxt) => {
+                                                        ctxt.AppendPartsLine(
+                                                            column.GetNamePrefixed("@Current"), " = ", column.GetReadQ(), ","
+                                                            );
+                                                    });
+                                                ctxt.AppendPartsLine(
+                                                    "(",
+                                                    tableData_ColumnRowversion.GetNamePrefixed("@Current"),
+                                                    " = ",
+                                                    tableData_ColumnRowversion.GetReadQ(),
+                                                    ")");
+                                            },
+                                            fromBlock: (data, ctxt) => {
+                                                ctxt.AppendLine(data.GetNameQ());
+                                            },
+                                            whereBlock: (data, ctxt) => {
+                                                ctxt.AppendList(
+                                                    data.PrimaryKeyColumns, // TODO FastPrimaryKeyColumns,
+                                                    (column, ctxt) => {
+                                                        ctxt.AppendPartsLine(
+                                                            ctxt.IfNotFirst(" AND "),
+                                                            "(",
+                                                            column.GetNamePrefixed("@"), " = ", column.GetReadQ(),
+                                                            ")"
+                                                            );
+                                                    });
+                                            });
+                                    },
+                                    elseBlock: (data, ctxt) => {
+                                        KnownTemplates.SqlSelect(
+                                            data.TableData,
+                                            ctxt,
+                                            top: 1,
+                                            columnsBlock: (data, ctxt) => {
+                                                ctxt.AppendPartsLine(
+                                                    "(",
+                                                    tableData_ColumnRowversion.GetNamePrefixed("@Current"),
+                                                    " = ",
+                                                    tableData_ColumnRowversion.GetReadQ(),
+                                                    ")");
+                                            },
+                                            fromBlock: (data, ctxt) => {
+                                                ctxt.AppendLine(data.GetNameQ());
+                                            },
+                                            whereBlock: (data, ctxt) => {
+                                                ctxt.AppendList(
+                                                    data.PrimaryKeyColumns, // TODO FastPrimaryKeyColumns,
+                                                    (column, ctxt) => {
+                                                        ctxt.AppendPartsLine(
+                                                            ctxt.IfNotFirst(" AND "),
+                                                            "(",
+                                                            column.GetNamePrefixed("@"), " = ", column.GetReadQ(),
+                                                            ")"
+                                                            );
+                                                    });
+                                            });
+                                    });
+                                KnownTemplates.SqlIf(
+                                    data,
+                                    ctxt,
+                                    condition: (data, ctxt) => {
+                                        ctxt.Append(
+                                            KnownTemplates.SqlIsNull(
+                                                    tableData_ColumnRowversion.GetNamePrefixed("@Current")
+                                                )
+                                            );
+                                    },
+                                    thenBlock: (data, ctxt) => {
 
-                    KnownTemplates.SqlCreateProcedure<TableDataHistory>(
-                        data,
-                        ctxt,
-                        schema: data.TableData.Table.Schema,
-                        name: $"{data.TableData.Table.Name}Upsert",
-                        parameter: (data, ctxt) => {
-                            ctxt.RenderTemplate(
-                                (columns: data.TableData.Columns, columnRowVersion: data.TableData.ColumnRowversion),
-                                KT.ColumnsAsParameterWithRowVersion
-                                );
-                        },
-                        bodyBlock: (data, ctxt) => {
-                            ctxt.RenderTemplate(
-                                (columns: data.TableData.Columns, columnRowVersion: data.TableData.ColumnRowversion, prefix: "@Current"),
-                                KT.ColumnsAsDeclareParameterWithRowVersion
-                                );
-                            ctxt.AppendLine("DECLARE @ResultValue INT;");
-                            ctxt.AppendLine("");
-                            KnownTemplates.SqlIf(
-                                data,
-                                ctxt,
-                                condition: (data, ctxt) => {
-                                    ctxt.Append(data.TableData.ColumnRowversion.GetNamePrefixed("@Current")).Append(" > 0");
-                                },
-                                thenBlock: (data, ctxt) => {
-                                    KnownTemplates.SqlSelect(
-                                        data.TableData,
-                                        ctxt,
-                                        top: 1,
-                                        columnsBlock: (data, ctxt) => {
-                                            ctxt.AppendList(
-                                                data.Columns,
-                                                (column, ctxt) => {
-                                                    ctxt.AppendPartsLine(
-                                                        column.GetNamePrefixed("@Current"), " = ", column.GetNameQ(), ","
-                                                        );
-                                                });
-                                            ctxt.AppendPartsLine(
-                                                data.ColumnRowversion.GetNamePrefixed("@Current"),
-                                                " = CAST(",
-                                                data.ColumnRowversion.GetNameQ(),
-                                                " as BIGINT)");
-                                        },
-                                        fromBlock: (data, ctxt) => {
-                                            ctxt.AppendLine(data.GetNameQ());
-                                        },
-                                        whereBlock: (data, ctxt) => {
-                                            ctxt.AppendList(
-                                                data.PrimaryKeyColumns, // TODO FastPrimaryKeyColumns,
-                                                (column, ctxt) => {
-                                                    ctxt.AppendPartsLine(
-                                                        ctxt.IfNotFirst(" AND "),
-                                                        "(",
-                                                        column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
-                                                        ")"
-                                                        );
-                                                });
-                                        });
-                                },
-                                elseBlock: (data, ctxt) => {
-                                    KnownTemplates.SqlSelect(
-                                        data.TableData,
-                                        ctxt,
-                                        top: 1,
-                                        columnsBlock: (data, ctxt) => {
-                                            ctxt.AppendPartsLine(
-                                                data.ColumnRowversion.GetNamePrefixed("@Current"),
-                                                " = CAST(",
-                                                data.ColumnRowversion.GetNameQ(),
-                                                " as BIGINT)");
-                                        },
-                                        fromBlock: (data, ctxt) => {
-                                            ctxt.AppendLine(data.GetNameQ());
-                                        },
-                                        whereBlock: (data, ctxt) => {
-                                            ctxt.AppendList(
-                                                data.PrimaryKeyColumns, // TODO FastPrimaryKeyColumns,
-                                                (column, ctxt) => {
-                                                    ctxt.AppendPartsLine(
-                                                        ctxt.IfNotFirst(" AND "),
-                                                        "(",
-                                                        column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
-                                                        ")"
-                                                        );
-                                                });
-                                        });
-                                });
-                            KnownTemplates.SqlIf(
-                                data,
-                                ctxt,
-                                condition: (data, ctxt) => {
-                                    ctxt.Append(
-                                        KnownTemplates.SqlIsNull(
-                                                data.TableData.ColumnRowversion.GetNamePrefixed("@Current")
-                                            )
-                                        );
-                                },
-                                thenBlock: (data, ctxt) => {
-
-                                    KnownTemplates.SqlInsertValues(
-                                        data,
-                                        ctxt,
-                                        target: data.TableData.GetNameQ(),
-                                        nameBlock: (data, ctxt) => {
-                                            ctxt.AppendList(
-                                                data.TableData.Columns.Where(c => !c.Identity).ToList(),
-                                                (column, ctxt) => {
-                                                    ctxt.AppendPartsLine(column.GetNameQ(), ctxt.IfNotLast(","));
-                                                }
-                                                );
-                                        },
-                                        valuesBlock: (data, ctxt) => {
-                                            ctxt.AppendList(
-                                                data.TableData.Columns.Where(c => !c.Identity).ToList(),
-                                                (column, ctxt) => {
-                                                    ctxt.AppendPartsLine(column.GetNamePrefixed("@"), ctxt.IfNotLast(","));
-                                                });
-                                        });
-                                    ctxt.AppendLine("SET @ResultValue = 1; /* Inserted */");
-                                    /* History */
-                                    KnownTemplates.SqlInsertValues(
-                                        data,
-                                        ctxt,
-                                        target: data.TableHistory.GetNameQ(),
-                                        nameBlock: (data, ctxt) => {
-                                            ctxt.AppendList(
-                                                data.ColumnPairs,
-                                                (columnPair, ctxt) => {
-                                                    ctxt.AppendPartsLine(
-                                                        columnPair.columnHistory.GetNameQ(),
-                                                        ","
-                                                        );
-                                                }
-                                                );
-                                            ctxt.AppendLine("[ValidFrom],");
-                                            ctxt.AppendLine("[ValidTo]");
-                                        },
-                                        valuesBlock: (data, ctxt) => {
-                                            ctxt.AppendList(
-                                                data.ColumnPairs,
-                                                (columnPair, ctxt) => {
-                                                    ctxt.AppendPartsLine(
-                                                        columnPair.columnData.GetNamePrefixed("@"),
-                                                        ","
-                                                        );
-                                                }
-                                                );
-                                            ctxt.AppendLine("@ModifiedAt,");
-                                            ctxt.AppendLine("CAST('3141-05-09T00:00:00Z' as datetimeoffset)");
-                                        }
-                                        );
-                                },
-                                elseBlock: (data, ctxt) => {
-                                    KnownTemplates.SqlIf(
-                                        data,
-                                        ctxt,
-                                        condition: (data, ctxt) => {
-                                            var crv = data.TableData.ColumnRowversion.GetNamePrefixed("@");
-                                            var crvCurrent = data.TableData.ColumnRowversion.GetNamePrefixed("@Current");
-                                            ctxt.AppendPartsLine("(", crv, " <= 0)");
-                                            ctxt.AppendPartsLine("OR ((0 < ", crv, ") AND (", crv, " = ", crvCurrent, "))");
-                                        },
-                                        thenBlock: (data, ctxt) => {
-                                            KnownTemplates.SqlIf(
-                                               data,
-                                               ctxt,
-                                               condition: (data, ctxt) => {
-                                                   ctxt.AppendLine("EXISTS(");
-                                                   var ctxt2 = ctxt.GetIndented();
-                                                   var ctxt3 = ctxt2.GetIndented();
-                                                   var columnsIncludedInCompare = data.TableData.Columns.Where(
-                                                       c => (c.ExtraInfo["ExcludeFromCompare"] switch {
-                                                           true => false,
-                                                           _ => true
-                                                       })).ToList();
-                                                   ctxt2.AppendLine("SELECT");
-                                                   ctxt3.AppendList(
-                                                       columnsIncludedInCompare,
-                                                       (column, ctxt) => {
-                                                           ctxt.AppendPartsLine(column.GetNamePrefixed("@"), ctxt.IfNotLast(","));
-                                                       });
-                                                   ctxt2.AppendLine("EXCEPT");
-                                                   ctxt2.AppendLine("SELECT");
-                                                   ctxt3.AppendList(
-                                                       columnsIncludedInCompare,
-                                                       (column, ctxt) => {
-                                                           ctxt.AppendPartsLine(column.GetNamePrefixed("@Current"), ctxt.IfNotLast(","));
-                                                       });
-                                                   ctxt.Append(")");
-                                               },
-                                               thenBlock: (data, ctxt) => {
-                                                   KnownTemplates.SqlUpdate(
-                                                       data,
-                                                       ctxt,
-                                                       top: 1,
-                                                       target: data.TableData.GetNameQ(),
-                                                       setBlock: (data, ctxt) => {
-                                                           ctxt.AppendList(
-                                                               data.TableData.Columns.Where(column => column.PrimaryKeyIndexPosition < 0),
-                                                               (column, ctxt) => {
+                                        KnownTemplates.SqlInsertValues(
+                                            data,
+                                            ctxt,
+                                            target: data.TableData.GetNameQ(),
+                                            nameBlock: (data, ctxt) => {
+                                                ctxt.AppendList(
+                                                    data.TableData.Columns.Where(c => !c.Identity).ToList(),
+                                                    (column, ctxt) => {
+                                                        ctxt.AppendPartsLine(column.GetNameQ(), ctxt.IfNotLast(","));
+                                                    }
+                                                    );
+                                            },
+                                            valuesBlock: (data, ctxt) => {
+                                                ctxt.AppendList(
+                                                    data.TableData.Columns.Where(c => !c.Identity).ToList(),
+                                                    (column, ctxt) => {
+                                                        ctxt.AppendPartsLine(column.GetNamePrefixed("@"), ctxt.IfNotLast(","));
+                                                    });
+                                            });
+                                        ctxt.AppendLine("SET @ResultValue = 1; /* Inserted */");
+                                        /* History */
+                                        KnownTemplates.SqlInsertValues(
+                                            data,
+                                            ctxt,
+                                            target: data.TableHistory.GetNameQ(),
+                                            nameBlock: (data, ctxt) => {
+                                                ctxt.AppendList(
+                                                    data.ColumnPairs,
+                                                    (columnPair, ctxt) => {
+                                                        ctxt.AppendPartsLine(
+                                                            columnPair.columnHistory.GetNameQ(),
+                                                            ","
+                                                            );
+                                                    }
+                                                    );
+                                                ctxt.AppendLine("[ValidFrom],");
+                                                ctxt.AppendLine("[ValidTo]");
+                                            },
+                                            valuesBlock: (data, ctxt) => {
+                                                ctxt.AppendList(
+                                                    data.ColumnPairs,
+                                                    (columnPair, ctxt) => {
+                                                        ctxt.AppendPartsLine(
+                                                            columnPair.columnData.GetNamePrefixed("@"),
+                                                            ","
+                                                            );
+                                                    }
+                                                    );
+                                                ctxt.AppendLine("@ModifiedAt,");
+                                                ctxt.AppendLine("CAST('3141-05-09T00:00:00Z' as datetimeoffset)");
+                                            }
+                                            );
+                                    },
+                                    elseBlock: (data, ctxt) => {
+                                        KnownTemplates.SqlIf(
+                                            data,
+                                            ctxt,
+                                            condition: (data, ctxt) => {
+                                                var crv = tableData_ColumnRowversion.GetNamePrefixed("@");
+                                                var crvCurrent = tableData_ColumnRowversion.GetNamePrefixed("@Current");
+                                                ctxt.AppendPartsLine("(", crv, " <= 0)");
+                                                ctxt.AppendPartsLine("OR ((0 < ", crv, ") AND (", crv, " = ", crvCurrent, "))");
+                                            },
+                                            thenBlock: (data, ctxt) => {
+                                                KnownTemplates.SqlIf(
+                                                   data,
+                                                   ctxt,
+                                                   condition: (data, ctxt) => {
+                                                       ctxt.AppendLine("EXISTS(");
+                                                       var ctxt2 = ctxt.GetIndented();
+                                                       var ctxt3 = ctxt2.GetIndented();
+                                                       var columnsIncludedInCompare = data.TableData.Columns.Where(
+                                                           c => (c.ExtraInfo["ExcludeFromCompare"] switch {
+                                                               true => false,
+                                                               _ => true
+                                                           })).ToList();
+                                                       ctxt2.AppendLine("SELECT");
+                                                       ctxt3.AppendList(
+                                                           columnsIncludedInCompare,
+                                                           (column, ctxt) => {
+                                                               ctxt.AppendPartsLine(column.GetNamePrefixed("@"), ctxt.IfNotLast(","));
+                                                           });
+                                                       ctxt2.AppendLine("EXCEPT");
+                                                       ctxt2.AppendLine("SELECT");
+                                                       ctxt3.AppendList(
+                                                           columnsIncludedInCompare,
+                                                           (column, ctxt) => {
+                                                               ctxt.AppendPartsLine(column.GetNamePrefixed("@Current"), ctxt.IfNotLast(","));
+                                                           });
+                                                       ctxt.Append(")");
+                                                   },
+                                                   thenBlock: (data, ctxt) => {
+                                                       KnownTemplates.SqlUpdate(
+                                                           data,
+                                                           ctxt,
+                                                           top: 1,
+                                                           target: data.TableData.GetNameQ(),
+                                                           setBlock: (data, ctxt) => {
+                                                               ctxt.AppendList(
+                                                                   data.TableData.Columns.Where(column => column.PrimaryKeyIndexPosition < 0),
+                                                                   (column, ctxt) => {
+                                                                       ctxt.AppendPartsLine(
+                                                                           column.GetNameQ(),
+                                                                           " = ",
+                                                                           column.GetNamePrefixed("@"),
+                                                                           ctxt.IfNotLast(","));
+                                                                   });
+                                                           },
+                                                           whereBlock: (data, ctxt) => {
+                                                               ctxt.AppendList(data.TableData.PrimaryKeyColumns, (column, ctxt) => {
                                                                    ctxt.AppendPartsLine(
+                                                                       ctxt.IfNotFirst(" AND "),
+                                                                       "(",
                                                                        column.GetNameQ(),
                                                                        " = ",
                                                                        column.GetNamePrefixed("@"),
-                                                                       ctxt.IfNotLast(","));
+                                                                       ")"
+                                                                       );
                                                                });
-                                                       },
-                                                       whereBlock: (data, ctxt) => {
-                                                           ctxt.AppendList(data.TableData.PrimaryKeyColumns, (column, ctxt) => {
-                                                               ctxt.AppendPartsLine(
-                                                                   ctxt.IfNotFirst(" AND "),
-                                                                   "(",
-                                                                   column.GetNameQ(),
-                                                                   " = ",
-                                                                   column.GetNamePrefixed("@"),
-                                                                   ")"
-                                                                   );
                                                            });
-                                                       });
-                                                   ctxt.AppendLine("SET @ResultValue = 2; /* Updated */");
-                                                   /* History */
-                                                   KnownTemplates.SqlUpdate(
-                                                       data,
-                                                       ctxt,
-                                                       top: 1,
-                                                       target: data.TableHistory.GetNameQ(),
-                                                       setBlock: (data, ctxt) => {
-                                                           ctxt.AppendLine("[ValidTo] = @ModifiedAt");
-                                                       },
-                                                       whereBlock: (data, ctxt) => {
-                                                           ctxt.AppendLine("([ValidTo] = CAST('3141-05-09T00:00:00Z' as datetimeoffset))");
-                                                           ctxt.AppendList(
-                                                                data.TableHistory.IndexPrimaryKey.Columns
-                                                                    .Where(c =>
-                                                                        !(string.Equals(c.Name, "ValidTo")
-                                                                        || string.Equals(c.Name, "ValidFrom"))
-                                                                    ),
-                                                                (column, ctxt) => {
-                                                                    //ctxt.Append(ctxt.IfNotFirst("AND "));
-                                                                    ctxt.AppendPartsLine("AND (", column.GetNameQ(), " = ", column.GetNamePrefixed("@"), ")");
-                                                                });
-                                                       }
-                                                       );
-                                                   KnownTemplates.SqlInsertValues(
-                                                       data,
-                                                       ctxt,
-                                                       target: data.TableHistory.GetNameQ(),
-                                                       nameBlock: (data, ctxt) => {
-                                                           ctxt.AppendList(
-                                                               data.ColumnPairs,
-                                                               (columnPair, ctxt) => {
-                                                                   ctxt.AppendPartsLine(
-                                                                       columnPair.columnHistory.GetNameQ(),
-                                                                       ","
-                                                                       );
-                                                               }
-                                                               );
-                                                           ctxt.AppendLine("[ValidFrom],");
-                                                           ctxt.AppendLine("[ValidTo]");
-                                                       },
-                                                       valuesBlock: (data, ctxt) => {
-                                                           ctxt.AppendList(
-                                                               data.ColumnPairs,
-                                                               (columnPair, ctxt) => {
-                                                                   ctxt.AppendPartsLine(
-                                                                       columnPair.columnData.GetNamePrefixed("@"),
-                                                                       ","
-                                                                       );
-                                                               }
-                                                               );
-                                                           ctxt.AppendLine("@ModifiedAt,");
-                                                           ctxt.AppendLine("CAST('3141-05-09T00:00:00Z' as datetimeoffset)");
-                                                       }
-                                                       );
+                                                       ctxt.AppendLine("SET @ResultValue = 2; /* Updated */");
+                                                       /* History */
+                                                       KnownTemplates.SqlUpdate(
+                                                           data,
+                                                           ctxt,
+                                                           top: 1,
+                                                           target: data.TableHistory.GetNameQ(),
+                                                           setBlock: (data, ctxt) => {
+                                                               ctxt.AppendLine("[ValidTo] = @ModifiedAt");
+                                                           },
+                                                           whereBlock: (data, ctxt) => {
+                                                               ctxt.AppendLine("([ValidTo] = CAST('3141-05-09T00:00:00Z' as datetimeoffset))");
+                                                               ctxt.AppendList(
+                                                                    data.TableHistory.IndexPrimaryKey.Columns
+                                                                        .Where(c =>
+                                                                            !(string.Equals(c.Name, "ValidTo")
+                                                                            || string.Equals(c.Name, "ValidFrom"))
+                                                                        ),
+                                                                    (column, ctxt) => {
+                                                                        //ctxt.Append(ctxt.IfNotFirst("AND "));
+                                                                        ctxt.AppendPartsLine("AND (", column.GetNameQ(), " = ", column.GetNamePrefixed("@"), ")");
+                                                                    });
+                                                           }
+                                                           );
+                                                       KnownTemplates.SqlInsertValues(
+                                                           data,
+                                                           ctxt,
+                                                           target: data.TableHistory.GetNameQ(),
+                                                           nameBlock: (data, ctxt) => {
+                                                               ctxt.AppendList(
+                                                                   data.ColumnPairs,
+                                                                   (columnPair, ctxt) => {
+                                                                       ctxt.AppendPartsLine(
+                                                                           columnPair.columnHistory.GetNameQ(),
+                                                                           ","
+                                                                           );
+                                                                   }
+                                                                   );
+                                                               ctxt.AppendLine("[ValidFrom],");
+                                                               ctxt.AppendLine("[ValidTo]");
+                                                           },
+                                                           valuesBlock: (data, ctxt) => {
+                                                               ctxt.AppendList(
+                                                                   data.ColumnPairs,
+                                                                   (columnPair, ctxt) => {
+                                                                       ctxt.AppendPartsLine(
+                                                                           columnPair.columnData.GetNamePrefixed("@"),
+                                                                           ","
+                                                                           );
+                                                                   }
+                                                                   );
+                                                               ctxt.AppendLine("@ModifiedAt,");
+                                                               ctxt.AppendLine("CAST('3141-05-09T00:00:00Z' as datetimeoffset)");
+                                                           }
+                                                           );
 
-                                               },
-                                               elseBlock: (data, ctxt) => {
-                                                   ctxt.AppendLine("SET @ResultValue = 0; /* NoNeedToUpdate */");
-                                               });
-                                        },
-                                        elseBlock: (data, ctxt) => {
-                                            ctxt.AppendLine("SET @ResultValue = -1 /* RowVersionMismatch */;");
-                                        });
-                                });
-                            KnownTemplates.SqlSelect(
-                                data,
-                                ctxt,
-                                top: 1,
-                                columnsBlock: (data, ctxt) => {
-                                    ctxt.AppendList(
-                                        data.TableData.Columns,
-                                        (column, ctxt) => {
-                                            ctxt.AppendPartsLine(
-                                                column.GetNameQ(), ","
-                                                );
-                                        });
-                                    ctxt.AppendLine(
-                                        $"{data.TableData.ColumnRowversion.GetNameQ()} = CAST({data.TableData.ColumnRowversion.GetNameQ()} as BIGINT)");
-                                },
-                                fromBlock: (data, ctxt) => {
-                                    ctxt.AppendLine(data.TableData.GetNameQ());
-                                },
-                                whereBlock: (data, ctxt) => {
-                                    ctxt.AppendList(
-                                        data.TableData.PrimaryKeyColumns,
-                                        (column, ctxt) => {
-                                            ctxt.AppendPartsLine(
-                                                ctxt.IfNotFirst(" AND "),
-                                                "(",
-                                                column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
-                                                ")"
-                                                );
-                                        });
-                                });
-                            ctxt.AppendLine("SELECT ResultValue = @ResultValue, Message='';");
-                        }
-                    );
+                                                   },
+                                                   elseBlock: (data, ctxt) => {
+                                                       ctxt.AppendLine("SET @ResultValue = 0; /* NoNeedToUpdate */");
+                                                   });
+                                            },
+                                            elseBlock: (data, ctxt) => {
+                                                ctxt.AppendLine("SET @ResultValue = -1 /* RowVersionMismatch */;");
+                                            });
+                                    });
+                                KnownTemplates.SqlSelect(
+                                    data,
+                                    ctxt,
+                                    top: 1,
+                                    columnsBlock: (data, ctxt) => {
+                                        ctxt.AppendList(
+                                            data.TableData.Columns,
+                                            (column, ctxt) => {
+                                                ctxt.AppendPartsLine(
+                                                    column.GetNameQ(), ","
+                                                    );
+                                            });
+                                        ctxt.AppendPartsLine(
+                                            tableData_ColumnRowversion.GetReadNamedQ(), " = ", tableData_ColumnRowversion.GetReadQ()
+                                            );
+                                    },
+                                    fromBlock: (data, ctxt) => {
+                                        ctxt.AppendLine(data.TableData.GetNameQ());
+                                    },
+                                    whereBlock: (data, ctxt) => {
+                                        ctxt.AppendList(
+                                            data.TableData.PrimaryKeyColumns,
+                                            (column, ctxt) => {
+                                                ctxt.AppendPartsLine(
+                                                    ctxt.IfNotFirst(" AND "),
+                                                    "(",
+                                                    column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
+                                                    ")"
+                                                    );
+                                            });
+                                    });
+                                ctxt.AppendLine("SELECT ResultValue = @ResultValue, Message='';");
+                            }
+                        );
+                    } else {
+                    }
                 });
 
             this.DeletePKTempate = new RenderTemplate<TableDataHistory>(
                 FileNameFn: RenderTemplateExtentsions.GetFileNameBind<TableDataHistory>(@"[Schema]\StoredProcedures\[Schema].[Name]DeletePK.sql"),
                 Render: (TableDataHistory data, PrintContext ctxt) => {
-                    KnownTemplates.SqlCreateProcedure<TableDataHistory>(
-                        data,
-                        ctxt,
-                        schema: data.TableData.Table.Schema,
-                        name: $"{data.TableData.Table.Name}DeletePK",
-                        parameter: (data, ctxt) => {
-                            //ctxt.RenderTemplate(
-                            //    (columns: data.TableData.PrimaryKeyColumns, columnRowVersion: data.TableData.ColumnRowversion),
-                            //    KT.ColumnsAsParameterWithRowVersion
-                            //    );
-                            ctxt.AppendList(data.TableData.PrimaryKeyColumns, (column, ctxt) => {
-                                ctxt.AppendPartsLine(
-                                    column.GetNamePrefixed("@"),
-                                    " ",
-                                    column.GetParameterSqlDataType(),
-                                    ","
+                    var tableData_ColumnRowversion = data.TableData.ColumnRowversion;
+                    if (tableData_ColumnRowversion is not null) {
+                        KnownTemplates.SqlCreateProcedure<TableDataHistory>(
+                            data,
+                            ctxt,
+                            schema: data.TableData.Table.Schema,
+                            name: $"{data.TableData.Table.Name}DeletePK",
+                            parameter: (data, ctxt) => {
+                                //ctxt.RenderTemplate(
+                                //    (columns: data.TableData.PrimaryKeyColumns, columnRowVersion: tableData_ColumnRowversion),
+                                //    KT.ColumnsAsParameterWithRowVersion
+                                //    );
+                                ctxt.AppendList(data.TableData.PrimaryKeyColumns, (column, ctxt) => {
+                                    ctxt.AppendPartsLine(
+                                        column.GetNamePrefixed("@"),
+                                        " ",
+                                        column.GetParameterSqlDataType(),
+                                        ","
+                                        );
+
+                                });
+
+                                ctxt.AppendPartsLine("@ActivityId uniqueidentifier,");
+                                ctxt.AppendPartsLine("@ModifiedAt datetimeoffset,");
+                                if (tableData_ColumnRowversion is not null) {
+                                    ctxt.AppendPartsLine(
+                                            tableData_ColumnRowversion.GetNamePrefixed("@"),
+                                            " ",
+                                            tableData_ColumnRowversion.GetParameterSqlDataType()
+                                            );
+                                }
+                            },
+                            bodyBlock: (data, ctxt) => {
+                                ctxt.AppendLine("DECLARE @Result AS TABLE (");
+                                ctxt.GetIndented().AppendList(
+                                    data.TableData.PrimaryKeyColumns,
+                                    (column, ctxt) => {
+                                        var sqlDataType = column.GetSqlDataType();
+                                        var name = column.GetNameQ();
+                                        ctxt.AppendPartsLine(name, " ", sqlDataType, ctxt.IfNotLast(","));
+                                    });
+                                ctxt.AppendLine(");");
+
+                                ctxt.AppendLine("");
+
+                                ctxt.AppendLine($"DELETE FROM {data.TableData.GetNameQ()}");
+                                var ctxtIndented1 = ctxt.GetIndented();
+                                var ctxtIndented2 = ctxtIndented1.GetIndented();
+                                ctxtIndented1.AppendLine("OUTPUT");
+                                ctxtIndented2.AppendList(
+                                    data.TableData.PrimaryKeyColumns,
+                                    (column, ctxt) => {
+                                        ctxt.AppendPartsLine(
+                                            "DELETED.", column.GetNameQ(), ctxt.IfNotLast(",")
+                                            );
+                                    });
+                                ctxtIndented1.AppendLine("INTO @Result");
+
+                                ctxtIndented1.AppendList(
+                                    data.TableData.PrimaryKeyColumns,
+                                    (column, ctxt) => {
+                                        ctxt.AppendPartsLine(
+                                            ctxt.SwitchFirst("WHERE ", "    AND "),
+                                            "(",
+                                            column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
+                                            ")"
+                                            );
+                                    });
+                                ctxtIndented1.AppendLine(";");
+
+                                ctxt.AppendLine("");
+
+                                KnownTemplates.SqlIf(
+                                    data,
+                                    ctxt,
+                                    condition: (data, ctxt) => {
+                                        var ctxtIndented1 = ctxt.GetIndented();
+
+                                        ctxt.AppendLine("EXISTS(");
+                                        ctxt.AppendLine("SELECT");
+                                        ctxtIndented1.AppendList(
+                                            data.TableData.PrimaryKeyColumns,
+                                            (column, ctxt) => {
+                                                ctxt.AppendPartsLine(
+                                                    column.GetNameQ(), ctxt.IfNotLast(",")
+                                                    );
+                                            });
+                                        ctxtIndented1.AppendLine("FROM @Result");
+                                        ctxt.AppendLine(")");
+                                    },
+                                    thenBlock: (data, ctxt) => {
+                                        KnownTemplates.SqlUpdate(
+                                            data,
+                                            ctxt,
+                                            top: 1,
+                                            target: data.TableHistory.GetNameQ(),
+                                            setBlock: (data, ctxt) => {
+                                                ctxt.AppendLine("[ValidTo] = @ModifiedAt");
+                                            },
+                                            whereBlock: (data, ctxt) => {
+                                                var ctxtIndented1 = ctxt.GetIndented();
+
+                                                ctxtIndented1.AppendLine("([ActivityId] = @ActivityId)");
+                                                ctxtIndented1.AppendLine("AND ([ValidTo] = CAST('3141-05-09T00:00:00Z' as datetimeoffset))");
+                                                ctxtIndented1.AppendList(
+                                                    data.TableData.PrimaryKeyColumns,
+                                                    (column, ctxt) => {
+                                                        ctxt.AppendPartsLine(
+                                                            "    AND ",
+                                                            "(",
+                                                            column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
+                                                            ")"
+                                                            );
+                                                    });
+                                            }
+                                            );
+                                    }
                                     );
 
+                                ctxt.AppendLine("SELECT");
+                                ctxtIndented1.AppendList(
+                                    data.TableData.PrimaryKeyColumns,
+                                    (column, ctxt) => {
+                                        ctxt.AppendPartsLine(
+                                            column.GetNameQ(), ctxt.IfNotLast(",")
+                                            );
+                                    });
+                                ctxtIndented1.AppendLine("FROM @Result");
+                                ctxtIndented1.AppendLine(";");
+
                             });
-
-                            ctxt.AppendPartsLine("@ActivityId uniqueidentifier,");
-                            ctxt.AppendPartsLine("@ModifiedAt datetimeoffset,");
-                            if (data.TableData.ColumnRowversion is not null) {
-                                ctxt.AppendPartsLine(
-                                        data.TableData.ColumnRowversion.GetNamePrefixed("@"),
-                                        " ",
-                                        data.TableData.ColumnRowversion.GetParameterSqlDataType()
-                                        );
-                            }
-                        },
-                        bodyBlock: (data, ctxt) => {
-                            ctxt.AppendLine("DECLARE @Result AS TABLE (");
-                            ctxt.GetIndented().AppendList(
-                                data.TableData.PrimaryKeyColumns,
-                                (column, ctxt) => {
-                                    var sqlDataType = column.GetSqlDataType();
-                                    var name = column.GetNameQ();
-                                    ctxt.AppendPartsLine(name, " ", sqlDataType, ctxt.IfNotLast(","));
-                                });
-                            ctxt.AppendLine(");");
-
-                            ctxt.AppendLine("");
-
-                            ctxt.AppendLine($"DELETE FROM {data.TableData.GetNameQ()}");
-                            var ctxtIndented1 = ctxt.GetIndented();
-                            var ctxtIndented2 = ctxtIndented1.GetIndented();
-                            ctxtIndented1.AppendLine("OUTPUT");
-                            ctxtIndented2.AppendList(
-                                data.TableData.PrimaryKeyColumns,
-                                (column, ctxt) => {
-                                    ctxt.AppendPartsLine(
-                                        "DELETED.", column.GetNameQ(), ctxt.IfNotLast(",")
-                                        );
-                                });
-                            ctxtIndented1.AppendLine("INTO @Result");
-
-                            ctxtIndented1.AppendList(
-                                data.TableData.PrimaryKeyColumns,
-                                (column, ctxt) => {
-                                    ctxt.AppendPartsLine(
-                                        ctxt.SwitchFirst("WHERE ", "    AND "),
-                                        "(",
-                                        column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
-                                        ")"
-                                        );
-                                });
-                            ctxtIndented1.AppendLine(";");
-
-                            ctxt.AppendLine("");
-
-                            KnownTemplates.SqlIf(
-                                data,
-                                ctxt,
-                                condition: (data, ctxt) => {
-                                    var ctxtIndented1 = ctxt.GetIndented();
-
-                                    ctxt.AppendLine("EXISTS(");
-                                    ctxt.AppendLine("SELECT");
-                                    ctxtIndented1.AppendList(
-                                        data.TableData.PrimaryKeyColumns,
-                                        (column, ctxt) => {
-                                            ctxt.AppendPartsLine(
-                                                column.GetNameQ(), ctxt.IfNotLast(",")
-                                                );
-                                        });
-                                    ctxtIndented1.AppendLine("FROM @Result");
-                                    ctxt.AppendLine(")");
-                                },
-                                thenBlock: (data, ctxt) => {
-                                    KnownTemplates.SqlUpdate(
-                                        data,
-                                        ctxt,
-                                        top: 1,
-                                        target: data.TableHistory.GetNameQ(),
-                                        setBlock: (data, ctxt) => {
-                                            ctxt.AppendLine("[ValidTo] = @ModifiedAt");
-                                        },
-                                        whereBlock: (data, ctxt) => {
-                                            var ctxtIndented1 = ctxt.GetIndented();
-
-                                            ctxtIndented1.AppendLine("([ActivityId] = @ActivityId)");
-                                            ctxtIndented1.AppendLine("AND ([ValidTo] = CAST('3141-05-09T00:00:00Z' as datetimeoffset))");
-                                            ctxtIndented1.AppendList(
-                                                data.TableData.PrimaryKeyColumns,
-                                                (column, ctxt) => {
-                                                    ctxt.AppendPartsLine(
-                                                        "    AND ",
-                                                        "(",
-                                                        column.GetNamePrefixed("@"), " = ", column.GetNameQ(),
-                                                        ")"
-                                                        );
-                                                });
-                                        }
-                                        );
-                                }
-                                );
-
-                            ctxt.AppendLine("SELECT");
-                            ctxtIndented1.AppendList(
-                                data.TableData.PrimaryKeyColumns,
-                                (column, ctxt) => {
-                                    ctxt.AppendPartsLine(
-                                        column.GetNameQ(), ctxt.IfNotLast(",")
-                                        );
-                                });
-                            ctxtIndented1.AppendLine("FROM @Result");
-                            ctxtIndented1.AppendLine(";");
-
-                        });
+                    } else {
+                    }
                 }
             );
             //
@@ -692,8 +699,8 @@ namespace Brimborium.TestGenerateStoredProcedure {
 
             var tablesUpdatePaired = tablesUpdate.Join(
                     tablesHistory,
-                    o =>  o.Name,
-                    i =>  i.Name.EndsWith("History")?i.Name.Substring(0, i.Name.Length - 7):null,
+                    o => o.Name,
+                    i => i.Name.EndsWith("History") ? i.Name.Substring(0, i.Name.Length - 7) : null,
                     (tableInfoData, tableInfoHistory) => new TableDataHistory(
                         tableInfoData,
                         tableInfoHistory,

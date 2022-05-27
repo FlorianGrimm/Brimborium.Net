@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-
-using Microsoft.SqlServer.Management.Smo;
-
-namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.GenerateStoredProcedure {
     public sealed record ColumnInfo(
         Column Column,
         string Name

@@ -1,9 +1,4 @@
-﻿
-using Microsoft.SqlServer.Management.Smo;
-
-using System.Collections.Generic;
-
-namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.GenerateStoredProcedure {
     public sealed record TableInfo(
             Table Table,
             string Schema,

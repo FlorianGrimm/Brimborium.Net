@@ -40,7 +40,7 @@ public static class Program {
                 if (changes) {
                     System.Console.Out.WriteLine($"changes try to update.");
 
-                    var dotnet = Brimborium.GenerateStoredProcedure.Utility.TryGetDotNetPath();
+                    var dotnet = Brimborium.CodeGeneration.Utility.TryGetDotNetPath();
                     if (dotnet is null) {
                         System.Console.Error.WriteLine("dotnet not found");
                         return 1;
@@ -116,7 +116,7 @@ public static class Program {
     public static bool MainGenerate(string connectionString, string outputFolder) {
         var templateVariables = new Dictionary<string, string>();
         var cfg = new GenerateConfiguration();
-        return Brimborium.GenerateStoredProcedure.Generator.GenerateSql(
+        return Brimborium.GenerateStoredProcedure.GenerateForStoredProcedure.GenerateSql(
             connectionString,
             outputFolder,
             cfg,
