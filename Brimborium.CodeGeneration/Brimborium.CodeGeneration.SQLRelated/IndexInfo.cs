@@ -1,6 +1,7 @@
-﻿using SmoIndex = Microsoft.SqlServer.Management.Smo.Index;
+﻿
+using SmoIndex = Microsoft.SqlServer.Management.Smo.Index;
 
-namespace Brimborium.GenerateStoredProcedure {
+namespace Brimborium.CodeGeneration.SQLRelated {
     public sealed record IndexInfo(
         SmoIndex Index,
         string Schema,

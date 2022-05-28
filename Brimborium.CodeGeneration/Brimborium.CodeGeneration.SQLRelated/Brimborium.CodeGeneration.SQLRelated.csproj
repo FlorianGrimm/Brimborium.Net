@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<Import Project="..\..\build\package.targets" />
+
+	<ItemGroup>
+		<ProjectReference Include="..\Brimborium.CodeGeneration\Brimborium.CodeGeneration.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="161.47008.0" />
+	</ItemGroup>
+
+</Project>

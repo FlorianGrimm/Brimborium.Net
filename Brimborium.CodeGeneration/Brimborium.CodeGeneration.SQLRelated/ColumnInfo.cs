@@ -1,29 +1,66 @@
-﻿namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.CodeGeneration.SQLRelated {
     public sealed record ColumnInfo(
         Column Column,
-        string Name
+        string Name,
+        string TableName,
+        string TableSchema,
+        DataTypeInfo DataTypeInfo,
+        bool Nullable
         ) {
-
+        public static ColumnInfo Create(
+            Column column
+        ) {
+            var table = (Table)column.Parent;
+            return new ColumnInfo(
+                column,
+                column.Name,
+                table.Name,
+                table.Schema,
+                DataTypeInfo.Create(column.DataType),
+                column.Nullable
+                ) {
+                PrimaryKeyIndexPosition = -1,
+                ClusteredIndexPosition = -1
+            };
+        }
+        public SqlDataType SqlDataType => this.DataTypeInfo.SqlDataType;
+        
         public int PrimaryKeyIndexPosition { get; set; }
         public int ClusteredIndexPosition { get; set; }
         public Hashtable ExtraInfo { get; } = new Hashtable();
         public string? ParameterSqlDataType { get; set; }
+
+        public Type? PropertyType { get; set; }
+        public string? PropertyTypeName { get; set; }
+
+
+        public string GetPropertyType(TypeMappingSqlCS typeMappingSqlCS) {
+            if (this.PropertyTypeName is not null) {
+                return this.PropertyTypeName;
+            }
+            if (this.PropertyType is not null) {
+                var propertyTypeName = this.PropertyType.FullName ?? throw new InvalidOperationException("PropertyType");
+                this.PropertyTypeName = propertyTypeName;
+                return propertyTypeName;
+            }
+            {
+                var table = (Table)Column.Parent;
+                var csType = typeMappingSqlCS.ConvertTypeSqlToCS(
+                    TableSchema,
+                    TableName,
+                    Name,
+                    SqlDataType);
+                this.PropertyTypeName = csType;
+                return csType;
+            }
+        }
 
         // alias
         public Func<string?, string>? ReadExpression { get; set; }
         public Func<string?, string?, string>? ReadAsExpression { get; set; }
         public Func<string?, string?, string>? ReadNamedExpression { get; set; }
 
-        public static ColumnInfo Create(
-            Column column
-            ) {
-            return new ColumnInfo(
-                column,
-                column.Name) {
-                PrimaryKeyIndexPosition = -1,
-                ClusteredIndexPosition = -1
-            };
-        }
+
         public bool Identity => this.Column.Identity;
 
         public string GetNameQ(string? sourceAlias = null) => string.IsNullOrEmpty(sourceAlias) ? $"[{this.Name}]" : $"{sourceAlias}.[{this.Name}]";

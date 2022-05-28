@@ -1,16 +1,10 @@
 ﻿namespace Brimborium.CodeGeneration {
     public static class PrintContextExtensions {
-        //public static void AppendLines(this IEnumerable<string> source, PrintContext ctxt) {
-        //    foreach (var line in source) {
-        //        ctxt.AppendLine(line);
-        //    }
-        //}
-
-        //public static PrintContext AppendIndented<T>(this PrintContext ctxt, T data, Action<T, PrintContext> render, string addIndent = "    ") {
-        //    var ctxtIndented = ctxt.GetIndented(addIndent);
-        //    render(data, ctxtIndented);
-        //    return ctxt;
-        //}
+        public static PrintContext AppendIndented<T>(this PrintContext ctxt, T data, Action<T, PrintContext> render, string addIndent = "    ") {
+           var ctxtIndented = ctxt.GetIndented(addIndent);
+           render(data, ctxtIndented);
+           return ctxt;
+        }
 
         public static PrintContext RenderTemplate<T>(this PrintContext ctxt, T data, RenderTemplate<T> template) {
             template.Render(data, ctxt);

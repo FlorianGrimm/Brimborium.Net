@@ -1,4 +1,4 @@
-﻿namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.CodeGeneration.SQLRelated {
     public sealed record TableInfo(
             Table Table,
             string Schema,
@@ -48,7 +48,7 @@
             get {
                 var result = new List<ColumnInfo>();
                 result.AddRange(this.Columns);
-                if (this.ColumnRowversion is not null) { 
+                if (this.ColumnRowversion is not null) {
                     result.Add(this.ColumnRowversion);
                 }
                 return result;

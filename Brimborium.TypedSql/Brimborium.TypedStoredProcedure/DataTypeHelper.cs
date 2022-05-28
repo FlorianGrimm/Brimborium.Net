@@ -1,9 +1,4 @@
-﻿
-using Microsoft.SqlServer.Management.Smo;
-
-using System;
-
-namespace Brimborium.TypedStoredProcedure {
+﻿namespace Brimborium.TypedStoredProcedure {
     public static class DataTypeHelper {
         public static CSTypeDefinition ConvertType(DataType dataType) {
             switch (dataType.SqlDataType) {

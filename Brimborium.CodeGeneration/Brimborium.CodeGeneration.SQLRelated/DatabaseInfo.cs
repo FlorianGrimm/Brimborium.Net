@@ -1,4 +1,4 @@
-﻿namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.CodeGeneration.SQLRelated {
     public sealed record DatabaseInfo() {
         public List<TableInfo> Tables { get; init; } = new List<TableInfo>();
         public List<ForeignKeyInfo> ForeignKey { get; init; } = new List<ForeignKeyInfo>();

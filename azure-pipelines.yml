@@ -25,6 +25,7 @@ variables:
     Brimborium.TypedSql\Brimborium.Tracking.Extensions\Brimborium.Tracking.Extensions.csproj
     Brimborium.TypedSql\Brimborium.SqlAccess\Brimborium.SqlAccess.csproj
     Brimborium.CodeGeneration\Brimborium.CodeGeneration\Brimborium.CodeGeneration.csproj
+    Brimborium.CodeGeneration\Brimborium.CodeGeneration.SQLRelated\Brimborium.CodeGeneration.SQLRelated.csproj
     Brimborium.TypedSql\Brimborium.TypedStoredProcedure\Brimborium.TypedStoredProcedure.csproj
     Brimborium.TypedSql\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj
     Brimborium.Extensions.Logging.LocalFile\src\Brimborium.Extensions.Logging.LocalFile.csproj
@@ -171,6 +172,14 @@ steps:
   inputs:
     command: 'pack'
     packagesToPack: 'Brimborium.CodeGeneration\Brimborium.CodeGeneration\Brimborium.CodeGeneration.csproj'
+    nobuild: false
+    includesymbols: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'pack Brimborium.CodeGeneration.SQLRelated'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'Brimborium.CodeGeneration\Brimborium.CodeGeneration.SQLRelated\Brimborium.CodeGeneration.SQLRelated.csproj'
     nobuild: false
     includesymbols: true
     
