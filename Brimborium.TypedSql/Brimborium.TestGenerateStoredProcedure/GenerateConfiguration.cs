@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Brimborium.TestGenerateStoredProcedure {
-    public class GenerateConfiguration : Brimborium.GenerateStoredProcedure.Configuration {
+    public class GenerateConfiguration : Brimborium.GenerateStoredProcedure.GenerateConfigurationBase {
         public readonly RenderTemplate<TableInfo> SelectPKTempate;
 
         public readonly RenderTemplate<TableInfo> SelectAtTimeTempate;

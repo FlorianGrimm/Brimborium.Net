@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Tracking.Extensi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeGeneration", "..\Brimborium.CodeGeneration\Brimborium.CodeGeneration\Brimborium.CodeGeneration.csproj", "{C7EBED01-F8C4-43B7-B3EE-AE68CF14B09E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.CodeGeneration.SQLRelated", "..\Brimborium.CodeGeneration\Brimborium.CodeGeneration.SQLRelated\Brimborium.CodeGeneration.SQLRelated.csproj", "{AD638319-B7FB-42DC-81DF-707947C84385}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +115,10 @@ Global
 		{C7EBED01-F8C4-43B7-B3EE-AE68CF14B09E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7EBED01-F8C4-43B7-B3EE-AE68CF14B09E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7EBED01-F8C4-43B7-B3EE-AE68CF14B09E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD638319-B7FB-42DC-81DF-707947C84385}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD638319-B7FB-42DC-81DF-707947C84385}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD638319-B7FB-42DC-81DF-707947C84385}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD638319-B7FB-42DC-81DF-707947C84385}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,6 +140,7 @@ Global
 		{976B3626-9934-4422-BEA4-AFBEC3D6C3F5} = {3E7580A5-67E0-45F6-BE4C-EF9F1F913D55}
 		{6BFBEA00-9AF7-4D9C-888C-E529C605638B} = {7BD77923-D32C-4098-8BC4-A04829BE82C2}
 		{C7EBED01-F8C4-43B7-B3EE-AE68CF14B09E} = {3E7580A5-67E0-45F6-BE4C-EF9F1F913D55}
+		{AD638319-B7FB-42DC-81DF-707947C84385} = {3E7580A5-67E0-45F6-BE4C-EF9F1F913D55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {969B0595-75D2-4FDA-81FC-1D76CEBA5D90}

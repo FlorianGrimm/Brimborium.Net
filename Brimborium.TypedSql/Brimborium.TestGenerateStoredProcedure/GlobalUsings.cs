@@ -8,8 +8,7 @@ global using System.Threading.Tasks;
 global using System.Runtime.InteropServices;
 
 global using Microsoft.Data.SqlClient;
-global using Microsoft.SqlServer.Management.Smo;
-global using Microsoft.SqlServer.Management.Common;
 
 global using Brimborium.CodeGeneration;
 global using Brimborium.CodeGeneration.SQLRelated;
+global using Brimborium.GenerateStoredProcedure;

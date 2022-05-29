@@ -1,19 +1,9 @@
-﻿
-using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Brimborium.GenerateStoredProcedure {
+﻿namespace Brimborium.GenerateStoredProcedure {
     public partial class GenerateForStoredProcedure {
         public static bool GenerateSql(
             string connectionString,
             string outputFolder,
-            Configuration cfg,
+            GenerateConfigurationBase cfg,
             Dictionary<string, string> templateVariables,
             bool isForce) {
             using var connection = new SqlConnection(connectionString);

@@ -1,9 +1,9 @@
 ﻿namespace Brimborium.GenerateStoredProcedure {
-    public class Configuration {
+    public class GenerateConfigurationBase {
         public readonly KnownTemplates KnownTemplates;
         //public readonly List<ReplacementTemplate<TableInfo>> ReplacementTableTemplates;
 
-        public Configuration() {
+        public GenerateConfigurationBase() {
             this.KnownTemplates = new KnownTemplates();
             //this.ReplacementTableTemplates = new List<ReplacementTemplate<TableInfo>>();
 

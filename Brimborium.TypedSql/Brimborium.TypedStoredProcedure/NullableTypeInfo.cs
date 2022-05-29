@@ -1,7 +1,4 @@
-﻿
-using System;
-
-namespace Brimborium.TypedStoredProcedure {
+﻿namespace Brimborium.TypedStoredProcedure {
     public class NullableTypeInfo {
         public NullableTypeInfo CreateAsNullable(Type givenType) {
             var underlyingType = Nullable.GetUnderlyingType(givenType);

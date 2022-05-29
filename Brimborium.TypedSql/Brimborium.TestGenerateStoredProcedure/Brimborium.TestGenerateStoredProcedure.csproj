@@ -18,6 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Brimborium.CodeGeneration\Brimborium.CodeGeneration.SQLRelated\Brimborium.CodeGeneration.SQLRelated.csproj" />
+    <ProjectReference Include="..\..\Brimborium.CodeGeneration\Brimborium.CodeGeneration\Brimborium.CodeGeneration.csproj" />
     <ProjectReference Include="..\Brimborium.GenerateStoredProcedure\Brimborium.GenerateStoredProcedure.csproj" />
   </ItemGroup>
 
