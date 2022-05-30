@@ -5,6 +5,7 @@
             string outputFolder,
             GenerateConfigurationBase cfg,
             Dictionary<string, string> templateVariables,
+            bool isVerbose,
             bool isForce) {
             using var connection = new SqlConnection(connectionString);
             var serverConnection = new ServerConnection(connection);
@@ -41,7 +42,7 @@
                     lstFileContentGenerated.Add(fc);
                 }
             }
-            return GenerateSqlCode(config, templateVariables, lstFileContentGenerated, lstFileContentReplacements, WriteText, isForce);
+            return GenerateSqlCode(config, templateVariables, lstFileContentGenerated, lstFileContentReplacements, WriteText, isVerbose, isForce);
         }
 
         public static bool GenerateSqlCode(
@@ -50,12 +51,13 @@
             List<FileContent> lstFileContentGenerated,
             List<FileContent> lstFileContentReplacements,
             Func<string, string, bool> writeText,
+            bool isVerbose,
             bool isForce) {
             var result = false;
             var dctFileContent = lstFileContentReplacements.ToDictionary(fc => fc.FileName, StringComparer.OrdinalIgnoreCase);
             var lstFileContent = new List<FileContent>(lstFileContentGenerated.Count + lstFileContentReplacements.Count);
             lstFileContent.AddRange(lstFileContentGenerated);
-            lstFileContent.AddRange(lstFileContentReplacements);
+            lstFileContent.AddRange(lstFileContentReplacements.Where(fc=>!fc.Content.Contains("-- Replace=SNIPPETS -")));
 
             System.Exception? lastError = null;
             var renderGenerator = new RenderGenerator(config.ReplacementBindings, templateVariables);
@@ -73,7 +75,9 @@
                 if (!string.IsNullOrEmpty(codeIdentity)) {
                     var fileContentFound = lstFileContent.FirstOrDefault(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase));
                     if (fileContentFound is not null) {
-                        System.Console.WriteLine($"redirect {outputFilename}->{fileContentFound.FileName}");
+                        if (isVerbose) {
+                            System.Console.WriteLine($"redirect {outputFilename}->{fileContentFound.FileName}");
+                        }
                         outputFilename = fileContentFound.FileName;
                     }
                 }
@@ -92,7 +96,9 @@
                         Console.WriteLine($"changed: {outputFilename}");
                         result = true;
                     } else {
-                        Console.WriteLine($"ok     : {outputFilename}");
+                        if (isVerbose) {
+                            Console.WriteLine($"ok     : {outputFilename}");
+                        }
                     }
                 } catch (System.Exception error) {
                     lastError = error;
@@ -110,7 +116,9 @@
                         Console.WriteLine($"changed: {outputFilename}");
                         result = true;
                     } else {
-                        Console.WriteLine($"ok     : {outputFilename}");
+                        if (isVerbose) {
+                            Console.WriteLine($"ok     : {outputFilename}");
+                        }
                     }
                 } catch (System.Exception error) {
                     lastError = error;

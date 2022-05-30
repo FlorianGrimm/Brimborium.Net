@@ -13,11 +13,16 @@
         }
         public RenderGenerator AddRange(List<RenderBinding> replacementBindings) {
             foreach (var replacementBinding in replacementBindings) {
-                var name = replacementBinding.GetName();
-                if (string.IsNullOrEmpty(name)) {
-                    // skip
-                } else {
-                    this._BindingByName.Add(name, replacementBinding);
+                try {
+                    var name = replacementBinding.GetName();
+                    if (string.IsNullOrEmpty(name)) {
+                        // skip
+                    } else {
+                        this._BindingByName.Add(name, replacementBinding);
+                    }
+                } catch (System.Exception error){
+                    System.Console.Out.WriteLine("error: {0} - {1}", replacementBinding, error.ToString());
+                    throw;
                 }
             }
             return this;

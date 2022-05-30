@@ -120,9 +120,9 @@ public partial class GeneratorForTypedSqlAccess {
                         : $"CSTypeDefinition.TypeOf<{argsTypeFullName}>()"
                         ;
                     //var line = $"#warning new StoredProcedureDefintion(\"{dbSP.SPDefinition.Schema}\", \"{dbSP.SPDefinition.Name}\", {argsCSTypeDefinition}, ExecutionMode.Unknown, {returnCSTypeDefinition}),";
-                    var line = $"storedProcedureDefintion.Add(new StoredProcedureDefintion(\"{dbSP.SPDefinition.Schema}\", \"{dbSP.SPDefinition.Name}\", {argsCSTypeDefinition}, ExecutionMode.Unknown, {returnCSTypeDefinition}));";
+                    var line = $" storedProcedureDefintion.Add(new StoredProcedureDefintion(\"{dbSP.SPDefinition.Schema}\", \"{dbSP.SPDefinition.Name}\", {argsCSTypeDefinition}, ExecutionMode.Unknown, {returnCSTypeDefinition}));";
                     //
-                    sbOutputImplementation.AppendLine(line);
+                    sbOutputImplementation.AppendLine($"#warning {line}");
                     System.Console.Error.WriteLine(line);
                 }
             }
