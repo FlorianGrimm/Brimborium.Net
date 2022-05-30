@@ -1,12 +1,14 @@
 ﻿namespace Brimborium.Tracking;
 
 public abstract class TrackingSet {
-    protected TrackingSet(TrackingContext trackingContext) {
+    protected TrackingSet(ITrackingContext trackingContext) {
         this.TrackingContext = trackingContext;
-        trackingContext.RegisterTrackingSet(this);
+        if (trackingContext is TrackingContext aTrackingContext) { 
+            aTrackingContext.RegisterTrackingSet(this);
+        }
     }
 
-    public TrackingContext TrackingContext { get; }
+    public ITrackingContext TrackingContext { get; }
 
     internal abstract Type GetItemType();
 }
@@ -16,7 +18,7 @@ public abstract class TrackingSet<TValue>
     where TValue : class {
 
     protected TrackingSet(
-        TrackingContext trackingContext,
+        ITrackingContext trackingContext,
         ITrackingSetApplyChanges<TValue> trackingApplyChanges
         ) : base(trackingContext) {
         this.TrackingApplyChanges = trackingApplyChanges;
@@ -89,7 +91,7 @@ public class TrackingSet<TKey, TValue>
     public TrackingSet(
         IExtractKey<TValue, TKey> extractKey,
         IEqualityComparer<TKey> comparer,
-        TrackingContext trackingContext,
+        ITrackingContext trackingContext,
         ITrackingSetApplyChanges<TValue> trackingApplyChanges,
         List<ITrackingSetEvent<TValue>>? trackingSetEvents = default
         ) : base(trackingContext, trackingApplyChanges) {

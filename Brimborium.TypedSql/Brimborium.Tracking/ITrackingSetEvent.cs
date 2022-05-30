@@ -5,20 +5,20 @@ public interface ITrackingSetEvent<TValue>
     void OnAdding(
         TValue value,
         TrackingSet<TValue> trackingSet,
-        TrackingContext trackingContext
+        ITrackingContext trackingContext
         );
     void OnUpdating(
         TValue newValue,
         TValue oldValue,
         TrackingStatus oldTrackingStatus,
         TrackingSet<TValue> trackingSet,
-        TrackingContext trackingContext
+        ITrackingContext trackingContext
         );
     void OnDeleting(
         TValue newValue,
         TValue oldValue,
         TrackingStatus oldTrackingStatus,
         TrackingSet<TValue> trackingSet,
-        TrackingContext trackingContext
+        ITrackingContext trackingContext
         );
 }
