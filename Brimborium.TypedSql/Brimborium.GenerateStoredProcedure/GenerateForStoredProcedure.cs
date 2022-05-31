@@ -19,7 +19,7 @@
                 throw new InvalidArgumentException($"Database:{serverConnection.DatabaseName} not found!");
             }
             var databaseInfo = ExtractDatabaseSchema(database);
-            var config = cfg.Build(databaseInfo);
+            var config = cfg.Build(databaseInfo, isVerbose);
             templateVariables["ProjectRoot"] = outputFolder;
             templateVariables["Schema"] = "";
             templateVariables["Name"] = "";

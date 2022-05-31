@@ -9,7 +9,7 @@
 
         }
 
-        public virtual ConfigurationBound Build(DatabaseInfo databaseInfo) {
+        public virtual ConfigurationBound Build(DatabaseInfo databaseInfo, bool isVerbose) {
             var result = new ConfigurationBound();
             this.AddKnownReplacementBindings(databaseInfo, result);
             return result;

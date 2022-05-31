@@ -6,6 +6,12 @@
                 csType = "Guid";
             } else if (sqlDataType == SqlDataType.Int) {
                 csType = "int";
+            } else if (sqlDataType == SqlDataType.Binary) {
+                csType = "byte[]";
+            } else if (sqlDataType == SqlDataType.VarBinary) {
+                csType = "byte[]";
+            } else if (sqlDataType == SqlDataType.VarBinaryMax) {
+                csType = "byte[]";
             } else if (sqlDataType == SqlDataType.BigInt) {
                 csType = "long";
             } else if (sqlDataType == SqlDataType.Bit) {
