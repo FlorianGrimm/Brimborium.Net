@@ -71,14 +71,14 @@ public static class Program {
                         }
                     }
                     // dotnet publish
-                    {                        
-                        var csb=new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
-                        var p1 = (string.IsNullOrEmpty(csb.DataSource) || string.IsNullOrEmpty(csb.InitialCatalog)) ? string.Empty :  
+                    {
+                        var csb = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+                        var p1 = (string.IsNullOrEmpty(csb.DataSource) || string.IsNullOrEmpty(csb.InitialCatalog)) ? string.Empty :
                             $"/p:TargetServerName=\"{csb.DataSource}\" /p:TargetDatabaseName=\"{csb.InitialCatalog}\"";
-                        var p2 = (string.IsNullOrEmpty(csb.UserID) || string.IsNullOrEmpty(csb.Password)) ? string.Empty : 
+                        var p2 = (string.IsNullOrEmpty(csb.UserID) || string.IsNullOrEmpty(csb.Password)) ? string.Empty :
                             $"/p:TargetUser=\"{csb.UserID} /p:TargetPassword=\"{csb.Password} ";
                         var psi = new System.Diagnostics.ProcessStartInfo(
-                            dotnet, 
+                            dotnet,
                             $"publish \"{sqlProject_csproj}\" {p1} {p2}");
                         psi.WorkingDirectory = sqlProjectDirectory;
                         var process = System.Diagnostics.Process.Start(psi);
@@ -116,11 +116,15 @@ public static class Program {
     public static bool MainGenerate(string connectionString, string outputFolder) {
         var templateVariables = new Dictionary<string, string>();
         var cfg = new GenerateConfiguration();
+        using var connection = new Microsoft.Data.SqlClient.SqlConnection(connectionString);
+        var database = UtilitySQLInfo.GetDatabase(connection);
+        var databaseInfo = UtilitySQLInfo.ExtractDatabaseSchema(database, _ => true);
         return Brimborium.GenerateStoredProcedure.GenerateForStoredProcedure.GenerateSql(
-            connectionString,
+            databaseInfo,
             outputFolder,
             cfg,
             templateVariables,
+            false,
             true);
     }
 

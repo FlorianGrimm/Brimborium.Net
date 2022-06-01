@@ -42,7 +42,8 @@
                 ? this.IndexClustered.Columns
                 : this.IndexPrimaryKey.Columns;
 
-        public string GetNameQ() => $"[{this.Schema}].[{this.Name}]";
+        private string? _GetNameQ;
+        public string GetNameQ() => (_GetNameQ ??= $"[{this.Schema}].[{this.Name}]");
 
         public List<ColumnInfo> ColumnsWithRowversion {
             get {

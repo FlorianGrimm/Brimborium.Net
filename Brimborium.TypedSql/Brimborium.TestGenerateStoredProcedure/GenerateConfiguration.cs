@@ -653,7 +653,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
             //
         }
 
-        public override ConfigurationBound Build(DatabaseInfo databaseInfo) {
+        public override ConfigurationBound Build(DatabaseInfo databaseInfo, bool isVerbose) {
             var result = new ConfigurationBound();
 
             var hsExcludeFromCompare = new System.Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
@@ -766,6 +766,8 @@ namespace Brimborium.TestGenerateStoredProcedure {
                 ConfigurationBound.CreateReplacementBinding<TableInfo>(this.ReplacementTableTemplates, databaseInfo.Tables)
                 );
             //
+            this.AddKnownReplacementBindings(databaseInfo, result);
+
             return result;
         }
 

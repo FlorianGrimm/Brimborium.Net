@@ -1,11 +1,28 @@
 ﻿namespace Brimborium.CodeGeneration.SQLRelated {
     public static class UtilitySQLInfo {
+        public static Database GetDatabase(
+            Microsoft.Data.SqlClient.SqlConnection connection
+            ) {
+            // using var connection = new Microsoft.Data.SqlClient.SqlConnection(connectionString);
+            var serverConnection = new Microsoft.SqlServer.Management.Common.ServerConnection(connection);
+            var server = new Microsoft.SqlServer.Management.Smo.Server(serverConnection);
+            if (server is null) {
+                throw new InvalidArgumentException($"server:{serverConnection.ServerInstance} not found!");
+            }
+            
+            var database = server.Databases[connection.Database];
+            if (database is null) {
+                throw new InvalidArgumentException($"Database:{serverConnection.DatabaseName} not found!");
+            }
+
+            return database;
+        }
+
         public static DatabaseInfo ExtractDatabaseSchema(
             Database database,
             Func<string, bool> precondition
             ) {
             var result = new DatabaseInfo();
-            var lstTables = result.Tables;
             //
             // table
             //
@@ -69,7 +86,7 @@
                             );
                     }
                     //
-                    lstTables.Add(TableInfo.Create(
+                    result.AddTable(TableInfo.Create(
                         table,
                         lstColumns,
                         columnRowversion,
@@ -81,16 +98,16 @@
                 } else {
                 }
             }
-            var dctTables = lstTables.ToDictionary(ti => ti.GetNameQ(), ti => ti, StringComparer.OrdinalIgnoreCase);
             //
             // foreign key
             //
             foreach (Table table in database.Tables) {
-                if (dctTables.TryGetValue($"[{table.Schema}].[{table.Name}]", out var tableInfo)) {
+
+                if (result.TableByName.TryGetValue(GetNameQ(table), out var tableInfo)) {
                     var dctColumns = tableInfo.Columns.ToDictionary(c => c.Name, c => c, StringComparer.OrdinalIgnoreCase);
 
                     foreach (ForeignKey foreignKey in table.ForeignKeys) {
-                        if (dctTables.TryGetValue($"[{foreignKey.ReferencedTableSchema}].[{foreignKey.ReferencedTable}]", out var tableInfoReferenced)) {
+                        if (result.TableByName.TryGetValue($"[{foreignKey.ReferencedTableSchema}].[{foreignKey.ReferencedTable}]", out var tableInfoReferenced)) {
                             var lstForeignKeyColumns = foreignKey.Columns.Cast<ForeignKeyColumn>()
                                 .OrderBy(fkc => fkc.ID)
                                 .Select(fkc => dctColumns[fkc.Name])
@@ -113,5 +130,9 @@
             //
             return result;
         }
+
+        public static string GetNameQ(Table table) => $"[{table.Schema}].[{table.Name}]";
+
+
     }
 }
