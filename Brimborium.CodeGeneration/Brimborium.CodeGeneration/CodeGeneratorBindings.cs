@@ -1,6 +1,6 @@
-﻿namespace Brimborium.GenerateStoredProcedure {
-    public class ConfigurationBound {
-        public ConfigurationBound() {
+﻿namespace Brimborium.CodeGeneration {
+    public class CodeGeneratorBindings {
+        public CodeGeneratorBindings() {
             this.RenderBindings = new List<RenderBinding>();
             this.ReplacementBindings = new List<RenderBinding>();
         }

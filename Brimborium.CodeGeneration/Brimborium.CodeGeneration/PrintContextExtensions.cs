@@ -27,7 +27,45 @@
             }
             return ctxt;
         }
+        public static PrintContext AppendBlock<T>(
+            this PrintContext ctxt, 
+            T Data, 
+            Action<T, PrintContext>? First = default, 
+            Action<T, PrintContext>? Render = default,
+            Action<T, PrintContext>? Middle = default,
+            Action<T, PrintContext>? Render2 = default,
+            Action<T, PrintContext>? Last = default
+            ) {
+            if (First is not null) {
+                First(Data, ctxt);
+            }
+            if (Render is not null) { 
+                Render(Data, ctxt.GetIndented());
+            }
+            if (Middle is not null) {
+                Middle(Data, ctxt);
+            }
+            if (Render2 is not null) {
+                Render2(Data, ctxt.GetIndented());
+            }
+            if (Last is not null) {
+                Last(Data, ctxt);
+            }
+            return ctxt;
+        }
 
+        public static PrintContext AppendBlock<T>(this PrintContext ctxt, 
+            T Data, 
+            RenderTemplate<T>? First, RenderTemplate<T> Inner, RenderTemplate<T>? Last) {
+            if (First is not null) {
+                First.Render(Data, ctxt);
+            }
+            Inner.Render(Data, ctxt.GetIndented());
+            if (Last is not null) {
+                Last.Render(Data, ctxt);
+            }
+            return ctxt;
+        }
 
         public static PrintContext AppendCurlyBlock<T>(this PrintContext ctxt, T Data, Action<T, PrintContext>? FirstBefore, Action<T, PrintContext> Render, Action<T, PrintContext>? LastAfter) {
             if (FirstBefore is null) {

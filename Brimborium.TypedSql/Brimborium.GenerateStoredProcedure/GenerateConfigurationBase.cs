@@ -9,13 +9,13 @@
 
         }
 
-        public virtual ConfigurationBound Build(DatabaseInfo databaseInfo, bool isVerbose) {
-            var result = new ConfigurationBound();
+        public virtual CodeGeneratorBindings Build(DatabaseInfo databaseInfo, bool isVerbose) {
+            var result = new CodeGeneratorBindings();
             this.AddKnownReplacementBindings(databaseInfo, result);
             return result;
         }
 
-        public virtual void AddKnownReplacementBindings(DatabaseInfo databaseInfo, ConfigurationBound result) {
+        public virtual void AddKnownReplacementBindings(DatabaseInfo databaseInfo, CodeGeneratorBindings result) {
             result.AddReplacementBindings(
                 nameof(KnownTemplates.ColumnRowversion), 
                 databaseInfo.Tables.Select(t=>new TableBinding(t, this.KnownTemplates.ColumnRowversion)));

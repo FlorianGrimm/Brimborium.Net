@@ -653,8 +653,8 @@ namespace Brimborium.TestGenerateStoredProcedure {
             //
         }
 
-        public override ConfigurationBound Build(DatabaseInfo databaseInfo, bool isVerbose) {
-            var result = new ConfigurationBound();
+        public override CodeGeneratorBindings Build(DatabaseInfo databaseInfo, bool isVerbose) {
+            var result = new CodeGeneratorBindings();
 
             var hsExcludeFromCompare = new System.Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
             hsExcludeFromCompare.Add("ActivityId");
@@ -763,7 +763,7 @@ namespace Brimborium.TestGenerateStoredProcedure {
 
 
             result.ReplacementBindings.AddRange(
-                ConfigurationBound.CreateReplacementBinding<TableInfo>(this.ReplacementTableTemplates, databaseInfo.Tables)
+                CodeGeneratorBindings.CreateReplacementBinding<TableInfo>(this.ReplacementTableTemplates, databaseInfo.Tables)
                 );
             //
             this.AddKnownReplacementBindings(databaseInfo, result);
