@@ -7,7 +7,7 @@
             Dictionary<string, string> templateVariables,
             bool isVerbose,
             bool isForce) {
-            var config = cfg.Build(databaseInfo, isVerbose);
+            var codeGeneratorBindings = cfg.Build(databaseInfo, isVerbose);
             templateVariables["ProjectRoot"] = outputFolder;
             templateVariables["Schema"] = "";
             templateVariables["Name"] = "";
@@ -17,7 +17,7 @@
             return CodeGenerator.Generate(
                 arrFileInfo:arrFileInfo,
                 templateVariables:templateVariables, 
-                config:config, 
+                codeGeneratorBindings: codeGeneratorBindings,
                 log:null,
                 isVerbose:isVerbose
                 );
