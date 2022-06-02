@@ -30,7 +30,7 @@
             if (log is null) { log = System.Console.Out.WriteLine; }
 
             var lstFileContent = arrFileInfo
-                            .Select(fi => new FileContent(fi.FullName, System.IO.File.ReadAllText(fi.FullName)))
+                            .Select(fi => FileContent.Create(fi.FullName))
                             .OrderBy(fi => fi.FileName)
                             .ToList();
             /*
@@ -97,11 +97,14 @@
                     }
                 }
                 try {
-                    var sbOutput = new StringBuilder();
+                    if (fileContentGenerated is null) {
+                        fileContentGenerated = FileContent.Create(outputFilename);
+                    }
+                     var sbOutput = new StringBuilder();
                     var printCtxt = new PrintContext(sbOutput, boundVariables);
                     renderBinding.Render(printCtxt);
-                    var (changed, content) = ReplacementBindingExtension.Replace(sbOutput.ToString(), renderGenerator.GetValue);
-                    if (changed) {
+                    var content = ReplacementBindingExtension.Replace(sbOutput.ToString(), renderGenerator.GetValue).content;
+                    if (fileContentGenerated.Write(content).changed) {
                         log($"changed: {outputFilename}");
                         result = true;
                     } else {
