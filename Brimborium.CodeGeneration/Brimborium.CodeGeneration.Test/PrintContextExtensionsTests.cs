@@ -20,7 +20,7 @@
                 (data, ctxt) => {
                     ctxt.AppendPartsLine(data.ToString(), ";");
                 });
-            Assert.Equal("1;|2;|3;|4;|5;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1;|2;|3;|4;|5;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -33,7 +33,7 @@
                     (data, ctxt) => {
                         ctxt.AppendPartsLine(data.ToString(), ";");
                     }));
-            Assert.Equal("1;|2;|3;|4;|5;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1;|2;|3;|4;|5;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -51,7 +51,7 @@
                 LastAfter: (data, ctxt) => {
                     ctxt.AppendLine("end;");
                 });
-            Assert.Equal("start; {|    inner;|} end;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("start; {|    inner;|} end;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -65,7 +65,7 @@
                     ctxt.AppendLine("inner;");
                 },
                 LastAfter: null);
-            Assert.Equal("{|    inner;|}|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("{|    inner;|}|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -86,7 +86,7 @@
                     Render: (data, ctxt) => {
                         ctxt.AppendLine("end;");
                     }));
-            Assert.Equal("start; {|    inner;|} end;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("start; {|    inner;|} end;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -101,7 +101,7 @@
                         ctxt.AppendLine("inner;");
                     }),
                 LastAfter: null);
-            Assert.Equal("{|    inner;|}|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("{|    inner;|}|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -115,7 +115,7 @@
                 pcB.Index++;
             }
             pcA.AppendLine("End;");
-            Assert.Equal("a:Start;|b:0-F;|b:1-f;|b:2-f;|a:End;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("a:Start;|b:0-F;|b:1-f;|b:2-f;|a:End;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -129,7 +129,7 @@
                 pcB.Index++;
             }
             pcA.AppendLine("End;");
-            Assert.Equal("a:Start;|b:0-F;|b:1-;|b:2-;|a:End;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("a:Start;|b:0-F;|b:1-;|b:2-;|a:End;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -143,7 +143,7 @@
                 pcB.Index++;
             }
             pcA.AppendLine("End;");
-            Assert.Equal("a:Start;|b:0-;|b:1-f;|b:2-f;|a:End;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("a:Start;|b:0-;|b:1-f;|b:2-f;|a:End;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -157,7 +157,7 @@
                 pcB.Index++;
             }
             pcA.AppendLine("End;");
-            Assert.Equal("a:Start;|b:0-;|b:1-;|b:2-L;|a:End;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("a:Start;|b:0-;|b:1-;|b:2-L;|a:End;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -171,7 +171,7 @@
                 pcB.Index++;
             }
             pcA.AppendLine("End;");
-            Assert.Equal("a:Start;|b:0-l;|b:1-l;|b:2-;|a:End;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("a:Start;|b:0-l;|b:1-l;|b:2-;|a:End;|", output.ToString().ReplaceNewLineToPipe());
         }
     }
 }

@@ -70,13 +70,19 @@
                 dctFileContentGenerated.TryGetValue(outputFilename, out var fileContentGenerated);
                 var codeIdentity = renderBinding.GetCodeIdentity();
                 if (!string.IsNullOrEmpty(codeIdentity)) {
-                    var fileContentFound = lstFileContent.FirstOrDefault(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase));
-                    if (fileContentFound is not null) {
+                    var lstFileContentFound = lstFileContent.Where(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase)).ToList();
+                    if (lstFileContentFound.Count == 0) {
+                    } else if (lstFileContentFound.FirstOrDefault(fc => string.Equals(fc.FileName, outputFilename, StringComparison.CurrentCultureIgnoreCase) ) is FileContent fileContentAsDefined ) {
+                        // no change
+                    } else if (lstFileContentFound.Count == 1) {
+                        var fileContentFound = lstFileContentFound[0];
                         if (isVerbose) {
                             log($"redirect {outputFilename}->{fileContentFound.FileName}");
                         }
                         outputFilename = fileContentFound.FileName;
                         dctFileContentGenerated.TryGetValue(outputFilename, out fileContentGenerated);
+                    } else {
+                        log($"Error: codeIdentity:{codeIdentity} resolves to mmore than one file: {string.Join(", ", lstFileContent.Select(fc=>fc.FileName))}");
                     }
                 }
 
@@ -84,6 +90,9 @@
                     if (dctFileContentReplacements.TryGetValue(outputFilename, out var fileContentReplacements)) {
                         // file contains Replacements - do not generate 
                         // lstFileContentReplacements.Remove(fileContentReplacements);
+                        if (isVerbose) {
+                            log($"info: file:{outputFilename}; change from generate to replacements.");
+                        }
                         continue;
                     }
                 }

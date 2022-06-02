@@ -4,6 +4,7 @@
         [Fact]
         public void ExtractDatabaseSchema_Test() {
             var connectionString = Helper.GetConnectionString();
+            if (string.IsNullOrEmpty(connectionString)) { return; }
             Assert.NotNull(connectionString);
             using var connection = new Microsoft.Data.SqlClient.SqlConnection(connectionString);
             var database = UtilitySQLInfo.GetDatabase(connection);

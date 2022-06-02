@@ -12,8 +12,8 @@
                 },
                 new Dictionary<string, string>()
                 );
-            Assert.Equal("    -- abc|", renderGenerator.GetValue("HELP").Replace(System.Environment.NewLine, "|"));
-            Assert.Equal("    -- Replace=abc --|    1234|    -- Replace#abc --||", renderGenerator.GetValue("SNIPPETS").Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("    -- abc|", renderGenerator.GetValue("HELP").ReplaceNewLineToPipe());
+            Assert.Equal("    /*-- Replace=abc --*/|    1234|    /*-- /Replace=abc --*/||", renderGenerator.GetValue("SNIPPETS").ReplaceNewLineToPipe());
             renderGenerator.Add(
                 new RenderBinding<int>(
                         Data: 2345,
@@ -27,12 +27,12 @@
                             Template: new RenderTemplate<int>(
                                 Render: (data, ctxt) => ctxt.AppendLine(data.ToString()),
                                 NameFn: (_) => ""))));
-            Assert.Equal("1234|", renderGenerator.GetValue("abc", 0).Replace(System.Environment.NewLine, "|"));
-            Assert.Equal("2345|", renderGenerator.GetValue("def", 0).Replace(System.Environment.NewLine, "|"));
-            Assert.Equal(" 1234|", renderGenerator.GetValue("abc", 1).Replace(System.Environment.NewLine, "|"));
-            Assert.Equal(" 2345|", renderGenerator.GetValue("def", 1).Replace(System.Environment.NewLine, "|"));
-            Assert.Equal("  1234|", renderGenerator.GetValue("abc", 2).Replace(System.Environment.NewLine, "|"));
-            Assert.Equal("  2345|", renderGenerator.GetValue("def", 2).Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1234|", renderGenerator.GetValue("abc", 0).ReplaceNewLineToPipe());
+            Assert.Equal("2345|", renderGenerator.GetValue("def", 0).ReplaceNewLineToPipe());
+            Assert.Equal(" 1234|", renderGenerator.GetValue("abc", 1).ReplaceNewLineToPipe());
+            Assert.Equal(" 2345|", renderGenerator.GetValue("def", 1).ReplaceNewLineToPipe());
+            Assert.Equal("  1234|", renderGenerator.GetValue("abc", 2).ReplaceNewLineToPipe());
+            Assert.Equal("  2345|", renderGenerator.GetValue("def", 2).ReplaceNewLineToPipe());
         }
     }
 }

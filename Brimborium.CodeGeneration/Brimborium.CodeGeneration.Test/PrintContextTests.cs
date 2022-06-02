@@ -15,7 +15,7 @@
             Assert.False(pc.PrintOutput.IndentWritten);
             pc.PrintOutput.Append("  ", "d",false);
             pc.PrintOutput.AppendLine();            
-            Assert.Equal("  abc|  d|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("  abc|  d|", output.ToString().ReplaceNewLineToPipe());
 
         }
 
@@ -33,7 +33,7 @@
                 pcB.Index++;
             }
             pcA.AppendLine("End;");
-            Assert.Equal("a:Start;|b:0-F-;|b:1--;|b:2--L;|a:End;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("a:Start;|b:0-F-;|b:1--;|b:2--L;|a:End;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -42,7 +42,7 @@
             var pc = new PrintContext(output).GetIndented("a:");
             pc.AppendLine("1;");
             pc.GetIndented("b:").AppendLine("2;");
-            Assert.Equal("a:1;|a:b:2;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("a:1;|a:b:2;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -51,7 +51,7 @@
             var pc = new PrintContext(output);
             pc.Append("1;");
             pc.GetIndented("b:").Append("2;");
-            Assert.Equal("1;2;", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1;2;", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -59,7 +59,7 @@
             var output = new StringBuilder();
             var pc = new PrintContext(output);
             pc.AppendLineAndError("1;");
-            Assert.Equal("1;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -67,7 +67,7 @@
             var output = new StringBuilder();
             var pc = new PrintContext(output);
             pc.AppendParts("1;", "2;");
-            Assert.Equal("1;2;", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1;2;", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -76,7 +76,7 @@
             var pc = new PrintContext(output);
             pc.AppendLine("1;");
             pc.AppendLine("2;");
-            Assert.Equal("1;|2;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1;|2;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]
@@ -85,7 +85,7 @@
             var pc = new PrintContext(output);
             pc.AppendPartsLine("1;", "2;");
             pc.AppendPartsLine("1;", "2;");
-            Assert.Equal("1;2;|1;2;|", output.ToString().Replace(System.Environment.NewLine, "|"));
+            Assert.Equal("1;2;|1;2;|", output.ToString().ReplaceNewLineToPipe());
         }
 
         [Fact()]

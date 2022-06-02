@@ -1,20 +1,21 @@
-﻿using System.Text.RegularExpressions;
-
-namespace Brimborium.CodeGeneration {
+﻿namespace Brimborium.CodeGeneration {
     public static class ReplacementBindingExtension {
         // -- Replace=x --
-        // -- Replace#x --
+        // -- /Replace=x --
         public const string ReplaceStart = "-- Replace=";
-        public const string ReplaceFinish = "-- Replace#";
+        public const string ReplaceFinish = "-- /Replace=";
 
         public static bool ContainsReplace(string content) {
-            return content.Contains(ReplaceStart)
-                && content.Contains(ReplaceFinish)
-                ;
+            if (content.Contains(ReplaceStart) && content.Contains(ReplaceFinish)) {
+                var posStart = IndexOfReplaceStart(content, 0);
+                if (posStart.start < 0) { return false; }
+                var posStop = IndexOfReplaceStop(content, posStart);
+                return (posStop.start >= 0);
+            }
+            return false;
         }
 
-        private static Regex _RegexStart = new Regex("([-][-][ ]Replace(?:\\d*))(?:[=])((?:(?:[^ ]+)|(?:[ ][^-]))+)([ ][-][-])((?:[ ]*(?:\\r?\\n?)))?");
-        // private static Regex _RegexStop = new Regex("([-][-][ ]Replace(?:\\d*))(?:[#])((?:(?:[^ ]+)|(?:[ ][^-]))+)([ ][-][-])");
+        private static Regex _RegexStart = new Regex("((?:[/][*])?[-][-][ ]Replace(?:\\d*))(?:[=])((?:(?:[^ ]+)|(?:[ ][^-]))+)([ ][-][-](?:[*][/])?)((?:[ ]*(?:\\r?\\n?)))?");
 
         public static ReplacePositionStart IndexOfReplaceStart(string content, int startat) {
             var m = _RegexStart.Match(content, startat);
@@ -32,7 +33,7 @@ namespace Brimborium.CodeGeneration {
 
         public static ReplacePositionStop IndexOfReplaceStop(string content, ReplacePositionStart replacePositionStart) {
             var startat = replacePositionStart.start + replacePositionStart.len;
-            var tokenStop = $"{replacePositionStart.prefix}#{replacePositionStart.name}{replacePositionStart.suffix}";
+            var tokenStop = $"{replacePositionStart.prefix.Substring(0, replacePositionStart.prefix.Length - 7)}/Replace={replacePositionStart.name}{replacePositionStart.suffix}";
             var posStop = content.IndexOf(tokenStop, startat);
             if (posStop > 0) {
                 var len = tokenStop.Length;

@@ -67,9 +67,9 @@
                 printContext = printContext.GetIndented(new string(' ', ws + 4));
                 var names = this._BindingByName.Keys.OrderBy(k => k, StringComparer.InvariantCultureIgnoreCase);
                 foreach (var n in names) {
-                    printContext.AppendLine($"-- Replace={n} --");
+                    printContext.AppendLine($"/*-- Replace={n} --*/");
                     this._BindingByName[n].Render(printContext);
-                    printContext.AppendLine($"-- Replace#{n} --");
+                    printContext.AppendLine($"/*-- /Replace={n} --*/");
                     printContext.AppendLine("");
                 }
                 return sbOutput.ToString();

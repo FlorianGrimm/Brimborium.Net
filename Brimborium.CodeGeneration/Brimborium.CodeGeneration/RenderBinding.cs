@@ -28,7 +28,7 @@
         }
 
         public override string GetFilename(Dictionary<string, string> boundVariables) {
-            return base.GetFilename(boundVariables);
+            return this.Template.GetFilename(this.Data, boundVariables);
         }
 
         public override void Render(PrintContext printContext) {
