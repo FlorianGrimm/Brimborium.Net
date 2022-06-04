@@ -2,12 +2,19 @@
     public sealed class PrintOutput {
         public StringBuilder Output { get; }
         public Dictionary<string, string> BoundVariables { get; }
-
+        public Dictionary<string, string> Flags { get; }
+        public Dictionary<string, string> Customize { get; }
+        
         public PrintOutput(
             StringBuilder Output,
-            Dictionary<string, string> BoundVariables) {
+            Dictionary<string, string> BoundVariables,
+            Dictionary<string, string> Flags,
+            Dictionary<string, string> Customize
+            ) {
             this.Output = Output;
             this.BoundVariables = BoundVariables;
+            this.Flags = Flags;
+            this.Customize = Customize;
         }
         public bool IndentWritten;
 

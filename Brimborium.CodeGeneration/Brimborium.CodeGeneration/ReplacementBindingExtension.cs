@@ -76,8 +76,8 @@
 
         public static Dictionary<string, string> ReadFlags(string content) {
             var result = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-            result["FlagsContent"] = string.Empty;
-            var sbFlagsContent = new StringBuilder();
+            //result["FlagsContent"] = string.Empty;
+            //var sbFlagsContent = new StringBuilder();
             int pos = 0;
             while (pos < content.Length) {
                 var match = _RegexFlags.Match(content, pos);
@@ -86,12 +86,12 @@
                     var key = match.Groups[1].Value;
                     var value = match.Groups[2].Value;
                     result[key] = value;
-                    sbFlagsContent.Append(match.Value);
+                    //sbFlagsContent.Append(match.Value);
                 } else {
                     break;
                 }
             }
-            result["FlagsContent"] = sbFlagsContent.ToString();
+            //result["FlagsContent"] = sbFlagsContent.ToString();
             return result;
         }
 
@@ -108,7 +108,11 @@
                     break;
                 }
                 var contentCustomizeStart = positionStart.start + positionStart.len;
-                var contentCustomize = content.Substring(contentCustomizeStart, positionStop.start - contentCustomizeStart);
+                var len = positionStop.start - contentCustomizeStart;
+                while ((len > 0) && (IsSpaceOrTab(content[contentCustomizeStart + len - 1]))){
+                    len--;
+                }
+                var contentCustomize = content.Substring(contentCustomizeStart, len);
                 result[positionStart.name] = contentCustomize;
                 pos = positionStop.start + positionStop.tokenStop.Length;
             }

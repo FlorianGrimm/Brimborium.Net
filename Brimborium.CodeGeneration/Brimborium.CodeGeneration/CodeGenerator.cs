@@ -6,38 +6,36 @@
             Dictionary<string, string> templateVariables,
             CodeGeneratorBindings codeGeneratorBindings,
             Action<string>? log,
-            bool isVerbose) {
+            bool isVerbose,
+            IFileContentService? fileContentService = default) {
             templateVariables["ProjectRoot"] = outputFolder;
             var di = new System.IO.DirectoryInfo(outputFolder);
             var arrFileInfo = di.GetFiles(pattern, System.IO.SearchOption.AllDirectories);
+            var lstFileContent = arrFileInfo
+                .Select(fi => FileContent.Create(fi.FullName, fileContentService))
+                .OrderBy(fi => fi.FileName)
+                .ToList();
 
             return CodeGenerator.Generate(
-                arrFileInfo: arrFileInfo,
+                lstFileContent: lstFileContent,
                 templateVariables: templateVariables,
                 codeGeneratorBindings: codeGeneratorBindings,
                 log: log,
-                isVerbose: isVerbose
+                isVerbose: isVerbose,
+                fileContentService: fileContentService
                 );
         }
 
         public static bool Generate(
-            FileInfo[] arrFileInfo,
+            List<FileContent> lstFileContent,
             Dictionary<string, string> templateVariables,
             CodeGeneratorBindings codeGeneratorBindings,
             Action<string>? log,
-            bool isVerbose
+            bool isVerbose,
+            IFileContentService? fileContentService = default
             ) {
             if (log is null) { log = System.Console.Out.WriteLine; }
-
-            var lstFileContent = arrFileInfo
-                            .Select(fi => FileContent.Create(fi.FullName))
-                            .OrderBy(fi => fi.FileName)
-                            .ToList();
-            /*
-            foreach (var fc in lstFileContent) {
-                log(fc.FileName);
-            }
-            */
+            System.Exception? lastError=null;
             var lstFileContentGenerated = new List<FileContent>();
             var lstFileContentReplacements = new List<FileContent>();
             foreach (var fc in lstFileContent) {
@@ -55,7 +53,6 @@
             // lstFileContent.AddRange(lstFileContentGenerated);
             // lstFileContent.AddRange(lstFileContentReplacements.Where(fc=>!fc.Content.Contains("-- Replace=SNIPPETS -")));
 
-            System.Exception? lastError = null;
             var renderGenerator = new RenderGenerator(codeGeneratorBindings.ReplacementBindings, templateVariables);
             foreach (var renderBinding in codeGeneratorBindings.RenderBindings) {
                 var boundVariables = new Dictionary<string, string>(templateVariables);
@@ -70,8 +67,11 @@
                 dctFileContentGenerated.TryGetValue(outputFilename, out var fileContentGenerated);
                 var codeIdentity = renderBinding.GetCodeIdentity();
                 if (!string.IsNullOrEmpty(codeIdentity)) {
-                    var lstFileContentFound = lstFileContent.Where(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase)).ToList();
+                    var lstFileContentFound = lstFileContent
+                        .Where(fc => fc.Content.Contains(codeIdentity, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
                     if (lstFileContentFound.Count == 0) {
+                        //
                     } else if (lstFileContentFound.FirstOrDefault(fc => string.Equals(fc.FileName, outputFilename, StringComparison.CurrentCultureIgnoreCase) ) is FileContent fileContentAsDefined ) {
                         // no change
                     } else if (lstFileContentFound.Count == 1) {
@@ -98,10 +98,18 @@
                 }
                 try {
                     if (fileContentGenerated is null) {
-                        fileContentGenerated = FileContent.Create(outputFilename);
+                        fileContentGenerated = FileContent.Create(outputFilename, fileContentService);
                     }
-                     var sbOutput = new StringBuilder();
-                    var printCtxt = new PrintContext(sbOutput, boundVariables);
+                    var flags = ReplacementBindingExtension.ReadFlags(fileContentGenerated.Content);
+                    var customize = ReplacementBindingExtension.ReadCustomize(fileContentGenerated.Content);
+                    if (!flags.ContainsKey("AutoGenerate")) {
+                        flags["AutoGenerate"] = "on";
+                    }
+                    if (!flags.ContainsKey("Customize")) {
+                        flags["Customize"] = "off";
+                    }
+                    var sbOutput = new StringBuilder();
+                    var printCtxt = new PrintContext(sbOutput, boundVariables, flags, customize);
                     renderBinding.Render(printCtxt);
                     var content = ReplacementBindingExtension.Replace(sbOutput.ToString(), renderGenerator.GetValue).content;
                     if (fileContentGenerated.Write(content).changed) {
@@ -117,6 +125,7 @@
                     log($"error     : {outputFilename}");
                     log(error.ToString());
                     log($"error     : {outputFilename}");
+                    lastError = error;
                 }
             }
 
@@ -139,10 +148,12 @@
                     log($"error     : {fileContent.FileName}");
                     log(error.ToString());
                     log($"error     : {fileContent.FileName}");
+                    lastError = error;
                 }
-                if (lastError is not null) {
-                    throw lastError;
-                }
+            }
+            if (lastError is not null) {
+                //throw lastError;
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(lastError).Throw();
             }
             return result;
         }

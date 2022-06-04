@@ -9,10 +9,12 @@
         
         public PrintContext(
             StringBuilder Output,
-            Dictionary<string, string>? BoundVariables = default
+            Dictionary<string, string>? BoundVariables = default,
+            Dictionary<string, string>? Flags = default,
+            Dictionary<string, string>? Customize = default
             ) {
             this.Output = Output;
-            this.PrintOutput = new PrintOutput(Output, BoundVariables ?? new Dictionary<string, string>());
+            this.PrintOutput = new PrintOutput(Output, BoundVariables ?? new Dictionary<string, string>(), Flags ?? new Dictionary<string, string>(), Customize ?? new Dictionary<string, string>());
             this.Indent = string.Empty;
             this.Index = -1;
             this.Count = -1;
@@ -30,6 +32,26 @@
             this.Index = Index;
             this.Count = Count;
         }
+
+        public void AppendHeader() {
+            foreach (var flag in this.PrintOutput.Flags.OrderBy(kv=>kv.Key)) { 
+                this.AppendPartsLine("/*-- ",flag.Key,":",flag.Value," --*/");
+            }
+        }
+
+        public void AppendCustomize(string name) {
+            if (this.PrintOutput.Customize.TryGetValue(name, out var content)) {
+                this.AppendPartsLine("/*-- Customize=", name, " --*/");
+                this.PrintOutput.Output.Append(content);
+                this.AppendPartsLine("/*-- /Customize=", name, " --*/");
+            } else if (this.PrintOutput.Flags.TryGetValue("Customize", out var customize)) { 
+                if (string.Equals(customize, "on", StringComparison.Ordinal)) {
+                    this.AppendPartsLine("/*-- Customize=", name, " --*/");
+                    this.AppendPartsLine("/*-- /Customize=", name, " --*/");
+                }
+            }
+        }
+
         public PrintContext GetIndented(string addIndent = "    ") {
             return new PrintContext(this, this.Indent + addIndent, this.Index, this.Count);
         }
