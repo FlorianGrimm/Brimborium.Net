@@ -35,7 +35,7 @@
             IFileContentService? fileContentService = default
             ) {
             if (log is null) { log = System.Console.Out.WriteLine; }
-            System.Exception? lastError=null;
+            System.Exception? lastError = null;
             var lstFileContentGenerated = new List<FileContent>();
             var lstFileContentReplacements = new List<FileContent>();
             foreach (var fc in lstFileContent) {
@@ -49,9 +49,6 @@
             var result = false;
             var dctFileContentGenerated = lstFileContentGenerated.ToDictionary(fc => fc.FileName, StringComparer.OrdinalIgnoreCase);
             var dctFileContentReplacements = lstFileContentReplacements.ToDictionary(fc => fc.FileName, StringComparer.OrdinalIgnoreCase);
-            // var lstFileContent = new List<FileContent>(lstFileContentGenerated.Count + lstFileContentReplacements.Count);
-            // lstFileContent.AddRange(lstFileContentGenerated);
-            // lstFileContent.AddRange(lstFileContentReplacements.Where(fc=>!fc.Content.Contains("-- Replace=SNIPPETS -")));
 
             var renderGenerator = new RenderGenerator(codeGeneratorBindings.ReplacementBindings, templateVariables);
             foreach (var renderBinding in codeGeneratorBindings.RenderBindings) {
@@ -72,7 +69,7 @@
                         .ToList();
                     if (lstFileContentFound.Count == 0) {
                         //
-                    } else if (lstFileContentFound.FirstOrDefault(fc => string.Equals(fc.FileName, outputFilename, StringComparison.CurrentCultureIgnoreCase) ) is FileContent fileContentAsDefined ) {
+                    } else if (lstFileContentFound.FirstOrDefault(fc => string.Equals(fc.FileName, outputFilename, StringComparison.CurrentCultureIgnoreCase)) is FileContent fileContentAsDefined) {
                         // no change
                     } else if (lstFileContentFound.Count == 1) {
                         var fileContentFound = lstFileContentFound[0];
@@ -82,7 +79,7 @@
                         outputFilename = fileContentFound.FileName;
                         dctFileContentGenerated.TryGetValue(outputFilename, out fileContentGenerated);
                     } else {
-                        log($"Error: codeIdentity:{codeIdentity} resolves to mmore than one file: {string.Join(", ", lstFileContent.Select(fc=>fc.FileName))}");
+                        log($"Error: codeIdentity:{codeIdentity} resolves to mmore than one file: {string.Join(", ", lstFileContent.Select(fc => fc.FileName))}");
                     }
                 }
 
@@ -101,6 +98,19 @@
                         fileContentGenerated = FileContent.Create(outputFilename, fileContentService);
                     }
                     var flags = ReplacementBindingExtension.ReadFlags(fileContentGenerated.Content);
+                    if (flags.TryGetValue("AutoGenerate", out var autoGenerate)) {
+                        if (string.Equals(autoGenerate, "off", StringComparison.Ordinal)) {
+                            if (flags.TryGetValue("Replacements", out var replacements)) {
+                                if (string.Equals(replacements, "on", StringComparison.Ordinal)) {
+                                    if (dctFileContentReplacements.TryAdd(fileContentGenerated.FileName, fileContentGenerated)) {
+                                        lstFileContentReplacements.Add(fileContentGenerated);
+                                    }
+                                    continue;
+                                }
+                            }
+                            continue;
+                        }
+                    }
                     var customize = ReplacementBindingExtension.ReadCustomize(fileContentGenerated.Content);
                     if (!flags.ContainsKey("AutoGenerate")) {
                         flags["AutoGenerate"] = "on";
@@ -132,6 +142,12 @@
             foreach (var fileContent in lstFileContentReplacements) {
                 try {
                     var outputFilename = fileContent.FileName;
+                    var flags = ReplacementBindingExtension.ReadFlags(fileContent.Content);
+                    if (flags.TryGetValue("Replacements", out var replacements)) {
+                        if (string.Equals(replacements, "off", StringComparison.Ordinal)) {
+                            continue;
+                        }
+                    }
                     var (changed, content) = ReplacementBindingExtension.Replace(fileContent.Content, renderGenerator.GetValue);
                     if (changed) {
                         if (fileContent.Write(content).changed) {

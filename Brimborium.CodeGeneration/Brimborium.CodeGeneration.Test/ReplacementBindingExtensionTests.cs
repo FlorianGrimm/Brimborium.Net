@@ -180,7 +180,7 @@ namespace Brimborium.CodeGeneration {
         public void ReadFlagsTest() {
             var content = "/*-- AutoGenerate:on --*/|/*-- Customize:off --*/|bbbb|cccc|/*-- /Customize=abc --*/|dddd".ReplacePipeToNewLine();
             var act = ReplacementBindingExtension.ReadFlags(content);
-            Assert.Equal(3, act.Count);
+            Assert.Equal(2, act.Count);
             Assert.Equal("on", act["AutoGenerate"]);
             Assert.Equal("off", act["Customize"]);
         }
