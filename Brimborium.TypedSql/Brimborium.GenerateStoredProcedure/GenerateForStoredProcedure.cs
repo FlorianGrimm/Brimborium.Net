@@ -11,11 +11,10 @@
             templateVariables["ProjectRoot"] = outputFolder;
             templateVariables["Schema"] = "";
             templateVariables["Name"] = "";
-            var di = new System.IO.DirectoryInfo(outputFolder);
-            var arrFileInfo = di.GetFiles("*.sql", System.IO.SearchOption.AllDirectories);
-
+            
             return CodeGenerator.Generate(
-                arrFileInfo:arrFileInfo,
+                outputFolder:outputFolder,
+                pattern: "*.sql",
                 templateVariables:templateVariables, 
                 codeGeneratorBindings: codeGeneratorBindings,
                 log:null,
