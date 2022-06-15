@@ -74,8 +74,8 @@
         private static Regex _RegexFlags = new Regex("(?:(?:[/][*])?[-][-][ ])([^:]{1,128})(?:[:])([^- \\r\\n]{1,128})(?:[ ][-][-](?:[*][/])?[ \\t]*(?:\\r?\\n?)*)?");
         private static char[] newline = new char[] { '\r', '\n' };
 
-        public static Dictionary<string, string> ReadFlags(string content) {
-            var result = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+        public static Dictionary<string, string> ReadFlags(string content, Dictionary<string, string>? result=default) {
+            result ??= new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
             //result["FlagsContent"] = string.Empty;
             //var sbFlagsContent = new StringBuilder();
             int pos = 0;
@@ -93,6 +93,18 @@
             }
             //result["FlagsContent"] = sbFlagsContent.ToString();
             return result;
+        }
+
+        public static bool HasFlagValue(
+            Dictionary<string, string>? flags, 
+            string name, string value
+            ) {
+            if (flags is not null) {
+                if (flags.TryGetValue(name, out var v)) {
+                    return string.Equals(v, value, StringComparison.Ordinal);
+                }
+            }
+            return false;
         }
 
         public static Dictionary<string, string> ReadCustomize(string content) {
