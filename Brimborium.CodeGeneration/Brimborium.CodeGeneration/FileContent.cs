@@ -15,15 +15,14 @@
 
         public bool HasChanged(string fileContent) {
             if (string.IsNullOrEmpty(this.Content)) {
+                return true;
             } else {
-                if (regexStart.IsMatch(this.Content) && regexStop.IsMatch(this.Content, System.Math.Max(0, this.Content.Length - 100))) {
+                if (string.Equals(this.Content, fileContent, StringComparison.OrdinalIgnoreCase)) {
                     return false;
-                }
-                if (string.CompareOrdinal(this.Content, fileContent) == 0) {
-                    return false;
+                } else {
+                    return true;
                 }
             }
-            return true;
         }
 
         public (bool changed, FileContent result) Write(string fileContent) {

@@ -52,6 +52,29 @@
             }
         }
 
+        public void AppendCustomizeWithDefaultContent<T>(
+            string name,
+            T Data,
+            Action<T, PrintContext> Render) {            
+            if (this.PrintOutput.Customize.TryGetValue($"Custom{name}", out var content)
+                && !string.IsNullOrWhiteSpace(content)) {
+                this.AppendPartsLine("/*-- Customize=Default", name, " --*/");
+                this.AppendPartsLine("/*-- /Customize=Default", name, " --*/");
+                this.AppendPartsLine("/*-- Customize=Custom", name, " --*/");
+                this.PrintOutput.Output.Append(content);
+                this.AppendPartsLine("/*-- /Customize=Custom", name, " --*/");
+            } else if (this.PrintOutput.Flags.TryGetValue("Customize", out var customize)
+                && (string.Equals(customize, "on", StringComparison.Ordinal))) {
+                this.AppendPartsLine("/*-- Customize=Default", name, " --*/");
+                Render(Data, this);
+                this.AppendPartsLine("/*-- /Customize=Default", name, " --*/");
+                this.AppendPartsLine("/*-- Customize=Custom", name, " --*/");
+                this.AppendPartsLine("/*-- /Customize=Custom", name, " --*/");
+            } else {
+                Render(Data, this);
+            }
+        }
+
         public PrintContext GetIndented(string addIndent = "    ") {
             return new PrintContext(this, this.Indent + addIndent, this.Index, this.Count);
         }

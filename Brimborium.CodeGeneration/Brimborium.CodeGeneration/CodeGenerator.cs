@@ -122,7 +122,8 @@
                     var printCtxt = new PrintContext(sbOutput, boundVariables, flags, customize);
                     renderBinding.Render(printCtxt);
                     var content = ReplacementBindingExtension.Replace(sbOutput.ToString(), renderGenerator.GetValue).content;
-                    if (fileContentGenerated.Write(content).changed) {
+                    var fileContentGeneratedNext = fileContentGenerated.Write(content);
+                    if (fileContentGeneratedNext.changed) {
                         log($"changed: {outputFilename}");
                         result = true;
                     } else {
