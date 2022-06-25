@@ -3,8 +3,8 @@ using Brimborium.Tracking.Entity;
 
 namespace Brimborium.Tracking.Service;
 
-public sealed class TrackingSetEbbes : TrackingSet<EbbesPK, EbbesEntity> {
-    public TrackingSetEbbes(
+public sealed class TrackingSetEbbes0 : TrackingSet<EbbesPK, EbbesEntity>, ITrackingSetEbbes {
+    public TrackingSetEbbes0(
         Test1TrackingContext trackingContext,
         ITrackingSetApplyChanges<EbbesEntity>? trackingApplyChanges = default
         ) : base(

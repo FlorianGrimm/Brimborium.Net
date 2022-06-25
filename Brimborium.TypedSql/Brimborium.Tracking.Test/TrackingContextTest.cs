@@ -39,9 +39,9 @@ public class TrackingContextTest {
     }
 
     private Test1TrackingContext CreateTrackingContext(
-        ITrackingSet<EbbesPK, EbbesEntity>? ebbes = default
+        Func<Test1TrackingContext, ITrackingSetEbbes>? fnEbbes = default
     ) {
-        var sut = new Test1TrackingContext(ebbes);
+        var sut = new Test1TrackingContext(fnEbbes);
         Assert.NotNull(sut);
         sut.Ebbes.Attach(new EbbesEntity(id1, Title1));
         sut.Ebbes.Attach(new EbbesEntity(id2, Title2));
@@ -128,6 +128,26 @@ public class TrackingContextTest {
             mockITrackingTransConnection.Object
         );
     }
+
+
+    [Fact]
+    public void TrackingContext_023_Add() {
+        var sut = CreateTrackingContext((t)=>new TrackingSetEbbes2(t));
+        Assert.Equal(5, sut.Ebbes.Count);
+
+        var to=sut.Ebbes.Add(new EbbesEntity(Id: Guid.Empty, Title: Title6));
+        Assert.Equal(EbbesCnt + 1, sut.Ebbes.Count);
+        Assert.NotEqual(Guid.Empty, to.Value.Id);
+        var idActual = to.Value.Id;
+        Assert.Equal(Title6, sut.Ebbes[new EbbesPK(Id: idActual)].Title);
+        Assert.Equal(1, sut.TrackingChanges.Changes.Count);
+
+        var chg = sut.TrackingChanges.Changes[0];
+        Assert.Equal(TrackingStatus.Added, chg.Status);
+        Assert.Equal(Title6, ((EbbesEntity)chg.GetValue()).Title);
+        Assert.Equal(6, sut.Ebbes.Count);
+    }
+
 
     [Fact]
     public void TrackingContext_004_Update() {

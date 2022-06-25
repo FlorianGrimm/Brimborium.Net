@@ -7,22 +7,27 @@ public sealed class ValidateEntityVersion<TValue> : ITrackingSetEvent<TValue>
 
     private ValidateEntityVersion() { }
 
-    public void OnAdding(TValue value, TrackingSet<TValue> trackingSet, ITrackingContext trackingContext) {
+    public AddingArgument<TValue> OnAdding(AddingArgument<TValue> argument) {
+        var (value, _, _) = argument;
         if (value.EntityVersion != 0) {
             throw new InvalidModificationException("EntityVersion!=0");
         }
+        return argument;
     }
 
-    public void OnUpdating(TValue newValue, TValue oldValue, TrackingStatus oldTrackingStatus, TrackingSet<TValue> trackingSet, ITrackingContext trackingContext) {
+    public UpdatingArgument<TValue> OnUpdating(UpdatingArgument<TValue> argument) {
+        var (newValue, oldValue, _, _, _) = argument;
         if (!oldValue.EntityVersion.EntityVersionDoesMatch(newValue.EntityVersion)) {
             throw new InvalidModificationException("EntityVersion does not match");
         }
+        return argument;
     }
 
-    public void OnDeleting(TValue newValue, TValue oldValue, TrackingStatus oldTrackingStatus, TrackingSet<TValue> trackingSet, ITrackingContext trackingContext) {
-
+    public DeletingArgument<TValue> OnDeleting(DeletingArgument<TValue> argument) {
+        var (newValue, oldValue, _, _, _) = argument;
         if (!oldValue.EntityVersion.EntityVersionDoesMatch(newValue.EntityVersion)) {
             throw new InvalidModificationException("EntityVersion does not match");
         }
+        return argument;
     }
 }

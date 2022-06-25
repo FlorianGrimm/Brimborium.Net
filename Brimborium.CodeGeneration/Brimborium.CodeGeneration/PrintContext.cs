@@ -58,8 +58,8 @@
             Action<T, PrintContext> Render) {            
             if (this.PrintOutput.Customize.TryGetValue($"Custom{name}", out var content)
                 && !string.IsNullOrWhiteSpace(content)) {
-                this.AppendPartsLine("/*-- Customize=Default", name, " --*/");
-                this.AppendPartsLine("/*-- /Customize=Default", name, " --*/");
+                // this.AppendPartsLine("/*-- Customize=Default", name, " --*/");
+                // this.AppendPartsLine("/*-- /Customize=Default", name, " --*/");
                 this.AppendPartsLine("/*-- Customize=Custom", name, " --*/");
                 this.PrintOutput.Output.Append(content);
                 this.AppendPartsLine("/*-- /Customize=Custom", name, " --*/");

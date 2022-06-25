@@ -8,11 +8,15 @@ namespace Brimborium.Tracking.Service;
 
 public class Test1TrackingContext : TrackingContext {
     public Test1TrackingContext(
-        ITrackingSet<EbbesPK, EbbesEntity>? ebbes = default
+        Func<Test1TrackingContext, ITrackingSetEbbes>? fnEbbes = default
     ) {
-        this.Ebbes = ebbes ?? new TrackingSetEbbes(
-            trackingContext: this
-            );
+        this.Ebbes = (fnEbbes is not null)
+            ? fnEbbes(this)
+            : new TrackingSetEbbes0(trackingContext: this);
     }
-    public ITrackingSet<EbbesPK, EbbesEntity> Ebbes { get; }
+    public ITrackingSetEbbes Ebbes { get; }
+}
+
+
+public interface ITrackingSetEbbes : ITrackingSet<EbbesPK, EbbesEntity> {
 }
