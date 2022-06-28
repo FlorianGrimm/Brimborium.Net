@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Functional", "Br
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Functional.Test", "Brimborium.Functional.Test\Brimborium.Functional.Test.csproj", "{C61757DF-F3D6-4252-861F-0D7390037918}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Optional", "Brimborium.Optional\Brimborium.Optional.csproj", "{73A4197A-8223-4AAA-973A-9750A3382CF5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Optional.Test", "Brimborium.Optional.Test\Brimborium.Optional.Test.csproj", "{0C9F77E1-3D22-450A-A0CF-520D93BDFFE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{C61757DF-F3D6-4252-861F-0D7390037918}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C61757DF-F3D6-4252-861F-0D7390037918}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C61757DF-F3D6-4252-861F-0D7390037918}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73A4197A-8223-4AAA-973A-9750A3382CF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73A4197A-8223-4AAA-973A-9750A3382CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73A4197A-8223-4AAA-973A-9750A3382CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73A4197A-8223-4AAA-973A-9750A3382CF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C9F77E1-3D22-450A-A0CF-520D93BDFFE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C9F77E1-3D22-450A-A0CF-520D93BDFFE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C9F77E1-3D22-450A-A0CF-520D93BDFFE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C9F77E1-3D22-450A-A0CF-520D93BDFFE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
