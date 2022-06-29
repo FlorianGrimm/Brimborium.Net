@@ -1,7 +1,4 @@
-﻿using Brimborium.Tracking.API;
-using Brimborium.Tracking.Entity;
-
-namespace Brimborium.Tracking.Service;
+﻿namespace Brimborium.Tracking.Service;
 
 public sealed class TrackingSetEbbes0 : TrackingSet<EbbesPK, EbbesEntity>, ITrackingSetEbbes {
     public TrackingSetEbbes0(
@@ -59,6 +56,10 @@ public sealed class EbbesUtiltiy
     private EbbesUtiltiy() { }
 
     public EbbesPK ExtractKey(EbbesEntity that) => that.GetPrimaryKey();
+
+    public bool TryExtractKey(EbbesEntity value, [MaybeNullWhen(false)] out EbbesPK key) {
+        throw new NotImplementedException();
+    }
 
     bool IEqualityComparer<EbbesPK>.Equals(EbbesPK? x, EbbesPK? y) {
         if (ReferenceEquals(x, y)) {

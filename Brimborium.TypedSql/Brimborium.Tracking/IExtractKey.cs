@@ -1,5 +1,11 @@
 ﻿namespace Brimborium.Tracking;
 
 public interface IExtractKey<TValue, TKey> {
-    TKey ExtractKey(TValue value);
+    bool TryExtractKey(TValue value, [MaybeNullWhen(false)] out TKey key);
+    //[System.Obsolete]
+    //TKey ExtractKey(TValue value);
+    //public bool TryExtractKey(TValue value, [MaybeNullWhen(false)] out TKey key) {
+    //    key = this.ExtractKey(value);
+    //    return true;
+    //}
 }

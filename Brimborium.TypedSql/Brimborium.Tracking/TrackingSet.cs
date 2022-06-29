@@ -132,25 +132,28 @@ public class TrackingSet<TKey, TValue>
         if (item is null) {
             return default;
         } else {
-            var key = this._ExtractKey.ExtractKey(item);
-            if (this._Items.TryGetValue(key, out var found)) {
-                this.AttachValidate(item);
-                var replace = ((found.Status == TrackingStatus.Original) || this.AttachConflictReplace(item, found));
-                if (replace) {
-                    found.Set(item, TrackingStatus.Original);
-                } else {
-                    // TODO remove changes ?
-                }
-                return found;
+            if (!this._ExtractKey.TryExtractKey(item, out var key)) {
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
             } else {
-                this.AttachValidate(item);
-                var result = new TrackingObject<TValue>(
-                    value: item,
-                    status: TrackingStatus.Original,
-                    trackingSet: this
-                );
-                this._Items.Add(key, result);
-                return result;
+                if (this._Items.TryGetValue(key, out var found)) {
+                    this.AttachValidate(item);
+                    var replace = ((found.Status == TrackingStatus.Original) || this.AttachConflictReplace(item, found));
+                    if (replace) {
+                        found.Set(item, TrackingStatus.Original);
+                    } else {
+                        // TODO remove changes ?
+                    }
+                    return found;
+                } else {
+                    this.AttachValidate(item);
+                    var result = new TrackingObject<TValue>(
+                        value: item,
+                        status: TrackingStatus.Original,
+                        trackingSet: this
+                    );
+                    this._Items.Add(key, result);
+                    return result;
+                }
             }
         }
     }
@@ -166,160 +169,204 @@ public class TrackingSet<TKey, TValue>
 
     public override void Detach(TrackingObject<TValue>? trackingObject) {
         if (trackingObject is not null) {
-            var key = this._ExtractKey.ExtractKey(trackingObject.Value);
-            this._Items.Remove(key);
+            if (this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
+                this._Items.Remove(key);
+            }
         }
     }
 
     protected internal override void ReAttach(TrackingObject<TValue> trackingObject) {
+        /*
         var key = this._ExtractKey.ExtractKey(trackingObject.Value);
         this._Items[key] = trackingObject;
+        */
+        if (!this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
+            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+        } else {
+#warning pk changed
+            this._Items[key] = trackingObject;
+        }
     }
 
     public override TrackingObject<TValue> Add(TValue value) {
-        var key = this._ExtractKey.ExtractKey(value);
-        if (this._Items.TryGetValue(key, out var result)) {
+        var isValidKey = this._ExtractKey.TryExtractKey(value, out var key);
+        if (isValidKey
+            && (key is not null)
+            && this._Items.TryGetValue(key, out _)) {
             throw new InvalidModificationException($"dupplicate key:{key}");
         } else {
             value = this.OnAdding(value);
+            /*
             var keyFinally = this._ExtractKey.ExtractKey(value);
-            if (keyFinally.Equals(key)) {
-                // no change
+            */
+            isValidKey = this._ExtractKey.TryExtractKey(value, out var keyFinally);
+            if (!isValidKey
+                || (keyFinally is null)) {
+                throw new InvalidModificationException($"Invalid primary key", "PrimaryKey", "{}");
+            }
+
+            if ((key is not null)
+                && keyFinally.Equals(key)) {
+                // no change -> no need test again
             } else {
-                if (this._Items.TryGetValue(keyFinally, out result)) {
-                    throw new InvalidModificationException($"dupplicate key:{key}");
+                if (this._Items.TryGetValue(keyFinally, out _)) {
+                    throw new InvalidModificationException($"dupplicate key:{key}", "PrimaryKey", keyFinally.ToString() ?? "{}");
                 }
             }
-            result = new TrackingObject<TValue>(
-               value: value,
-               status: TrackingStatus.Added,
-               trackingSet: this
-               );
-            this._Items.Add(keyFinally, result);            
+            var result = new TrackingObject<TValue>(
+                value: value,
+                status: TrackingStatus.Added,
+                trackingSet: this
+                );
+            this._Items.Add(keyFinally, result);
             this.TrackingContext.TrackingChanges.Add(result);
             return result;
-
         }
     }
 
     public override TrackingObject<TValue> Update(TValue value) {
+        /*
         var key = this._ExtractKey.ExtractKey(value);
-        if (this._Items.TryGetValue(key, out var result)) {
-            if (result.Status == TrackingStatus.Original) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Original);
-                result.Set(value, TrackingStatus.Modified);
-                this.TrackingContext.TrackingChanges.Add(result);
-                return result;
-            }
-            if (result.Status == TrackingStatus.Added) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Added);
-                result.Set(value, TrackingStatus.Added);
-                // skip this.TrackingContext.TrackingChanges
-                return result;
-            }
-            if (result.Status == TrackingStatus.Modified) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
-                result.Set(value, TrackingStatus.Modified);
-                // skip this.TrackingContext.TrackingChanges
-                return result;
-            }
-            if (result.Status == TrackingStatus.Deleted) {
-                throw new InvalidModificationException("item is already deleted.");
-            }
-            throw new InvalidModificationException($"unknown status {result.Status}");
+        */
+        if (!this._ExtractKey.TryExtractKey(value, out var key)) {
+            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
         } else {
-            throw new InvalidModificationException($"item:{key} does not exists.");
+            if (this._Items.TryGetValue(key, out var result)) {
+                if (result.Status == TrackingStatus.Original) {
+                    value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Original);
+                    result.Set(value, TrackingStatus.Modified);
+                    this.TrackingContext.TrackingChanges.Add(result);
+                    return result;
+                }
+                if (result.Status == TrackingStatus.Added) {
+                    value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Added);
+                    result.Set(value, TrackingStatus.Added);
+                    // skip this.TrackingContext.TrackingChanges
+                    return result;
+                }
+                if (result.Status == TrackingStatus.Modified) {
+                    value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
+                    result.Set(value, TrackingStatus.Modified);
+                    // skip this.TrackingContext.TrackingChanges
+                    return result;
+                }
+                if (result.Status == TrackingStatus.Deleted) {
+                    throw new InvalidModificationException("item is already deleted.");
+                }
+                throw new InvalidModificationException($"unknown status {result.Status}");
+            } else {
+                throw new InvalidModificationException($"item:{key} does not exists.");
+            }
         }
     }
 
     public override TrackingObject<TValue> Upsert(TValue value) {
+        /*
         var key = this._ExtractKey.ExtractKey(value);
-        if (!this._Items.TryGetValue(key, out var result)) {
-            value = this.OnAdding(value);
-            var keyFinally = this._ExtractKey.ExtractKey(value);
-            if (keyFinally.Equals(key)) {
-                // no change
-            } else {
-                key = keyFinally;
-                this._Items.TryGetValue(keyFinally, out result);
+        */
+        if (!this._ExtractKey.TryExtractKey(value, out var key)) {
+            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+        } else {
+
+            if (!this._Items.TryGetValue(key, out var result)) {
+                value = this.OnAdding(value);
+                /*
+                var keyFinally = this._ExtractKey.ExtractKey(value);
+                */
+                var isValidKey = this._ExtractKey.TryExtractKey(value, out var keyFinally);
+                if (!isValidKey
+                    || (key is null)
+                    || (keyFinally is null)) {
+                    throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+                } else if (keyFinally.Equals(key)) {
+                    // no change
+                } else {
+                    key = keyFinally;
+                    this._Items.TryGetValue(keyFinally, out result);
+                }
             }
-        }
-        if (result is null) { 
-            result = new TrackingObject<TValue>(
-               value: value,
-               status: TrackingStatus.Added,
-               trackingSet: this
-               );
-            this.TrackingContext.TrackingChanges.Add(result);
-            this._Items.Add(key, result);
-            return result;
-        } else { 
-            if (result.Status == TrackingStatus.Original) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Original);
-                result.Set(value, TrackingStatus.Modified);
+            if (result is null) {
+                result = new TrackingObject<TValue>(
+                   value: value,
+                   status: TrackingStatus.Added,
+                   trackingSet: this
+                   );
                 this.TrackingContext.TrackingChanges.Add(result);
+                this._Items.Add(key, result);
                 return result;
+            } else {
+                if (result.Status == TrackingStatus.Original) {
+                    value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Original);
+                    result.Set(value, TrackingStatus.Modified);
+                    this.TrackingContext.TrackingChanges.Add(result);
+                    return result;
+                }
+                if (result.Status == TrackingStatus.Added) {
+                    value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Added);
+                    result.Set(value, TrackingStatus.Added);
+                    // skip this.TrackingContext.TrackingChanges
+                    return result;
+                }
+                if (result.Status == TrackingStatus.Modified) {
+                    value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
+                    result.Set(value, TrackingStatus.Modified);
+                    // skip this.TrackingContext.TrackingChanges
+                    return result;
+                }
+                if (result.Status == TrackingStatus.Deleted) {
+                    throw new InvalidModificationException("item is already deleted.");
+                }
+                throw new InvalidModificationException($"unknown state:{result.Status}");
             }
-            if (result.Status == TrackingStatus.Added) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Added);
-                result.Set(value, TrackingStatus.Added);
-                // skip this.TrackingContext.TrackingChanges
-                return result;
-            }
-            if (result.Status == TrackingStatus.Modified) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
-                result.Set(value, TrackingStatus.Modified);
-                // skip this.TrackingContext.TrackingChanges
-                return result;
-            }
-            if (result.Status == TrackingStatus.Deleted) {
-                throw new InvalidModificationException("item is already deleted.");
-            }
-            throw new InvalidModificationException($"unknown state:{result.Status}");
         }
     }
 
     public override void Delete(TValue value) {
+        /*
         var key = this._ExtractKey.ExtractKey(value);
-
-        if (this._Items.TryGetValue(key, out var result)) {
-            //if (ReferenceEquals(result.GetValue(), trackingObject)) {
-            if (result.Status == TrackingStatus.Original) {
-                value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Original);
-                result.Set(value, TrackingStatus.Deleted);
-                this._Items.Remove(key);
-                this.TrackingContext.TrackingChanges.Add(result);
-                return;
-            }
-            if (result.Status == TrackingStatus.Deleted) {
-                // already deleted, but found???
+        */
+        if (!this._ExtractKey.TryExtractKey(value, out var key)) {
+            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+        } else {
+            if (this._Items.TryGetValue(key, out var result)) {
+                //if (ReferenceEquals(result.GetValue(), trackingObject)) {
+                if (result.Status == TrackingStatus.Original) {
+                    value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Original);
+                    result.Set(value, TrackingStatus.Deleted);
+                    this._Items.Remove(key);
+                    this.TrackingContext.TrackingChanges.Add(result);
+                    return;
+                }
+                if (result.Status == TrackingStatus.Deleted) {
+                    // already deleted, but found???
+                    throw new InvalidModificationException("item not found.");
+                }
+                if (result.Status == TrackingStatus.Added) {
+                    // created and deleted
+                    value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Added);
+                    this.TrackingContext.TrackingChanges.Remove(result);
+                    result.Set(value, TrackingStatus.Deleted);
+                    this._Items.Remove(key);
+                    return;
+                }
+                if (result.Status == TrackingStatus.Modified) {
+                    value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
+                    this.TrackingContext.TrackingChanges.Remove(result);
+                    result.Set(value, TrackingStatus.Deleted);
+                    this._Items.Remove(key);
+                    this.TrackingContext.TrackingChanges.Add(result);
+                    return;
+                }
+                if (result.Status == TrackingStatus.Deleted) {
+                    throw new InvalidModificationException("item Delete found.");
+                }
+                throw new InvalidModificationException($"unknown state:{result.Status}");
+                //} else {
+                //    throw new InvalidModificationException("item not found.");
+                //}
+            } else {
                 throw new InvalidModificationException("item not found.");
             }
-            if (result.Status == TrackingStatus.Added) {
-                // created and deleted
-                value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Added);
-                this.TrackingContext.TrackingChanges.Remove(result);
-                result.Set(value, TrackingStatus.Deleted);
-                this._Items.Remove(key);
-                return;
-            }
-            if (result.Status == TrackingStatus.Modified) {
-                value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
-                this.TrackingContext.TrackingChanges.Remove(result);
-                result.Set(value, TrackingStatus.Deleted);
-                this._Items.Remove(key);
-                this.TrackingContext.TrackingChanges.Add(result);
-                return;
-            }
-            if (result.Status == TrackingStatus.Deleted) {
-                throw new InvalidModificationException("item Delete found.");
-            }
-            throw new InvalidModificationException($"unknown state:{result.Status}");
-            //} else {
-            //    throw new InvalidModificationException("item not found.");
-            //}
-        } else {
-            throw new InvalidModificationException("item not found.");
         }
     }
 
@@ -346,42 +393,48 @@ public class TrackingSet<TKey, TValue>
         if (!ReferenceEquals(trackingObject.TrackingSet, this)) {
             throw new InvalidModificationException("wrong TrackingSet");
         } else {
+            /*
             var key = this._ExtractKey.ExtractKey(trackingObject.Value);
-            if (this._Items.TryGetValue(key, out var found)) {
-                if (found.Status == TrackingStatus.Original) {
-                    var value = this.OnDeleting(newValue: trackingObject.Value, oldValue: found.Value, TrackingStatus.Original);
-                    found.Set(value, TrackingStatus.Deleted);
-                    this._Items.Remove(key);
-                    this.TrackingContext.TrackingChanges.Add(found);
-                    return;
-                }
-                if (found.Status == TrackingStatus.Added) {
-                    // created and deleted
-                    var value = this.OnDeleting(newValue: trackingObject.Value, oldValue: found.Value, TrackingStatus.Original);
-                    found.Set(value, TrackingStatus.Deleted);
-                    this._Items.Remove(key);
-                    this.TrackingContext.TrackingChanges.Remove(found);
-                    return;
-                }
-                if (found.Status == TrackingStatus.Modified) {
-                    var value = this.OnDeleting(newValue: trackingObject.Value, oldValue: found.Value, TrackingStatus.Original);
-                    //found.Status = TrackingStatus.Deleted;
-                    found.Set(value, TrackingStatus.Deleted);
-                    this._Items.Remove(key);
-                    return;
-                }
-                if (found.Status == TrackingStatus.Deleted) {
-                    // already deleted, but found???
-                    this._Items.Remove(key);
-                    return;
-                }
+            */
+            if (!this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
             } else {
-                throw new InvalidModificationException("item not found.");
+                if (this._Items.TryGetValue(key, out var found)) {
+                    if (found.Status == TrackingStatus.Original) {
+                        var value = this.OnDeleting(newValue: trackingObject.Value, oldValue: found.Value, TrackingStatus.Original);
+                        found.Set(value, TrackingStatus.Deleted);
+                        this._Items.Remove(key);
+                        this.TrackingContext.TrackingChanges.Add(found);
+                        return;
+                    }
+                    if (found.Status == TrackingStatus.Added) {
+                        // created and deleted
+                        var value = this.OnDeleting(newValue: trackingObject.Value, oldValue: found.Value, TrackingStatus.Original);
+                        found.Set(value, TrackingStatus.Deleted);
+                        this._Items.Remove(key);
+                        this.TrackingContext.TrackingChanges.Remove(found);
+                        return;
+                    }
+                    if (found.Status == TrackingStatus.Modified) {
+                        var value = this.OnDeleting(newValue: trackingObject.Value, oldValue: found.Value, TrackingStatus.Original);
+                        //found.Status = TrackingStatus.Deleted;
+                        found.Set(value, TrackingStatus.Deleted);
+                        this._Items.Remove(key);
+                        return;
+                    }
+                    if (found.Status == TrackingStatus.Deleted) {
+                        // already deleted, but found???
+                        this._Items.Remove(key);
+                        return;
+                    }
+                } else {
+                    throw new InvalidModificationException("item not found.");
+                }
             }
         }
     }
 
-    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) {
+    public virtual bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) {
         if (this._Items.TryGetValue(key, out var found)) {
             value = found.Value;
             return true;
@@ -396,7 +449,7 @@ public class TrackingSet<TKey, TValue>
 
     public TrackingObject<TValue> GetTrackingObject(TKey key) => this._Items[key];
 
-    public bool TryTrackingObject(TKey key, [MaybeNullWhen(false)] out TrackingObject<TValue> value) {
+    public virtual bool TryTrackingObject(TKey key, [MaybeNullWhen(false)] out TrackingObject<TValue> value) {
         return this._Items.TryGetValue(key, out value);
     }
 
