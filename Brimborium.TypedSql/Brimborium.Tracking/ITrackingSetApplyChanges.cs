@@ -1,10 +1,12 @@
 ﻿namespace Brimborium.Tracking;
 
-public interface ITrackingSetApplyChanges<TValue> {
+public interface ITrackingSetApplyChanges<TKey, TValue>
+    where TKey : notnull
+    where TValue : class {
 
-    Task<TValue> Insert(TValue value, ITrackingTransConnection trackingTransaction);
+    Task<TValue> Insert(TrackingObject<TKey, TValue> to, ITrackingTransConnection trackingTransaction);
 
-    Task<TValue> Update(TValue value, ITrackingTransConnection trackingTransaction);
+    Task<TValue> Update(TrackingObject<TKey, TValue> to, ITrackingTransConnection trackingTransaction);
 
-    Task Delete(TValue value, ITrackingTransConnection trackingTransaction);
+    Task Delete(TrackingObject<TKey, TValue> to, ITrackingTransConnection trackingTransaction);
 }

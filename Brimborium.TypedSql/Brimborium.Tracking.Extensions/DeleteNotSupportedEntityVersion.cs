@@ -1,9 +1,10 @@
 ﻿namespace Brimborium.Tracking.Extensions;
 
-public sealed class DeleteNotSupportedEntityVersion<TValue> : ITrackingSetEvent<TValue>
+public sealed class DeleteNotSupportedEntityVersion<TKey, TValue> : ITrackingSetEvent<TKey, TValue>
+    where TKey : notnull
     where TValue : class, IEntityWithVersion {
-    private static DeleteNotSupportedEntityVersion<TValue>? _Instance;
-    public static DeleteNotSupportedEntityVersion<TValue> Instance => _Instance ??= new DeleteNotSupportedEntityVersion<TValue>();
+    private static DeleteNotSupportedEntityVersion<TKey, TValue>? _Instance;
+    public static DeleteNotSupportedEntityVersion<TKey, TValue> Instance => _Instance ??= new DeleteNotSupportedEntityVersion<TKey, TValue>();
 
     private DeleteNotSupportedEntityVersion() { }
 
@@ -17,11 +18,11 @@ public sealed class DeleteNotSupportedEntityVersion<TValue> : ITrackingSetEvent<
     //    throw new InvalidModificationException("Deleteing is not supported");
     //}
 
-    public AddingArgument<TValue> OnAdding(AddingArgument<TValue> argument) => argument;
+    public AddingArgument<TKey, TValue> OnAdding(AddingArgument<TKey, TValue> argument) => argument;
 
-    public UpdatingArgument<TValue> OnUpdating(UpdatingArgument<TValue> argument) => argument;
+    public UpdatingArgument<TKey, TValue> OnUpdating(UpdatingArgument<TKey, TValue> argument) => argument;
 
-    public DeletingArgument<TValue> OnDeleting(DeletingArgument<TValue> argument) {
+    public DeletingArgument<TKey, TValue> OnDeleting(DeletingArgument<TKey, TValue> argument) {
         throw new InvalidModificationException("Deleteing is not supported");
     }
 }

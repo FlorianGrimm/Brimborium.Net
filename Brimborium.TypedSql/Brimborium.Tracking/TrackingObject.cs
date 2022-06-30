@@ -28,18 +28,22 @@ public abstract class TrackingObject {
     }
 }
 
-public class TrackingObject<TValue>
+public class TrackingObject<TKey, TValue>
     : TrackingObject
+    where TKey : notnull
     where TValue : class {
+    private TKey _Key;
     private TValue _OrginalValue;
     private TValue _Value;
-    private readonly TrackingSet<TValue> _TrackingSet;
+    private readonly TrackingSet<TKey, TValue> _TrackingSet;
 
     public TrackingObject(
+        TKey key,
         TValue value,
         TrackingStatus status,
-        TrackingSet<TValue> trackingSet)
+        TrackingSet<TKey, TValue> trackingSet)
         : base(status) {
+        this._Key = key;
         this._OrginalValue = value;
         this._Value = value;
         this._TrackingSet = trackingSet;
@@ -53,6 +57,8 @@ public class TrackingObject<TValue>
         this._Status = status;
     }
 
+    public TKey Key { get => this._Key; }
+
     public TValue Value {
         get {
             return this._Value;
@@ -64,7 +70,7 @@ public class TrackingObject<TValue>
 
     public override object GetValue() => this._Value;
 
-    internal TrackingSet<TValue> TrackingSet => this._TrackingSet;
+    internal TrackingSet<TKey, TValue> TrackingSet => this._TrackingSet;
 
     public void Delete() {
         this._TrackingSet.Delete(this);
@@ -80,17 +86,17 @@ public class TrackingObject<TValue>
         if (this.Status == TrackingStatus.Original) {
             // all done
         } else if (this.Status == TrackingStatus.Added) {
-            var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this.Value, transConnection);
+            var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this, transConnection);
             this.Status = TrackingStatus.Original;
             this._Value = nextValue;
             this._OrginalValue = nextValue;
         } else if (this.Status == TrackingStatus.Modified) {
-            var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this.Value, transConnection);
+            var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this, transConnection);
             this.Status = TrackingStatus.Original;
             this._Value = nextValue;
             this._OrginalValue = nextValue;
         } else if (this.Status == TrackingStatus.Deleted) {
-            await this.TrackingSet.TrackingApplyChanges.Delete(this.Value, transConnection);
+            await this.TrackingSet.TrackingApplyChanges.Delete(this, transConnection);
         } else {
             throw new InvalidModificationException($"{this.Status} unknown.");
         }

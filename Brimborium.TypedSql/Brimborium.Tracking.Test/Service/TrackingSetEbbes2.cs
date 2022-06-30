@@ -6,7 +6,7 @@ namespace Brimborium.Tracking.Service;
 public sealed class TrackingSetEbbes2 : TrackingSet<EbbesPK, EbbesEntity>, ITrackingSetEbbes {
     public TrackingSetEbbes2(
         Test1TrackingContext trackingContext,
-        ITrackingSetApplyChanges<EbbesEntity>? trackingApplyChanges = default
+        ITrackingSetApplyChanges<EbbesPK, EbbesEntity>? trackingApplyChanges = default
         ) : base(
             extractKey: EbbesUtiltiy.Instance,
             comparer: EbbesUtiltiy.Instance,
@@ -17,7 +17,7 @@ public sealed class TrackingSetEbbes2 : TrackingSet<EbbesPK, EbbesEntity>, ITrac
 }
 
 public sealed class TrackingSetApplyChangesEbbes2
-    : TrackingSetApplyChangesBase<EbbesEntity, EbbesPK> {
+    : TrackingSetApplyChangesBase<EbbesPK, EbbesEntity> {
     private static TrackingSetApplyChangesEbbes2? _Instance;
     public static TrackingSetApplyChangesEbbes2 Instance => _Instance ??= new TrackingSetApplyChangesEbbes2();
 
@@ -27,7 +27,8 @@ public sealed class TrackingSetApplyChangesEbbes2
         this.EntityVersion = 1;
     }
 
-    public override Task<EbbesEntity> Insert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public override Task<EbbesEntity> Insert(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("Insert");
         }
@@ -35,7 +36,8 @@ public sealed class TrackingSetApplyChangesEbbes2
         return Task.FromResult(value);
     }
 
-    public override Task<EbbesEntity> Update(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public override Task<EbbesEntity> Update(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("Update");
         }
@@ -43,7 +45,8 @@ public sealed class TrackingSetApplyChangesEbbes2
         return Task.FromResult(value);
     }
 
-    public override Task Delete(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public override Task Delete(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("Delete");
         }
@@ -51,11 +54,11 @@ public sealed class TrackingSetApplyChangesEbbes2
     }
 }
 
-public class ValidateTrackingSetEbbes2 : ValidateBaseTrackingSet<EbbesEntity> {
+public class ValidateTrackingSetEbbes2 : ValidateBaseTrackingSet<EbbesPK, EbbesEntity> {
     private static ValidateTrackingSetEbbes2? _Instance;
     public static ValidateTrackingSetEbbes2 Instance => _Instance ??= new ValidateTrackingSetEbbes2();
 
-    protected override void Validate(EbbesEntity value, ITrackingContext trackingContext, ITrackingSet<EbbesEntity> trackingSet) {
+    protected override void Validate(EbbesEntity value, ITrackingContext trackingContext, ITrackingSet<EbbesPK, EbbesEntity> trackingSet) {
         if (string.IsNullOrEmpty(value.Title)) {
             throw new ValidationFailedException(nameof(value.Title));
         }
@@ -63,8 +66,8 @@ public class ValidateTrackingSetEbbes2 : ValidateBaseTrackingSet<EbbesEntity> {
             throw new ValidationFailedException(nameof(value.Id));
         }
     }
-
-    public override AddingArgument<EbbesEntity> OnAdding(AddingArgument<EbbesEntity> argument) {
+    
+    public override AddingArgument<EbbesPK, EbbesEntity> OnAdding(AddingArgument<EbbesPK, EbbesEntity> argument) {
         var (value, trackingSetBase, _) = argument;
         var trackingSet = (ITrackingSetEbbes) trackingSetBase;
         if (value.Id == Guid.Empty) {

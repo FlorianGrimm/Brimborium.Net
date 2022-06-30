@@ -4,54 +4,51 @@ public interface ITrackingSet {
     ITrackingContext TrackingContext { get; }
 }
 
-public interface ITrackingSet<TValue>
-    : ITrackingSet
-    where TValue : class {
-    ITrackingSetApplyChanges<TValue> TrackingApplyChanges { get; }
-    int Count { get; }
-    ICollection<TValue> Values { get; }
-    
-    void Clear();
-
-    [return: NotNullIfNotNull("item")]
-    TrackingObject<TValue>? Attach(TValue? item);
-
-    List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items);
-
-    void Detach(TrackingObject<TValue>? item);
-
-    TrackingObject<TValue> Add(TValue item);
-    TrackingObject<TValue> Update(TValue item);
-    TrackingObject<TValue> Upsert(TValue item);
-    void Delete(TrackingObject<TValue> trackingObject);
-    void Delete(TValue item);
-
-    IEnumerable<TrackingObject<TValue>> GetTrackingObjects();
-}
 
 public interface ITrackingSet<TKey, TValue>
-    : ITrackingSet<TValue>
+    : ITrackingSet
     where TKey : notnull
     where TValue : class {
+    ITrackingSetApplyChanges<TKey, TValue> TrackingApplyChanges { get; }
+
     TValue this[TKey key] { get; }
 
     ICollection<TKey> Keys { get; }
 
+    int Count { get; }
+    ICollection<TValue> Values { get; }
+
+    void Clear();
+
+    [return: NotNullIfNotNull("item")]
+    TrackingObject<TKey, TValue>? Attach(TValue? item);
+
+    List<TrackingObject<TKey, TValue>> AttachRange(IEnumerable<TValue> items);
+
+    void Detach(TrackingObject<TKey, TValue>? item);
+
+    TrackingObject<TKey, TValue> Add(TValue item);
+    TrackingObject<TKey, TValue> Update(TValue item);
+    TrackingObject<TKey, TValue> Upsert(TValue item);
+    void Delete(TrackingObject<TKey, TValue> trackingObject);
+    void Delete(TValue item);
+
+    IEnumerable<TrackingObject<TKey, TValue>> GetTrackingObjects();
     /*
         [return: NotNullIfNotNull("item")]
-        TrackingObject<TValue>? Attach(TValue? item);
-        List<TrackingObject<TValue>> AttachRange(IEnumerable<TValue> items);
+        TrackingObject<TKey, TValue>? Attach(TValue? item);
+        List<TrackingObject<TKey, TValue>> AttachRange(IEnumerable<TValue> items);
         
-        void Detach(TrackingObject<TValue>? item);
+        void Detach(TrackingObject<TKey, TValue>? item);
       
-        TrackingObject<TValue> Add(TValue item);
-        TrackingObject<TValue> Update(TValue item);
-        TrackingObject<TValue> Upsert(TValue item);
-        void Delete(TrackingObject<TValue> trackingObject);
+        TrackingObject<TKey, TValue> Add(TValue item);
+        TrackingObject<TKey, TValue> Update(TValue item);
+        TrackingObject<TKey, TValue> Upsert(TValue item);
+        void Delete(TrackingObject<TKey, TValue> trackingObject);
         void Delete(TValue item);
     */
 
-    TrackingObject<TValue> GetTrackingObject(TKey key);
+    TrackingObject<TKey, TValue> GetTrackingObject(TKey key);
     bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value);
-    bool TryTrackingObject(TKey key, [MaybeNullWhen(false)] out TrackingObject<TValue> value);
+    bool TryTrackingObject(TKey key, [MaybeNullWhen(false)] out TrackingObject<TKey, TValue> value);
 }

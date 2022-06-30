@@ -53,14 +53,14 @@ public class TrackingContextTest {
         return sut;
     }
 
-    [Fact]
-    public void TrackingContext_001_Attach_WrongType() {
-        Assert.Throws<InvalidModificationException>(
-            () => {
-                var sut = new Test1TrackingContext();
-                sut.Attach(new Ebbes(id1, Title1));
-            });
-    }
+    //[Fact]
+    //public void TrackingContext_001_Attach_WrongType() {
+    //    Assert.Throws<InvalidModificationException>(
+    //        () => {
+    //            var sut = new Test1TrackingContext();
+    //            sut.Attach(new Ebbes(id1, Title1));
+    //        });
+    //}
 
     [Fact]
     public void TrackingContext_001_Attach() {

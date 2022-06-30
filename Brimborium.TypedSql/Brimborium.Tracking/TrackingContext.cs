@@ -15,41 +15,41 @@ public class TrackingContext
         this._TrackingSetByType.Add(itemType, trackingSet);
     }
 
-    public TrackingObject<TValue>? Attach<TValue>(TValue item)
-        where TValue : class {
-        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
-            return ((TrackingSet<TValue>)trackingSet).Attach(item);
-        } else {
-            throw new InvalidModificationException("Unknown type");
-        }
-    }
+    //public TrackingObject<TKey, TValue>? Attach<TValue>(TValue item)
+    //    where TValue : class {
+    //    if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+    //        return ((TrackingSet<TValue>)trackingSet).Attach(item);
+    //    } else {
+    //        throw new InvalidModificationException("Unknown type");
+    //    }
+    //}
 
-    public TrackingObject<TValue> Add<TValue>(TValue item)
-        where TValue : class {
-        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
-            return ((TrackingSet<TValue>)trackingSet).Add(item);
-        } else {
-            throw new InvalidModificationException("Unknown type");
-        }
-    }
+    //public TrackingObject<TKey, TValue> Add<TValue>(TValue item)
+    //    where TValue : class {
+    //    if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+    //        return ((TrackingSet<TValue>)trackingSet).Add(item);
+    //    } else {
+    //        throw new InvalidModificationException("Unknown type");
+    //    }
+    //}
 
-    public TrackingObject<TValue> Update<TValue>(TValue item)
-        where TValue : class {
-        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
-            return ((TrackingSet<TValue>)trackingSet).Update(item);
-        } else {
-            throw new InvalidModificationException("Unknown type");
-        }
-    }
+    //public TrackingObject<TKey, TValue> Update<TValue>(TValue item)
+    //    where TValue : class {
+    //    if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+    //        return ((TrackingSet<TValue>)trackingSet).Update(item);
+    //    } else {
+    //        throw new InvalidModificationException("Unknown type");
+    //    }
+    //}
 
-    public TrackingObject<TValue> Upsert<TValue>(TValue item)
-        where TValue : class {
-        if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
-            return ((TrackingSet<TValue>)trackingSet).Upsert(item);
-        } else {
-            throw new InvalidModificationException("Unknown type");
-        }
-    }
+    //public TrackingObject<TKey, TValue> Upsert<TValue>(TValue item)
+    //    where TValue : class {
+    //    if (this._TrackingSetByType.TryGetValue(typeof(TValue), out var trackingSet)) {
+    //        return ((TrackingSet<TValue>)trackingSet).Upsert(item);
+    //    } else {
+    //        throw new InvalidModificationException("Unknown type");
+    //    }
+    //}
 
     public async Task ApplyChangesAsync(
         ITrackingTransConnection trackingTransConnection,

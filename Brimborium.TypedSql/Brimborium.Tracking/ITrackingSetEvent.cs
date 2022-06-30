@@ -1,58 +1,46 @@
 ﻿namespace Brimborium.Tracking;
 
-public interface ITrackingSetEvent<TValue>
+public interface ITrackingSetEvent<TKey, TValue>
+    where TKey : notnull
     where TValue : class {
-    //void OnAdding(
-    //    TValue value,
-    //    TrackingSet<TValue> trackingSet,
-    //    ITrackingContext trackingContext
-    //    );
-    AddingArgument<TValue> OnAdding(
-       AddingArgument<TValue> argument
+    AddingArgument<TKey, TValue> OnAdding(
+       AddingArgument<TKey, TValue> argument
        );
-    //void OnUpdating(
-    //    TValue newValue,
-    //    TValue oldValue,
-    //    TrackingStatus oldTrackingStatus,
-    //    TrackingSet<TValue> trackingSet,
-    //    ITrackingContext trackingContext
-    //    );
-    UpdatingArgument<TValue> OnUpdating(
-       UpdatingArgument<TValue> argument
+
+    UpdatingArgument<TKey, TValue> OnUpdating(
+       UpdatingArgument<TKey, TValue> argument
        );
-    //void OnDeleting(
-    //    TValue newValue,
-    //    TValue oldValue,
-    //    TrackingStatus oldTrackingStatus,
-    //    TrackingSet<TValue> trackingSet,
-    //    ITrackingContext trackingContext
-    //    );
-    DeletingArgument<TValue> OnDeleting(
-       DeletingArgument<TValue> argument
+
+    DeletingArgument<TKey, TValue> OnDeleting(
+       DeletingArgument<TKey, TValue> argument
        );
 }
 
-public record struct AddingArgument<TValue>(
+public record struct AddingArgument<TKey, TValue>(
     TValue Value,
-    ITrackingSet<TValue> TrackingSet,
+    ITrackingSet<TKey, TValue> TrackingSet,
     ITrackingContext TrackingContext
     )
+    where TKey : notnull
     where TValue : class;
 
-public record struct UpdatingArgument<TValue>(
+public record struct UpdatingArgument<TKey, TValue>(
+    TValue NewValue,
+    TrackingStatus NewTrackingStatus,
+    TValue OldValue,
+    TrackingStatus OldTrackingStatus,
+    ITrackingSet<TKey, TValue> TrackingSet,
+    ITrackingContext TrackingContext
+    )
+    where TKey : notnull
+    where TValue : class;
+
+public record struct DeletingArgument<TKey, TValue>(
     TValue NewValue,
     TValue OldValue,
     TrackingStatus OldTrackingStatus,
-    ITrackingSet<TValue> TrackingSet,
+    ITrackingSet<TKey, TValue> TrackingSet,
     ITrackingContext TrackingContext
     )
-    where TValue : class;
-
-public record struct DeletingArgument<TValue>(
-    TValue NewValue,
-    TValue OldValue,
-    TrackingStatus OldTrackingStatus,
-    ITrackingSet<TValue> TrackingSet,
-    ITrackingContext TrackingContext
-    )
+    where TKey : notnull
     where TValue : class;

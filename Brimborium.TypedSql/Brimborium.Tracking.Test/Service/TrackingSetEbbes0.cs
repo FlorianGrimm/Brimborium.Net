@@ -3,7 +3,7 @@
 public sealed class TrackingSetEbbes0 : TrackingSet<EbbesPK, EbbesEntity>, ITrackingSetEbbes {
     public TrackingSetEbbes0(
         Test1TrackingContext trackingContext,
-        ITrackingSetApplyChanges<EbbesEntity>? trackingApplyChanges = default
+        ITrackingSetApplyChanges<EbbesPK, EbbesEntity>? trackingApplyChanges = default
         ) : base(
             extractKey: EbbesUtiltiy.Instance,
             comparer: EbbesUtiltiy.Instance,
@@ -13,7 +13,7 @@ public sealed class TrackingSetEbbes0 : TrackingSet<EbbesPK, EbbesEntity>, ITrac
 }
 
 public sealed class TrackingSetApplyChangesEbbes
-    : TrackingSetApplyChangesBase<EbbesEntity, EbbesPK> {
+    : TrackingSetApplyChangesBase<EbbesPK, EbbesEntity> {
     private static TrackingSetApplyChangesEbbes? _Instance;
     public static TrackingSetApplyChangesEbbes Instance => _Instance ??= new TrackingSetApplyChangesEbbes();
 
@@ -23,7 +23,8 @@ public sealed class TrackingSetApplyChangesEbbes
         this.EntityVersion = 1;
     }
 
-    public override Task<EbbesEntity> Insert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public override Task<EbbesEntity> Insert(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("Insert");
         }
@@ -31,7 +32,8 @@ public sealed class TrackingSetApplyChangesEbbes
         return Task.FromResult(value);
     }
 
-    public override Task<EbbesEntity> Update(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public override Task<EbbesEntity> Update(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("Update");
         }
@@ -39,7 +41,8 @@ public sealed class TrackingSetApplyChangesEbbes
         return Task.FromResult(value);
     }
 
-    public override Task Delete(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public override Task Delete(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("Delete");
         }
@@ -50,7 +53,7 @@ public sealed class TrackingSetApplyChangesEbbes
 
 public sealed class EbbesUtiltiy
     : IEqualityComparer<EbbesPK>
-    , IExtractKey<EbbesEntity, EbbesPK> {
+    , IExtractKey<EbbesPK, EbbesEntity> {
     private static EbbesUtiltiy? _Instance;
     public static EbbesUtiltiy Instance => _Instance ??= new EbbesUtiltiy();
     private EbbesUtiltiy() { }

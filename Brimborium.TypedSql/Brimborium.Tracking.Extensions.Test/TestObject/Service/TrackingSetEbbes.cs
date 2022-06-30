@@ -3,18 +3,18 @@
 public sealed class TrackingSetEbbes : TrackingSet<EbbesPK, EbbesEntity> {
     public TrackingSetEbbes(
         DBContext trackingContext,
-        ITrackingSetApplyChanges<EbbesEntity>? trackingApplyChanges = default
+        ITrackingSetApplyChanges<EbbesPK, EbbesEntity>? trackingApplyChanges = default
         ) : base(
             extractKey: EbbesUtiltiy.Instance,
             comparer: EbbesUtiltiy.Instance,
             trackingContext: trackingContext,
             trackingApplyChanges: trackingApplyChanges ?? TrackingSetApplyChangesEbbes.Instance) {
-        this.TrackingSetEvents.Add(ValidateEntityVersion<EbbesEntity>.Instance);
+        this.TrackingSetEvents.Add(ValidateEntityVersion<EbbesPK, EbbesEntity>.Instance);
     }
 }
 
 public sealed class TrackingSetApplyChangesEbbes
-    : ITrackingSetApplyChanges<EbbesEntity> {
+    : ITrackingSetApplyChanges<EbbesPK, EbbesEntity> {
     private static TrackingSetApplyChangesEbbes? _Instance;
     public static TrackingSetApplyChangesEbbes Instance => _Instance ??= new TrackingSetApplyChangesEbbes();
 
@@ -23,7 +23,8 @@ public sealed class TrackingSetApplyChangesEbbes
         this.EntityVersion = 1;
     }
 
-    public Task<EbbesEntity> Insert(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public Task<EbbesEntity> Insert(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("fail");
         }
@@ -31,7 +32,8 @@ public sealed class TrackingSetApplyChangesEbbes
         return Task.FromResult(value);
     }
 
-    public Task<EbbesEntity> Update(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public Task<EbbesEntity> Update(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("fail");
         }
@@ -39,7 +41,8 @@ public sealed class TrackingSetApplyChangesEbbes
         return Task.FromResult(value);
     }
 
-    public Task Delete(EbbesEntity value, ITrackingTransConnection trackingTransaction) {
+    public Task Delete(TrackingObject<EbbesPK, EbbesEntity> to, ITrackingTransConnection trackingTransaction) {
+        var value = to.Value;
         if (value.Title == "fail") {
             throw new InvalidModificationException("fail");
         }
@@ -50,12 +53,17 @@ public sealed class TrackingSetApplyChangesEbbes
 
 public sealed class EbbesUtiltiy
     : IEqualityComparer<EbbesPK>
-    , IExtractKey<EbbesEntity, EbbesPK> {
+    , IExtractKey<EbbesPK, EbbesEntity> {
     private static EbbesUtiltiy? _Instance;
     public static EbbesUtiltiy Instance => _Instance ??= new EbbesUtiltiy();
     private EbbesUtiltiy() { }
 
     public EbbesPK ExtractKey(EbbesEntity that) => that.GetPrimaryKey();
+    
+    public bool TryExtractKey(EbbesEntity value, [MaybeNullWhen(false)] out EbbesPK key) {
+        key = value.GetPrimaryKey();
+        return key.Id != Guid.Empty;
+    }
 
     bool IEqualityComparer<EbbesPK>.Equals(EbbesPK? x, EbbesPK? y) {
         if (ReferenceEquals(x, y)) {

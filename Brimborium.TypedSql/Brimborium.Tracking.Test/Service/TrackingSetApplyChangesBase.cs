@@ -1,31 +1,31 @@
 ﻿namespace Brimborium.Tracking.Service;
 
-public abstract class TrackingSetApplyChangesBase<TValue, TPrimaryKey>
-    : ITrackingSetApplyChanges<TValue>
-    where TValue : class, RowVersion.Entity.IEntityWithVersion
-    where TPrimaryKey : IEquatable<TPrimaryKey> {
+public abstract class TrackingSetApplyChangesBase<TKey, TValue>
+    : ITrackingSetApplyChanges<TKey, TValue>
+    where TKey : notnull, IEquatable<TKey>
+    where TValue : class, RowVersion.Entity.IEntityWithVersion {
     private string _TypeName;
-    private readonly IExtractKey<TValue, TPrimaryKey> _ExtractKey;
+    private readonly IExtractKey<TKey, TValue> _ExtractKey;
 
     protected TrackingSetApplyChangesBase(
-        IExtractKey<TValue, TPrimaryKey> extractKey
+        IExtractKey<TKey, TValue> extractKey
     ) {
         this._TypeName = typeof(TValue).Name ?? string.Empty;
         this._ExtractKey = extractKey;
     }
 
-    protected virtual TPrimaryKey ExtractKey(TValue value) {
-        return this._ExtractKey.ExtractKey(value);
+    protected virtual bool TryExtractKey(TValue value, out TKey key) {
+        return this._ExtractKey.TryExtractKey(value, out key);
     }
 
-    public abstract Task<TValue> Insert(TValue value, ITrackingTransConnection trackingTransaction);
+    public abstract Task<TValue> Insert(TrackingObject<TKey, TValue> to, ITrackingTransConnection trackingTransaction);
 
-    public abstract Task<TValue> Update(TValue value, ITrackingTransConnection trackingTransaction);
+    public abstract Task<TValue> Update(TrackingObject<TKey, TValue> to, ITrackingTransConnection trackingTransaction);
 
-    public abstract Task Delete(TValue value, ITrackingTransConnection trackingTransaction);
+    public abstract Task Delete(TrackingObject<TKey, TValue> to, ITrackingTransConnection trackingTransaction);
 
-    protected TValue ValidateUpsertDataManipulationResult(
-        TValue value,
+    protected virtual TValue ValidateUpsertDataManipulationResult(
+        TrackingObject<TKey, TValue> to,
         IDataManipulationResult<TValue> result
         ) {
         if (result.OperationResult.ResultValue == ResultValue.Updated) {
@@ -39,22 +39,31 @@ public abstract class TrackingSetApplyChangesBase<TValue, TPrimaryKey>
             return result.DataResult;
         }
         if (result.OperationResult.ResultValue == ResultValue.RowVersionMismatch) {
-            throw new InvalidModificationException($"RowVersionMismatch {value.EntityVersion}!={result.DataResult.EntityVersion}");
+            throw new InvalidModificationException($"RowVersionMismatch {to.Value.EntityVersion}!={result.DataResult.EntityVersion}");
         }
-        throw new InvalidModificationException($"Unknown error {result.OperationResult.ResultValue} {this._TypeName} {this.ExtractKey(value)}");
+        {
+#warning here
+            this.TryExtractKey(to.Value, out var key);
+            throw new InvalidModificationException($"Unknown error {result.OperationResult.ResultValue} {this._TypeName} {key}");
+        }
     }
 
     protected void ValidateDelete(
         TValue value,
-        List<TPrimaryKey> result
+        List<TKey> result
         ) {
+#warning here
         if (result.Count == 1) {
-            var pkValue = this.ExtractKey(value);
-            if (pkValue.Equals(result[0])) {
-                return;
+            if (this.TryExtractKey(value, out var pkValue)) {
+                if (pkValue.Equals(result[0])) {
+                    return;
+                } else {
+                    throw new InvalidModificationException($"Unknown error {this._TypeName}: {result[0]} != {pkValue}");
+                }
             } else {
                 throw new InvalidModificationException($"Unknown error {this._TypeName}: {result[0]} != {pkValue}");
             }
+
         } else {
             throw new InvalidModificationException($"Cannot delete {this._TypeName}: {result.FirstOrDefault()}");
         }
