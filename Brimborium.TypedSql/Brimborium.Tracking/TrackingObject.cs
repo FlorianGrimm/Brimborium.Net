@@ -92,9 +92,24 @@ public class TrackingObject<TKey, TValue>
             this._OrginalValue = nextValue;
         } else if (this.Status == TrackingStatus.Modified) {
             var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this, transConnection);
-            this.Status = TrackingStatus.Original;
-            this._Value = nextValue;
-            this._OrginalValue = nextValue;
+            if (nextValue is null) {
+                this._TrackingSet.Detach(this);
+                this.Status = TrackingStatus.Original;
+                this._Value = nextValue!;
+                this._OrginalValue = nextValue!;
+            } else {
+                this.Status = TrackingStatus.Original;
+                this._Value = nextValue;
+                this._OrginalValue = nextValue;
+                if (this._TrackingSet.TryExtractKey(nextValue, out var nextKey)) {
+                    if (this._Key.Equals(nextKey)) {
+                    } else {
+                        var oldKey = this._Key;
+                        this._Key = nextKey;
+                        this._TrackingSet.ReAttach(oldKey, this);
+                    }
+                }
+            }
         } else if (this.Status == TrackingStatus.Deleted) {
             await this.TrackingSet.TrackingApplyChanges.Delete(this, transConnection);
         } else {
@@ -111,7 +126,7 @@ public class TrackingObject<TKey, TValue>
             } else if (this.Status == TrackingStatus.Deleted) {
                 this._Value = this._OrginalValue;
                 this._Status = TrackingStatus.Original;
-                this.TrackingSet.ReAttach(this);
+                this.TrackingSet.ReAttach(this.Key, this);
                 return;
             } else if (this.Status == TrackingStatus.Original) {
                 // ignore
@@ -121,7 +136,7 @@ public class TrackingObject<TKey, TValue>
                 this.TrackingSet.Detach(this);
                 this._Status = TrackingStatus.Original;
                 return;
-            } 
+            }
         }
         throw new InvalidModificationException($"{this._OrginalStatus}-{this._Status} unknown.");
     }

@@ -58,10 +58,9 @@ public sealed class EbbesUtiltiy
     public static EbbesUtiltiy Instance => _Instance ??= new EbbesUtiltiy();
     private EbbesUtiltiy() { }
 
-    public EbbesPK ExtractKey(EbbesEntity that) => that.GetPrimaryKey();
-
     public bool TryExtractKey(EbbesEntity value, [MaybeNullWhen(false)] out EbbesPK key) {
-        throw new NotImplementedException();
+        key = value.GetPrimaryKey();
+        return key.Id != Guid.Empty;
     }
 
     bool IEqualityComparer<EbbesPK>.Equals(EbbesPK? x, EbbesPK? y) {

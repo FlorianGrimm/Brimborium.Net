@@ -124,6 +124,9 @@ public class TrackingSet<TKey, TValue>
 
     public ITrackingSetApplyChanges<TKey, TValue> TrackingApplyChanges { get; }
 
+    public bool TryExtractKey(TValue value, [MaybeNullWhen(false)] out TKey key) {
+        return this._ExtractKey.TryExtractKey(value, out key);
+    }
     /// <summary>
     /// register the item to the dataset
     /// </summary>
@@ -181,16 +184,19 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    protected internal virtual void ReAttach(TrackingObject<TKey, TValue> trackingObject) {
-        /*
-        var key = this._ExtractKey.ExtractKey(trackingObject.Value);
-        this._Items[key] = trackingObject;
-        */
+    protected internal virtual void ReAttach(TKey oldKey, TrackingObject<TKey, TValue> trackingObject) {
         if (!this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
             throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
         } else {
-#warning pk changed
-            this._Items[key] = trackingObject;
+            if (this._Items.TryGetValue(key, out var toOld)) {
+                if (ReferenceEquals(toOld, trackingObject)) {
+                    // do nothing
+                } else { 
+                    this._Items.Remove(oldKey);
+                    this._Items.Add(key, trackingObject);
+                }
+            }
+            // this._Items[key] = trackingObject;
         }
     }
 
