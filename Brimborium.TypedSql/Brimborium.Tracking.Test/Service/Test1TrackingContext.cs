@@ -20,3 +20,12 @@ public class Test1TrackingContext : TrackingContext {
 
 public interface ITrackingSetEbbes : ITrackingSet<EbbesPK, EbbesEntity> {
 }
+
+public class Test1TrackingTransConnection : ITrackingTransConnection {
+    public Task CommitAsync() {
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() {
+    }
+}

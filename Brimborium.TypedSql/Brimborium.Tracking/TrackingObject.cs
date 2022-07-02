@@ -87,9 +87,28 @@ public class TrackingObject<TKey, TValue>
             // all done
         } else if (this.Status == TrackingStatus.Added) {
             var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this, transConnection);
-            this.Status = TrackingStatus.Original;
-            this._Value = nextValue;
-            this._OrginalValue = nextValue;
+            //this.Status = TrackingStatus.Original;
+            //this._Value = nextValue;
+            //this._OrginalValue = nextValue;
+
+            if (nextValue is null) {
+                this._TrackingSet.Detach(this);
+                this.Status = TrackingStatus.Original;
+                this._Value = nextValue!;
+                this._OrginalValue = nextValue!;
+            } else {
+                this.Status = TrackingStatus.Original;
+                this._Value = nextValue;
+                this._OrginalValue = nextValue;
+                if (this._TrackingSet.TryExtractKey(nextValue, out var nextKey)) {
+                    if (this._Key.Equals(nextKey)) {
+                    } else {
+                        var oldKey = this._Key;
+                        this._Key = nextKey;
+                        this._TrackingSet.ReAttach(oldKey, this);
+                    }
+                }
+            }
         } else if (this.Status == TrackingStatus.Modified) {
             var nextValue = await this.TrackingSet.TrackingApplyChanges.Update(this, transConnection);
             if (nextValue is null) {

@@ -185,19 +185,19 @@ public class TrackingSet<TKey, TValue>
     }
 
     protected internal virtual void ReAttach(TKey oldKey, TrackingObject<TKey, TValue> trackingObject) {
-        if (!this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
-            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
-        } else {
-            if (this._Items.TryGetValue(key, out var toOld)) {
-                if (ReferenceEquals(toOld, trackingObject)) {
+        //if (!this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
+        //    throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+        //} else {
+            if (this._Items.TryGetValue(oldKey, out var toOld)) {
+                if (ReferenceEquals(toOld, trackingObject) && oldKey.Equals(trackingObject.Key)) {
                     // do nothing
                 } else { 
                     this._Items.Remove(oldKey);
-                    this._Items.Add(key, trackingObject);
+                    this._Items.Add(trackingObject.Key, trackingObject);
                 }
             }
             // this._Items[key] = trackingObject;
-        }
+        //}
     }
 
     public virtual TrackingObject<TKey, TValue> Add(TValue value) {

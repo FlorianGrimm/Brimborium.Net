@@ -70,6 +70,52 @@ public class TrackingContextTest {
     }
 
     [Fact]
+    public void TrackingContext_011_Attach() {
+        var sut = CreateTrackingContext();
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title1));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title2));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title3));
+        Assert.Equal(Title3, sut.Ebbes[new EbbesPK(Id: id1)].Title);
+    }
+
+    [Fact]
+    public void TrackingContext_021_Attach() {
+        TrackingSetEbbes2? trackingSetEbbes2 = null;
+        var sut = CreateTrackingContext((t) => trackingSetEbbes2 = new TrackingSetEbbes2(t));
+        Assert.Equal(TrackingStatus.Original, sut.Ebbes.GetTrackingObject(new EbbesPK(Id: id1)).Status);
+
+        Assert.Equal(0, trackingSetEbbes2!.CalledAttachConflictReplace);
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title1));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title2));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title3));
+        Assert.Equal(0, trackingSetEbbes2!.CalledAttachConflictReplace);
+        sut.Ebbes.Upsert(new EbbesEntity(id1, Title1));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title2));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title3));
+        Assert.Equal(2, trackingSetEbbes2!.CalledAttachConflictReplace);
+
+        Assert.Equal(Title1, sut.Ebbes[new EbbesPK(Id: id1)].Title);
+    }
+
+    [Fact]
+    public void TrackingContext_031_Attach() {
+        TrackingSetEbbes3? trackingSetEbbes3 = null;
+        var sut = CreateTrackingContext((t) => trackingSetEbbes3 = new TrackingSetEbbes3(t));
+        Assert.Equal(TrackingStatus.Original, sut.Ebbes.GetTrackingObject(new EbbesPK(Id: id1)).Status);
+
+        Assert.Equal(0, trackingSetEbbes3!.CalledAttachConflictReplace);
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title1));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title2));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title3));
+        Assert.Equal(0, trackingSetEbbes3!.CalledAttachConflictReplace);
+        sut.Ebbes.Upsert(new EbbesEntity(id1, Title1));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title2));
+        sut.Ebbes.Attach(new EbbesEntity(id1, Title3));
+        Assert.Equal(1, trackingSetEbbes3!.CalledAttachConflictReplace);
+        Assert.Equal(Title3, sut.Ebbes[new EbbesPK(Id: id1)].Title);
+    }
+
+    [Fact]
     public void TrackingContext_002_Detach() {
         var sut = CreateTrackingContext();
         Assert.Equal(EbbesCnt, sut.Ebbes.Count);
@@ -129,13 +175,12 @@ public class TrackingContextTest {
         );
     }
 
-
     [Fact]
     public void TrackingContext_023_Add() {
-        var sut = CreateTrackingContext((t)=>new TrackingSetEbbes2(t));
+        var sut = CreateTrackingContext((t) => new TrackingSetEbbes2(t));
         Assert.Equal(5, sut.Ebbes.Count);
 
-        var to=sut.Ebbes.Add(new EbbesEntity(Id: Guid.Empty, Title: Title6));
+        var to = sut.Ebbes.Add(new EbbesEntity(Id: Guid.Empty, Title: Title6));
         Assert.Equal(EbbesCnt + 1, sut.Ebbes.Count);
         Assert.NotEqual(Guid.Empty, to.Value.Id);
         var idActual = to.Value.Id;
@@ -146,6 +191,34 @@ public class TrackingContextTest {
         Assert.Equal(TrackingStatus.Added, chg.Status);
         Assert.Equal(Title6, ((EbbesEntity)chg.GetValue()).Title);
         Assert.Equal(6, sut.Ebbes.Count);
+    }
+
+    [Fact]
+    public async void TrackingContext_033_Add() {
+        var sut = CreateTrackingContext((t) => new TrackingSetEbbes3(t));
+        Assert.Equal(5, sut.Ebbes.Count);
+
+        var to = sut.Ebbes.Add(new EbbesEntity(Id: new Guid("00000000-0000-0000-0000-000000000001"), Title: Title6));
+        {
+            var idActual = to.Value.Id;
+            Assert.Equal(idActual, new Guid("00000000-0000-0000-0000-000000000001"));
+            Assert.Equal(Title6, sut.Ebbes[new EbbesPK(Id: idActual)].Title);
+        }
+        Assert.Equal(1, sut.TrackingChanges.Changes.Count);
+
+        var chg = sut.TrackingChanges.Changes[0];
+        Assert.Equal(TrackingStatus.Added, chg.Status);
+        Assert.Equal(Title6, ((EbbesEntity)chg.GetValue()).Title);
+        Assert.Equal(EbbesCnt + 1, sut.Ebbes.Count);
+
+        await sut.ApplyChangesAsync(new Test1TrackingTransConnection());
+        Assert.Equal(0, sut.TrackingChanges.Changes.Count);
+
+        {
+            var idActual = to.Value.Id;
+            Assert.NotEqual(idActual, new Guid("00000000-0000-0000-0000-000000000001"));
+            Assert.Equal(Title6, sut.Ebbes[new EbbesPK(Id: idActual)].Title);
+        }
     }
 
 
