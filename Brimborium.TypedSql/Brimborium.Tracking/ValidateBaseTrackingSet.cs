@@ -16,6 +16,7 @@ public class ValidateBaseTrackingSet<TKey, TValue> : ITrackingSetEvent<TKey, TVa
     //}
 
     protected virtual void Validate(TValue value, ITrackingContext trackingContext, ITrackingSet<TKey, TValue> trackingSet) {
+        // no need to call this
     }
 
     public virtual AddingArgument<TKey, TValue> OnAdding(AddingArgument<TKey, TValue> argument) {
