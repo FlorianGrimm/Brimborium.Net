@@ -63,7 +63,9 @@ namespace Brimborium.TypedStoredProcedure {
                 _SQLTypeNameToType = new Dictionary<string, HashSet<Type>>(StringComparer.OrdinalIgnoreCase);
                 AddTypesMatch("bigint", typeof(long));
                 AddTypesMatch("bit", typeof(bool));
+                AddTypesMatch("datetime", typeof(DateTime));
                 AddTypesMatch("datetime2", typeof(DateTime));
+                AddTypesMatch("datetimeoffset", typeof(DateTimeOffset));
                 AddTypesMatch("int", typeof(int));
                 AddTypesMatch("nvarchar", typeof(string));
                 AddTypesMatch("nchar", typeof(string));
