@@ -2,6 +2,8 @@
 
 public interface ITrackingSet {
     ITrackingContext TrackingContext { get; }
+    int Count { get; }
+    void Clear();
 }
 
 
@@ -15,10 +17,7 @@ public interface ITrackingSet<TKey, TValue>
 
     ICollection<TKey> Keys { get; }
 
-    int Count { get; }
     ICollection<TValue> Values { get; }
-
-    void Clear();
 
     [return: NotNullIfNotNull("item")]
     TrackingObject<TKey, TValue>? Attach(TValue? item);
@@ -28,9 +27,13 @@ public interface ITrackingSet<TKey, TValue>
     void Detach(TrackingObject<TKey, TValue>? item);
 
     TrackingObject<TKey, TValue> Add(TValue item);
+
     TrackingObject<TKey, TValue> Update(TValue item);
+
     TrackingObject<TKey, TValue> Upsert(TValue item);
+
     void Delete(TrackingObject<TKey, TValue> trackingObject);
+
     void Delete(TValue item);
 
     IEnumerable<TrackingObject<TKey, TValue>> GetTrackingObjects();
@@ -49,6 +52,8 @@ public interface ITrackingSet<TKey, TValue>
     */
 
     TrackingObject<TKey, TValue> GetTrackingObject(TKey key);
+
     bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value);
+
     bool TryTrackingObject(TKey key, [MaybeNullWhen(false)] out TrackingObject<TKey, TValue> value);
 }

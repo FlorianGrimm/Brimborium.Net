@@ -10,6 +10,10 @@ public abstract class TrackingSet : ITrackingSet {
 
     public ITrackingContext TrackingContext { get; }
 
+    public abstract int Count { get; }
+
+    public abstract void Clear();
+
     internal abstract Type GetItemType();
 }
 
@@ -70,7 +74,7 @@ public class TrackingSet<TKey, TValue>
 
     internal override Type GetItemType() => typeof(TValue);
 
-    public virtual int Count => this._Items.Count;
+    public override int Count => this._Items.Count;
 
     public ICollection<TKey> Keys {
         get {
@@ -92,7 +96,7 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    public virtual void Clear() {
+    public override void Clear() {
         this._Items.Clear();
     }
 

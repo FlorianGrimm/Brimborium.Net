@@ -3,16 +3,27 @@
 public class TrackingContext
     : ITrackingContext {
     private readonly Dictionary<Type, TrackingSet> _TrackingSetByType;
-    public TrackingChanges TrackingChanges { get; }
 
     public TrackingContext() {
         this._TrackingSetByType = new Dictionary<Type, TrackingSet>();
         this.TrackingChanges = new TrackingChanges(this);
     }
 
+    public TrackingChanges TrackingChanges { get; }
+
+    public Dictionary<Type, TrackingSet> TrackingSetByType=> _TrackingSetByType;
+
     public void RegisterTrackingSet(TrackingSet trackingSet) {
         var itemType = trackingSet.GetItemType();
         this._TrackingSetByType.Add(itemType, trackingSet);
+    }
+
+    public void Clear() {
+        foreach (var trackingSet in this.TrackingSetByType.Values.ToList()) {
+            trackingSet.Clear();
+
+        }
+        this.TrackingChanges.Clear();
     }
 
     //public TrackingObject<TKey, TValue>? Attach<TValue>(TValue item)
