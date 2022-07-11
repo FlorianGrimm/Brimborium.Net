@@ -140,7 +140,7 @@ namespace Brimborium.TypedStoredProcedure {
                     new ReaderMethodDefinition(
                         Microsoft.SqlServer.Management.Smo.SqlDataType.DateTimeOffset,
                         "ReadDateTimeOffset", typeof(DateTimeOffset),
-                        "ReadDateTimeOffsetQ", typeof(DateTime?)),
+                        "ReadDateTimeOffsetQ", typeof(DateTimeOffset?)),
                     new ReaderMethodDefinition(
                         Microsoft.SqlServer.Management.Smo.SqlDataType.SmallInt,
                         "ReadInt16", typeof(short),
