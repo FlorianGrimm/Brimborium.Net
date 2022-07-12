@@ -10,9 +10,9 @@ using Microsoft.Extensions.Options;
 namespace Brimborium.Extensions.Logging.LocalFile;
 
 public class ConfigurationBasedLevelSwitcher : IConfigureOptions<LoggerFilterOptions> {
-    private readonly IConfiguration _configuration;
-    private readonly Type _provider;
-    private readonly string _levelKey;
+    protected readonly IConfiguration _configuration;
+    protected readonly Type _provider;
+    protected readonly string _levelKey;
 
     public ConfigurationBasedLevelSwitcher(IConfiguration configuration, Type provider, string levelKey) {
         this._configuration = configuration;
@@ -36,7 +36,10 @@ public class ConfigurationBasedLevelSwitcher : IConfigureOptions<LoggerFilterOpt
                 return LogLevel.Warning;
             case "INFORMATION":
                 return LogLevel.Information;
+            case "DEBUG":
+                return LogLevel.Debug;
             case "VERBOSE":
+            case "TRACE":
                 return LogLevel.Trace;
             default:
                 return LogLevel.None;

@@ -25,7 +25,9 @@ public class LocalFileLoggerProvider : BatchingLoggerProvider {
     /// </summary>
     /// <param name="options">The options to use when creating a provider.</param>
     [SuppressMessage("ApiDesign", "RS0022:Constructor make noninheritable base class inheritable", Justification = "Required for backwards compatibility")]
-    public LocalFileLoggerProvider(IOptionsMonitor<LocalFileLoggerOptions> options) : base(options) {
+    public LocalFileLoggerProvider(
+        IOptionsMonitor<LocalFileLoggerOptions> options
+        ) : base(options) {
         var loggerOptions = options.CurrentValue;
         this._path = loggerOptions.LogDirectory;
         this._fileName = loggerOptions.FileName;

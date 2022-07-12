@@ -80,7 +80,7 @@ public static class LocalFileLoggerFactoryExtensions {
 
         if (addedLocalFileLogger) {
             services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateLocalFileFilterConfigureOptions(config));
-            services.AddSingleton<IConfigureOptions<LocalFileLoggerOptions>>(new AzureAppServicesFileLoggerConfigureOptions(config, context));
+            services.AddSingleton<IConfigureOptions<LocalFileLoggerOptions>>(new LocalFileLoggerConfigureOptions(config, context));
             services.AddSingleton<IOptionsChangeTokenSource<LocalFileLoggerOptions>>(
                 new ConfigurationChangeTokenSource<LocalFileLoggerOptions>(config));
             LoggerProviderOptions.RegisterProviderOptions<LocalFileLoggerOptions, LocalFileLoggerProvider>(builder.Services);
@@ -112,7 +112,7 @@ public static class LocalFileLoggerFactoryExtensions {
     private static ConfigurationBasedLevelSwitcher CreateLocalFileFilterConfigureOptions(IConfiguration config) {
         return new ConfigurationBasedLevelSwitcher(
             configuration: config,
-            provider: typeof(AzureAppServicesFileLoggerProvider),
+            provider: typeof(LocalFileLoggerProvider),
             levelKey: "LocalFileTraceLevel");
     }
 }

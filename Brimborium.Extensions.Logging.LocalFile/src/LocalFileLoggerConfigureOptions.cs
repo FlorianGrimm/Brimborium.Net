@@ -18,6 +18,12 @@ public class LocalFileLoggerConfigureOptions : BatchLoggerConfigureOptions, ICon
 
     public void Configure(LocalFileLoggerOptions options) {
         base.Configure(options);
+        {
+            var logDirectory = this._configuration.GetSection("LocalFileDirectory")?.Value;
+            if (!string.IsNullOrEmpty(logDirectory)) {
+                options.LogDirectory = logDirectory;
+            }
+        }
         if (string.IsNullOrEmpty(options.LogDirectory)) {
             options.LogDirectory = Path.Combine(this._context.HomeFolder, "LogFiles", "Application");
         } else if (!System.IO.Path.IsPathRooted(options.LogDirectory)) {
