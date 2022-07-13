@@ -1,6 +1,5 @@
 ﻿namespace Brimborium.Tracking;
 
-#warning weichei
 public class TrackingTestConnection : ITrackingConnection {
     private readonly Func<TrackingTestConnection, Task<TrackingTestTransaction>>? _FuncBeginTransaction;
 

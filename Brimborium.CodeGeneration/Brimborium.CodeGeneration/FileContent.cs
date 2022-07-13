@@ -10,8 +10,8 @@
             return (fileContentService ?? DefaultFileContentService.GetInstance()).Create(fileName);
             
         }
-        private static Regex regexStart = new Regex("^#if[]+false[ \t]*[\\r\\n]+");
-        private static Regex regexStop = new Regex("[\\r\\n]+#endif[ \t\\r\\n]*$");
+        private static readonly Regex regexStart = new Regex("^#if[]+false[ \t]*[\\r\\n]+");
+        private static readonly Regex regexStop = new Regex("[\\r\\n]+#endif[ \t\\r\\n]*$");
 
         public bool HasChanged(string fileContent) {
             if (string.IsNullOrEmpty(this.Content)) {

@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Brimborium.TypedStoredProcedure {
     public partial class SQLUtility {
-        private static Dictionary<string, int> _StringTypes = new Dictionary<string, int>(
+        private static readonly Dictionary<string, int> _StringTypes = new Dictionary<string, int>(
             new KeyValuePair<string, int>[] {
                 new KeyValuePair<string, int>("char", 2 ),
                 new KeyValuePair<string, int>("varchar", 4 ),

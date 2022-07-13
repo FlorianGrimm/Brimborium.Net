@@ -49,8 +49,8 @@ public partial class GeneratorForTypedSqlAccess {
             var psp = new DatabaseStoredProcedure(
                 sp,
                 new StoredProcedureDefintion(sp.Schema, sp.Name, CSTypeDefinition.None, ExecutionMode.Unknown, CSTypeDefinition.None),
-                new MemberDefinition[0],
-                new StoredProcedureResultSet[0]);
+                Array.Empty<MemberDefinition>(),
+                Array.Empty<StoredProcedureResultSet>());
             lstAllStoredProcedure.Add(psp);
         }
         var lstUsed = new List<PrintSPPair>();

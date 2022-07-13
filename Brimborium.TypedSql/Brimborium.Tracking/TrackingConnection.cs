@@ -13,7 +13,7 @@ public interface ITrackingAccessConnectionFactory {
     void SetOptions(TrackingSqlConnectionOption value);
 
     Task<ITrackingTransConnection> BeginTrackingTransConnection(
-        CancellationToken cancellationToken = default(CancellationToken)
+        CancellationToken cancellationToken = default
         );
 }
 
