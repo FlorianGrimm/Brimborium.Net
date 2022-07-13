@@ -10,14 +10,12 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 
 public class BlobLoggerConfigureOptions : BatchLoggerConfigureOptions, IConfigureOptions<AzureBlobLoggerOptions>
 {
-    private readonly IConfiguration _configuration;
     private readonly IWebAppContext _context;
     private readonly Action<AzureBlobLoggerOptions> _configureOptions;
 
     public BlobLoggerConfigureOptions(IConfiguration configuration, IWebAppContext context, Action<AzureBlobLoggerOptions> configureOptions)
         : base(configuration, "AzureBlobEnabled")
     {
-        this._configuration = configuration;
         this._context = context;
         this._configureOptions = configureOptions;
     }

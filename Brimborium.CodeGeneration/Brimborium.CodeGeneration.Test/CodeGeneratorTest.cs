@@ -26,7 +26,7 @@ namespace Brimborium.CodeGeneration {
                     },
                     FileNameFn: (data, b) => $"{data}.cs"
                     ))));
-            CodeGenerator.Generate(lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
+            CodeGenerator.Generate("", lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
            
             Assert.Equal(2, testFileContentService.DictFileContent.Count);
            
@@ -74,7 +74,7 @@ namespace Brimborium.CodeGeneration {
                 "def.cs",
                 "/*-- AutoGenerate:on --*/|/*-- Customize:on --*/|public partial class def {|    public def() {|        //|    }|}|".ReplacePipeToNewLine()
                 );
-            CodeGenerator.Generate(lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
+            CodeGenerator.Generate("", lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
            
             Assert.Equal(2, testFileContentService.DictFileContent.Count);
             Assert.True(testFileContentService.DictFileContent.ContainsKey("abc.cs"));
@@ -126,7 +126,7 @@ namespace Brimborium.CodeGeneration {
             lstFileContent.AddRange(testFileContentService.DictFileContent.Values);
             Assert.Equal(2, lstFileContent.Count);
             
-            CodeGenerator.Generate(lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
+            CodeGenerator.Generate("", lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
             
             Assert.Equal(2, testFileContentService.DictFileContent.Count);
             Assert.True(testFileContentService.DictFileContent.ContainsKey("abc.cs"));
@@ -169,7 +169,7 @@ namespace Brimborium.CodeGeneration {
             lstFileContent.AddRange(testFileContentService.DictFileContent.Values);
             Assert.Equal(2, lstFileContent.Count);
             
-            CodeGenerator.Generate(lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
+            CodeGenerator.Generate("", lstFileContent, templateVariables, codeGeneratorBindings, log, isVerbose, testFileContentService);
             
             Assert.Equal(2, testFileContentService.DictFileContent.Count);
             Assert.True(testFileContentService.DictFileContent.ContainsKey("abc.cs"));

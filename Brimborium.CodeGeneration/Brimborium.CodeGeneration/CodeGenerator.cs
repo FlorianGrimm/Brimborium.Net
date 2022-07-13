@@ -17,6 +17,7 @@
                 .ToList();
 
             return CodeGenerator.Generate(
+                outputFolder: outputFolder,
                 lstFileContent: lstFileContent,
                 templateVariables: templateVariables,
                 codeGeneratorBindings: codeGeneratorBindings,
@@ -27,6 +28,70 @@
         }
 
         public static bool Generate(
+            string outputFolder,
+            string outputFolderCache,
+            string pattern,
+            Dictionary<string, string> templateVariables,
+            CodeGeneratorBindings codeGeneratorBindings,
+            Action<string>? log,
+            bool isVerbose,
+            IFileContentService? fileContentService = default) {
+            templateVariables["ProjectRoot"] = outputFolderCache;
+            var diCache = new System.IO.DirectoryInfo(outputFolderCache);
+            if (!diCache.Exists) {
+                diCache.Create();
+            }
+            var arrFileInfoCache = diCache.GetFiles(pattern, System.IO.SearchOption.AllDirectories);
+            var lstFileContentCache = arrFileInfoCache
+                .Select(fi => FileContent.Create(fi.FullName, fileContentService))
+                .OrderBy(fi => fi.FileName)
+                .ToList();
+
+            var resultChanges = CodeGenerator.GenerateWithChanges(
+                outputFolder: outputFolderCache,
+                lstFileContent: lstFileContentCache,
+                templateVariables: templateVariables,
+                codeGeneratorBindings: codeGeneratorBindings,
+                log: log,
+                isVerbose: isVerbose,
+                fileContentService: fileContentService
+                );
+
+            var result = resultChanges.Any(t => t.changed);
+            foreach (var (_, fileContentCache) in resultChanges) {
+                var fileNameRelative = fileContentCache.FileName.Substring(outputFolderCache.Length);
+                var fileNameOutput = outputFolder + fileNameRelative;
+                var fileContentOutput = FileContent.Create(fileNameOutput, fileContentService);
+                if (fileContentOutput.Write(fileContentCache.Content).changed) {
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
+        public static bool Generate(
+            string outputFolder,
+            List<FileContent> lstFileContent,
+            Dictionary<string, string> templateVariables,
+            CodeGeneratorBindings codeGeneratorBindings,
+            Action<string>? log,
+            bool isVerbose,
+            IFileContentService? fileContentService = default
+            ) {
+            var result = GenerateWithChanges(
+                outputFolder,
+                lstFileContent,
+                templateVariables,
+                codeGeneratorBindings,
+                log,
+                isVerbose,
+                fileContentService);
+            return result.Any(t => t.changed);
+        }
+
+        public static List<(bool changed, FileContent result)> GenerateWithChanges(
+            string outputFolder,
             List<FileContent> lstFileContent,
             Dictionary<string, string> templateVariables,
             CodeGeneratorBindings codeGeneratorBindings,
@@ -35,6 +100,7 @@
             IFileContentService? fileContentService = default
             ) {
             if (log is null) { log = System.Console.Out.WriteLine; }
+            var result = new List<(bool changed, FileContent result)>();
             System.Exception? lastError = null;
             var lstFileContentGenerated = new List<FileContent>();
             var lstFileContentReplacements = new List<FileContent>();
@@ -46,7 +112,6 @@
                 }
             }
 
-            var result = false;
             var dctFileContentGenerated = lstFileContentGenerated.ToDictionary(fc => fc.FileName, StringComparer.OrdinalIgnoreCase);
             var dctFileContentReplacements = lstFileContentReplacements.ToDictionary(fc => fc.FileName, StringComparer.OrdinalIgnoreCase);
 
@@ -56,6 +121,9 @@
                 var outputFilename = renderBinding.GetFilename(boundVariables);
                 if (string.IsNullOrEmpty(outputFilename)) {
                     continue;
+                }
+                if (!string.IsNullOrEmpty(outputFolder) && !System.IO.Path.IsPathFullyQualified(outputFilename)) {
+                    outputFilename = System.IO.Path.GetFullPath(System.IO.Path.Combine(outputFolder, outputFilename));
                 }
                 if (dctFileContentReplacements.ContainsKey(outputFilename)) {
                     log($"skip: {outputFilename}");
@@ -123,9 +191,10 @@
                     renderBinding.Render(printCtxt);
                     var content = ReplacementBindingExtension.Replace(sbOutput.ToString(), renderGenerator.GetValue).content;
                     var fileContentGeneratedNext = fileContentGenerated.Write(content);
+                    result.Add(fileContentGeneratedNext);
+
                     if (fileContentGeneratedNext.changed) {
                         log($"changed: {outputFilename}");
-                        result = true;
                     } else {
                         if (isVerbose) {
                             log($"ok     : {outputFilename}");
@@ -151,14 +220,16 @@
                     }
                     var (changed, content) = ReplacementBindingExtension.Replace(fileContent.Content, renderGenerator.GetValue);
                     if (changed) {
-                        if (fileContent.Write(content).changed) {
+                        var fileContentGeneratedNext = fileContent.Write(content);
+                        if (fileContentGeneratedNext.changed) {
                             log($"changed: {outputFilename}");
-                            result = true;
                         }
+                        result.Add(fileContentGeneratedNext);
                     } else {
                         if (isVerbose) {
                             log($"ok     : {outputFilename}");
                         }
+                        result.Add((false, fileContent));
                     }
                 } catch (System.Exception error) {
                     lastError = error;

@@ -11,8 +11,8 @@
         [Fact()]
         public void HasChanged_iffalse_Test() {
             var sut = new FileContent("a", "#if false|abc|#endif|".ReplacePipeToNewLine());
-            Assert.False(sut.HasChanged("a"));
-            Assert.False(sut.HasChanged("b"));
+            Assert.True(sut.HasChanged("a"),"a");
+            Assert.True(sut.HasChanged("b"),"b");
         }
 
         [Fact()]
