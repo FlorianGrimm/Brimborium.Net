@@ -1,14 +1,29 @@
 ﻿namespace Brimborium.Tracking;
 
 public interface ITrackingSet {
+    /// <summary>
+    /// Owner
+    /// </summary>
     ITrackingContext TrackingContext { get; }
+ 
     int Count { get; }
+    
     void Clear();
+
+    /// <summary>
+    /// ReadOnly allows only Attach and Clear.
+    /// </summary>
+    bool IsReadOnly { get; set; }
 }
 
+public interface ITrackingSet<TValue>
+    : ITrackingSet
+    where TValue : class {
+    ICollection<TValue> Values { get; }
+}
 
 public interface ITrackingSet<TKey, TValue>
-    : ITrackingSet
+    : ITrackingSet<TValue>
     where TKey : notnull
     where TValue : class {
     ITrackingSetApplyChanges<TKey, TValue> TrackingApplyChanges { get; }
@@ -17,7 +32,7 @@ public interface ITrackingSet<TKey, TValue>
 
     ICollection<TKey> Keys { get; }
 
-    ICollection<TValue> Values { get; }
+    // ICollection<TValue> Values { get; }
 
     [return: NotNullIfNotNull("item")]
     TrackingObject<TKey, TValue>? Attach(TValue? item);

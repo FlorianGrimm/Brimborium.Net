@@ -1,4 +1,6 @@
-﻿
+﻿#pragma warning disable CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
+#pragma warning disable IDE0066 // Convert switch statement to expression
+
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.SqlParser.Parser;
@@ -86,7 +88,7 @@ namespace Brimborium.TypedStoredProcedure {
             }
         }
 
-        private static Dictionary<Microsoft.SqlServer.Management.Smo.SqlDataType, ReaderMethodDefinition> ReaderMethodDefinition = new Dictionary<Microsoft.SqlServer.Management.Smo.SqlDataType, ReaderMethodDefinition>();
+        private readonly static Dictionary<Microsoft.SqlServer.Management.Smo.SqlDataType, ReaderMethodDefinition> ReaderMethodDefinition = new Dictionary<Microsoft.SqlServer.Management.Smo.SqlDataType, ReaderMethodDefinition>();
 
         public static ReaderMethodDefinition? GetReaderMethodDefinition(Microsoft.SqlServer.Management.Smo.SqlDataType sqlDataType) {
             if (ReaderMethodDefinition.Count == 0) {
@@ -180,6 +182,7 @@ namespace Brimborium.TypedStoredProcedure {
             }
         }
 
+#pragma warning disable CA2211 // Non-constant fields should not be visible
         public static List<TypeConverterDefinition> TypeConverter = new List<TypeConverterDefinition>();
         public static void AddDefaultTypeConverter() {
             AddTypeConverter(typeof(short), typeof(int), "(int)");
@@ -193,7 +196,7 @@ namespace Brimborium.TypedStoredProcedure {
         }
         public static string GetTypeConverter(Type fromType, Type toType) {
             var result = TypeConverter.FirstOrDefault(tc => tc.FromType == fromType && tc.ToType == toType);
-            if (result is object) {
+            if (result is not null) {
                 return result.Converter;
             } else {
                 return string.Empty;
@@ -254,14 +257,14 @@ namespace Brimborium.TypedStoredProcedure {
                 sbParameter.Append(parameter.DataType.ToString());
                 sbParameter.AppendLine(";");
             }
-            var parameterLength = sbParameter.Length;
+            // var parameterLength = sbParameter.Length;
             var sbSqlCode = new StringBuilder();
             sbSqlCode.Append(sbParameter);
             sbSqlCode.Append(spTextBody);
 
             var spCode = sp.TextHeader + sp.TextBody;
 
-            var lstParseResult = new List<ParseResult>();
+            // var lstParseResult = new List<ParseResult>();
             var parseResult = Parser.Parse(spCode);
 
             var declareVisitor = new DeclareVisitor();
@@ -283,17 +286,17 @@ namespace Brimborium.TypedStoredProcedure {
 
         public static List<StoredProcedureResultSet> DescribeStoredProcedureResultSetsSimplify(SqlConnection connection, StoredProcedure sp, Action<string> errorWriteLine, StringBuilder sbParameter, FindSelectResult lstSelect) {
             var results = new List<StoredProcedureResultSet>();
-            if (lstSelect is object) {
+            if (lstSelect is not null) {
                 var name = $"[{sp.Schema}].[{sp.Name}]";
                 var resultRec = readDescribeForSelectRec(name, connection, sbParameter, lstSelect, errorWriteLine);
                 resultRec = simplyfyResultSets(name, resultRec, errorWriteLine);
 
-                if (resultRec.ResultSet is object) {
+                if (resultRec.ResultSet is not null) {
                     results.Add(resultRec.ResultSet);
                 } else {
                     results.AddRange(
                         resultRec.Children
-                            .Where(c => c.ResultSet is object)
+                            .Where(c => c.ResultSet is not null)
                             .Select(c => c.ResultSet!));
                 }
             }
@@ -307,7 +310,7 @@ namespace Brimborium.TypedStoredProcedure {
                 FindSelectResult lstSelect,
                 Action<string> errorWriteLine
                 ) {
-            if (lstSelect.SelectStatement is object) {
+            if (lstSelect.SelectStatement is not null) {
                 var res = readDescribeForSelect(connection, sbParameter, lstSelect.SelectStatement);
                 return new StoredProcedureResultSetNested(new List<StoredProcedureResultSetNested>(), lstSelect.IsSequential, res);
             } else {
@@ -324,7 +327,7 @@ namespace Brimborium.TypedStoredProcedure {
                 string name,
                 StoredProcedureResultSetNested current,
                 Action<string> errorWriteLine) {
-            if (current.ResultSet is object) {
+            if (current.ResultSet is not null) {
                 return current;
             }
             current = simplyfyResultSetsSequence(name, current, errorWriteLine);
@@ -342,7 +345,7 @@ namespace Brimborium.TypedStoredProcedure {
                 string name,
                 StoredProcedureResultSetNested current,
                 Action<string> errorWriteLine) {
-            if (current.ResultSet is object) {
+            if (current.ResultSet is not null) {
                 return current;
             }
             if (current.Children.Count == 0) {
@@ -396,7 +399,7 @@ namespace Brimborium.TypedStoredProcedure {
                     var child0 = simplyfiedChildren[0];
                     var resultSet = child0.ResultSet;
                     StoredProcedureResultSet prevResultSet;
-                    for (var idx = 1; idx < simplyfiedChildren.Count && resultSet is object; idx++) {
+                    for (var idx = 1; idx < simplyfiedChildren.Count && resultSet is not null; idx++) {
                         var childIdx = simplyfiedChildren[idx];
                         prevResultSet = resultSet;
                         if (resultSet.TryMergeResultSet(childIdx.ResultSet!, errorWriteLine, out resultSet)) {
@@ -467,14 +470,16 @@ namespace Brimborium.TypedStoredProcedure {
             }
             return current;
         }
+#pragma warning disable IDE0060 // Remove unused parameter
         public static StoredProcedureResultSetNested simplyfyResultSetsNext(
                 StoredProcedureResultSetNested current,
                 Action<string> errorWriteLine) {
-            if (current.ResultSet is object) {
+            if (current.ResultSet is not null) {
                 return current;
             }
             return current;
         }
+#pragma warning restore IDE0060 // Remove unused parameter
 #if old
         public static StoredProcedureResultSetNested readDescribeForSelectRec(
                 string name,
@@ -576,7 +581,9 @@ namespace Brimborium.TypedStoredProcedure {
                         var typeName = arrSystemTypeName[0];
                         var typeSize = 0;
                         if (arrSystemTypeName.Length > 1) {
-                            int.TryParse(arrSystemTypeName[1], out typeSize);
+                            if (!int.TryParse(arrSystemTypeName[1], out typeSize)) {
+                                typeSize = 0;
+                            }
                         }
                         if ((bool)record[idx_is_hidden]) {
                             //

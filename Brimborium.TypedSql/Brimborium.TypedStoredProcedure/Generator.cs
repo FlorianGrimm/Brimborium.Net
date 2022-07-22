@@ -35,8 +35,8 @@ public partial class GeneratorForTypedSqlAccess {
 
         var lstStoredProcedure = new List<StoredProcedure>();
         foreach (StoredProcedure? storedProcedure in database.StoredProcedures) {
-            if (storedProcedure is object
-                && storedProcedure.Schema is object
+            if (storedProcedure is not null
+                && storedProcedure.Schema is not null
                 ) {
                 if (string.Equals(storedProcedure.Schema, "sys", StringComparison.OrdinalIgnoreCase)) {
                     continue;
@@ -148,7 +148,7 @@ public partial class GeneratorForTypedSqlAccess {
     private static MemberDefinition[] ConvertParameter(StoredProcedureParameterCollection parameters) {
         var result = new List<MemberDefinition>();
         foreach (StoredProcedureParameter? spParameter in parameters) {
-            if (spParameter is object) {
+            if (spParameter is not null) {
                 result.Add(
                         new MemberDefinition(
                             spParameter.Name,
@@ -181,7 +181,7 @@ public partial class GeneratorForTypedSqlAccess {
                 var lstReaderDefinition = new List<ReaderDefinition>();
                 var hsReaderDefinition = new HashSet<string>();
                 foreach (var (dbSP, spDef) in lstUsed) {
-                    if (dbSP is object && spDef is object) {
+                    if (dbSP is not null && spDef is not null) {
                         printExecuteMethod(
                             dbSP,
                             spDef,
@@ -269,7 +269,7 @@ public partial class GeneratorForTypedSqlAccess {
             //
             printCurly($"using(var cmd = this.CreateCommand(\"{dbSP.SPDefinition.SqlName}\", CommandType.StoredProcedure))", "", ctxt, (ctxt) => {
                 var argument_Type = spDef_Argument?.Type;
-                if (spDef_Argument is object && argument_Type is object) {
+                if (spDef_Argument is not null && argument_Type is not null) {
                     #region Parameters
                     var dctProperties = argument_Type.GetProperties()
                         .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
@@ -285,7 +285,7 @@ public partial class GeneratorForTypedSqlAccess {
                         }
 
                         MemberDefinition? spDef_Argument_Member = null;
-                        if (spDef_Argument.Members is object) {
+                        if (spDef_Argument.Members is not null) {
                             spDef_Argument_Member = spDef_Argument.Members.FirstOrDefault(m => string.Equals(m.Name, propertyName, StringComparison.OrdinalIgnoreCase));
                         }
 

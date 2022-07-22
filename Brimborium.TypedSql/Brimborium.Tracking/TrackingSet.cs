@@ -14,6 +14,11 @@ public abstract class TrackingSet : ITrackingSet {
 
     public abstract void Clear();
 
+    /// <summary>
+    /// ReadOnly allows only Attach and Clear.
+    /// </summary>
+    public bool IsReadOnly { get; set; }
+
     internal abstract Type GetItemType();
 }
 
@@ -65,6 +70,7 @@ public abstract class TrackingSet : ITrackingSet {
 
 public class TrackingSet<TKey, TValue>
     : TrackingSet
+    , ITrackingSet<TValue>
     , ITrackingSet<TKey, TValue>
     where TKey : notnull
     where TValue : class {
@@ -131,6 +137,7 @@ public class TrackingSet<TKey, TValue>
     public bool TryExtractKey(TValue value, [MaybeNullWhen(false)] out TKey key) {
         return this._ExtractKey.TryExtractKey(value, out key);
     }
+
     /// <summary>
     /// register the item to the dataset
     /// </summary>
@@ -205,6 +212,8 @@ public class TrackingSet<TKey, TValue>
     }
 
     public virtual TrackingObject<TKey, TValue> Add(TValue value) {
+        if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
+
         var isValidKey = this._ExtractKey.TryExtractKey(value, out var key);
         if (isValidKey
             && (key is not null)
@@ -242,9 +251,8 @@ public class TrackingSet<TKey, TValue>
     }
 
     public virtual TrackingObject<TKey, TValue> Update(TValue value) {
-        /*
-        var key = this._ExtractKey.ExtractKey(value);
-        */
+        if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
+
         if (!this._ExtractKey.TryExtractKey(value, out var key)) {
             throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
         } else {
@@ -278,26 +286,28 @@ public class TrackingSet<TKey, TValue>
     }
 
     public virtual TrackingObject<TKey, TValue> Upsert(TValue value) {
+        if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
+
         TrackingObject<TKey, TValue>? result = default;
 
         var isValidKey = this._ExtractKey.TryExtractKey(value, out var key);
 
         bool isValidKeyFinally;
-        TKey? keyFinally;
 
-        int mode = 0;
+        int mode;
         if (!isValidKey) {
             value = this.OnAdding(value);
             mode = 1; // adding
-            isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out keyFinally);
+            isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
             if (!isValidKeyFinally) {
                 throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
             } else {
+                key = keyFinally;
             }
         } else {
             if (!this._Items.TryGetValue(key!, out result)) {
                 value = this.OnAdding(value);
-                isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out keyFinally);
+                isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
                 if (!isValidKeyFinally) {
                     throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
                 } else {
@@ -369,6 +379,8 @@ public class TrackingSet<TKey, TValue>
     }
 
     public virtual void Delete(TValue value) {
+        if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
+
         if (!this._ExtractKey.TryExtractKey(value, out var key)) {
             throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
         } else {
@@ -412,6 +424,8 @@ public class TrackingSet<TKey, TValue>
     }
 
     protected internal virtual void ValueSet(TrackingObject<TKey, TValue> trackingObject, TValue value) {
+        if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
+
         if (trackingObject.Status == TrackingStatus.Original) {
             value = this.OnUpdating(newValue: value, oldValue: trackingObject.Value, TrackingStatus.Original, TrackingStatus.Modified);
             trackingObject.Set(value, TrackingStatus.Modified);
@@ -430,6 +444,8 @@ public class TrackingSet<TKey, TValue>
     }
 
     public virtual void Delete(TrackingObject<TKey, TValue> trackingObject) {
+        if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
+
         //base.Delete(trackingObject);
         if (!ReferenceEquals(trackingObject.TrackingSet, this)) {
             throw new InvalidModificationException("wrong TrackingSet");

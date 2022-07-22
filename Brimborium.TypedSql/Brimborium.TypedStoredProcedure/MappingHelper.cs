@@ -33,7 +33,7 @@ namespace Brimborium.TypedStoredProcedure {
                 //    continue;
                 //}
 
-                if (piName is object) {
+                if (piName is not null) {
                     if (!allProperties.ContainsKey(piName)) {
                         allProperties[piName] = new CalculateMappingProperty(piName);
                     }
@@ -67,10 +67,10 @@ namespace Brimborium.TypedStoredProcedure {
             }).ToArray();
             var cntConstructorParameters = arrConstructors.Length == 0 ? -1 : arrConstructors.Select(ctor => ctor.GetParameters().Length).Max();
             var ctorToUse = arrConstructors.FirstOrDefault(ctor => ctor.GetParameters().Length == cntConstructorParameters);
-            if (ctorToUse is object) {
+            if (ctorToUse is not null) {
                 foreach (var pi in ctorToUse.GetParameters()) {
                     var piName = pi.Name;
-                    if (piName is object) {
+                    if (piName is not null) {
                         ctorParameters[piName] = pi;
                         if (!allProperties.ContainsKey(piName)) {
                             allProperties[piName] = new CalculateMappingProperty(piName);
@@ -111,7 +111,7 @@ namespace Brimborium.TypedStoredProcedure {
                 readableProperties.TryGetValue(column.Name, out var readable);
 
                 CalculateMappingReturnItem ri;
-                if (ctorPI is object && ctorPI.Name is object) {
+                if (ctorPI is not null && ctorPI.Name is not null) {
                     var valueType = ctorPI.ParameterType;
                     var csReadCall = getCSReadCall(column, valueType).csRead;
                     ri = new CalculateMappingReturnItem(1, column, ctorPI.Name, ctorPI, writeable, readable, valueType, csReadCall);
@@ -120,7 +120,7 @@ namespace Brimborium.TypedStoredProcedure {
                     if (allProperties.TryGetValue(ctorPI.Name, out var mappingProperty)) {
                         mappingProperty.Matched = true;
                     }
-                } else if (writeable is object && writeable.Name is object) {
+                } else if (writeable is not null && writeable.Name is not null) {
                     var valueType = writeable.PropertyType;
                     var csReadCall = getCSReadCall(column, valueType).csRead;
                     ri = new CalculateMappingReturnItem(2, column, writeable.Name, ctorPI, writeable, readable, valueType, csReadCall);
@@ -129,7 +129,7 @@ namespace Brimborium.TypedStoredProcedure {
                     if (allProperties.TryGetValue(writeable.Name, out var mappingProperty)) {
                         mappingProperty.Matched = true;
                     }
-                } else if (readable is object && readable.Name is object && TypeHelper.IsListOf(readable.PropertyType, out _)) {
+                } else if (readable is not null && readable.Name is not null && TypeHelper.IsListOf(readable.PropertyType, out _)) {
                     var valueType = readable.PropertyType;
                     var csReadCall = getCSReadCall(column, valueType).csRead;
                     ri = new CalculateMappingReturnItem(3, column, readable.Name, ctorPI, writeable, readable, valueType, csReadCall);
@@ -182,13 +182,13 @@ namespace Brimborium.TypedStoredProcedure {
                 ? SQLUtility.GetReaderMethodDefinition(sqlDataType)
                 : default;
 
-            var readMethod = readerMethodDefinition is object
+            var readMethod = readerMethodDefinition is not null
                 ? tiValueType.IsNullableType
                     ? readerMethodDefinition.ReaderMethodQ
                     : readerMethodDefinition.ReaderMethod
                 : string.Empty;
 
-            var tiReadReturnType = new NullableTypeInfo(readerMethodDefinition is object
+            var tiReadReturnType = new NullableTypeInfo(readerMethodDefinition is not null
                 ? tiValueType.IsNullableType
                     ? readerMethodDefinition.ReadReturnTypeQ
                     : readerMethodDefinition.ReadReturnType

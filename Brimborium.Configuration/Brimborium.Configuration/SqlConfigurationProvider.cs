@@ -7,7 +7,8 @@ public class SqlConfigurationProvider
     {
     private readonly IDisposable _changeTokenRegistration;
 
-    private string _ConnectionString;
+    private readonly string _ConnectionString;
+
     private readonly ISqlConfigurationAccess _SqlConfigurationAccess;
 
     public SqlConfigurationProvider(
@@ -44,7 +45,9 @@ public class SqlConfigurationProvider
         }
     }
 
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
     public void Dispose() {
         this._changeTokenRegistration.Dispose();
     }
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
 }

@@ -27,7 +27,7 @@ namespace Brimborium.TypedStoredProcedure {
 
         private bool PrintMembers(StringBuilder builder) {
             builder.Append(this.Index).Append(" : (");
-            if (this.Columns is object) {
+            if (this.Columns is not null) {
                 foreach (var c in this.Columns) {
                     builder.Append(c);
                     builder.Append(", ");

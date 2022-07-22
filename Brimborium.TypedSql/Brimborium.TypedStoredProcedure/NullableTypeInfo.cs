@@ -2,7 +2,7 @@
     public class NullableTypeInfo {
         public NullableTypeInfo CreateAsNullable(Type givenType) {
             var underlyingType = Nullable.GetUnderlyingType(givenType);
-            if (underlyingType is object) {
+            if (underlyingType is not null) {
                 return new NullableTypeInfo(givenType);
             } else {
                 var nullableType = typeof(Nullable<>).MakeGenericType(new[] { givenType });
@@ -16,7 +16,7 @@
             this.NotNullableType = this.UnderlyingType ?? this.GivenType;
         }
 
-        public bool IsNullableType => this.UnderlyingType is object;
+        public bool IsNullableType => this.UnderlyingType is not null;
         public Type GivenType { get; }
         public Type? UnderlyingType { get; }
         public Type NotNullableType { get; }

@@ -6,7 +6,7 @@ public interface ITrackingContext {
 
     Task ApplyChangesAsync(
         ITrackingTransConnection trackingTransConnection,
-        CancellationToken cancellationToken = default(CancellationToken));
+        CancellationToken cancellationToken = default);
 
     //TrackingObject<TKey, TValue>? Attach<TKey, TValue>(TValue item) where TValue : class;
     //TrackingObject<TKey, TValue> Add<TKey, TValue>(TValue item) where TValue : class;

@@ -87,9 +87,6 @@ public class TrackingObject<TKey, TValue>
             // all done
         } else if (this.Status == TrackingStatus.Added) {
             var nextValue = await this.TrackingSet.TrackingApplyChanges.Insert(this, transConnection);
-            //this.Status = TrackingStatus.Original;
-            //this._Value = nextValue;
-            //this._OrginalValue = nextValue;
 
             if (nextValue is null) {
                 this._TrackingSet.Detach(this);
