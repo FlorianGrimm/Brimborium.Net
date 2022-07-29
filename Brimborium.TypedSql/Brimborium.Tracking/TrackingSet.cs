@@ -178,13 +178,24 @@ public class TrackingSet<TKey, TValue>
         }
     }
 
-    public virtual List<TrackingObject<TKey, TValue>> AttachRange(IEnumerable<TValue> items) {
+    public virtual List<TrackingObject<TKey, TValue>> AttachRange(IEnumerable<TValue>? items) {
         var result = new List<TrackingObject<TKey, TValue>>();
-        foreach (var item in items) {
-            var to = this.Attach(item);
-            result.Add(to);
+        if (items is not null) {
+            foreach (var item in items) {
+                var to = this.Attach(item);
+                result.Add(to);
+            }
         }
         return result;
+    }
+
+    public virtual void ClearAndAttachRange(IEnumerable<TValue>? items) {
+        this.Clear();
+        if (items is not null) { 
+            foreach (var item in items) {
+                this.Attach(item);
+            }
+        }
     }
 
     public virtual void Detach(TrackingObject<TKey, TValue>? trackingObject) {

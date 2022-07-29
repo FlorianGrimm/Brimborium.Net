@@ -20,6 +20,8 @@ public interface ITrackingSet<TValue>
     : ITrackingSet
     where TValue : class {
     ICollection<TValue> Values { get; }
+
+    void ClearAndAttachRange(IEnumerable<TValue>? items);
 }
 
 public interface ITrackingSet<TKey, TValue>
@@ -37,7 +39,7 @@ public interface ITrackingSet<TKey, TValue>
     [return: NotNullIfNotNull("item")]
     TrackingObject<TKey, TValue>? Attach(TValue? item);
 
-    List<TrackingObject<TKey, TValue>> AttachRange(IEnumerable<TValue> items);
+    List<TrackingObject<TKey, TValue>> AttachRange(IEnumerable<TValue>? items);
 
     void Detach(TrackingObject<TKey, TValue>? item);
 
