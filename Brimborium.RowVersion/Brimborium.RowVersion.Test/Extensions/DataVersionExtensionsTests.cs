@@ -50,10 +50,25 @@ public class DataVersionExtensionsTests {
 
     [Fact]
     public void EntityVersionDoesMatch_1_Test() {
-        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(1, 1));
-        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(1, 0));
-        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(1, 2));
+        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(2, -1));
+        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(1, -1));
+        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(0, -1));
+        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(-1, -1));
+
+        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(2, 0));
+        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(1, 0));
+        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(0, 0));
+        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(-1, 0));
+
         Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(2, 1));
+        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(1, 1));
         Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(0, 1));
+        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(-1, 1));
+
+        Assert.Equal(true, DataVersionExtensions.EntityVersionDoesMatch(2, 2));
+        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(1, 2));
+        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(0, 2));
+        Assert.Equal(false, DataVersionExtensions.EntityVersionDoesMatch(-1, 2));
+
     }
 }
