@@ -32,6 +32,8 @@
                 csType = "string";
             } else if (sqlDataType == SqlDataType.DateTimeOffset) {
                 csType = "System.DateTimeOffset";
+            } else if (sqlDataType == SqlDataType.Real) {
+                csType = "float";
             } else if (sqlDataType == SqlDataType.SmallInt) {
                 csType = "short";
             } else if (sqlDataType == SqlDataType.Timestamp) {
