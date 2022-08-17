@@ -37,13 +37,13 @@ public class ValidateBaseTrackingSet<TKey, TValue> : ITrackingSetEvent<TKey, TVa
     }
 
     public virtual UpdatingArgument<TKey, TValue> OnUpdating(UpdatingArgument<TKey, TValue> argument) {
-        this.ValidateCore(argument.Value, argument.TrackingContext, argument.TrackingSet);
+        this.ValidateCore(argument.NewValue, argument.TrackingContext, argument.TrackingSet);
         this.Validate(argument.NewValue, argument.TrackingContext, argument.TrackingSet);
         return argument;
     }
 
     public virtual DeletingArgument<TKey, TValue> OnDeleting(DeletingArgument<TKey, TValue> argument) {
-        this.ValidateCore(argument.Value, argument.TrackingContext, argument.TrackingSet);
+        this.ValidateCore(argument.OldValue, argument.TrackingContext, argument.TrackingSet);
         return argument;
     }
 }
