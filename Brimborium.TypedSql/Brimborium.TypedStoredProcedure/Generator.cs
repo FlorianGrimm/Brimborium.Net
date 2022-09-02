@@ -128,8 +128,8 @@ public partial class GeneratorForTypedSqlAccess {
             }
         }
 
+        var success = sbOutputImplementation.Length == 0;
         {
-            var success = sbOutputImplementation.Length == 0;
             var ctxt = new PrintContext(sbOutputImplementation);
             sbOutputImplementation.AppendLine("#nullable enable");
             sbOutputImplementation.AppendLine("");
@@ -141,8 +141,25 @@ public partial class GeneratorForTypedSqlAccess {
             } else {
                 Console.WriteLine($"not changed: {outputPath}");
             }
-            return success;
         }
+        {
+            var sbOutputImplementationLog = new StringBuilder();
+            var printClassLog = new PrintClass(printClass.Namespace, printClass.ClassName + "Log");
+            var ctxt = new PrintContext(sbOutputImplementationLog);
+            sbOutputImplementationLog.AppendLine("//#if false");
+            sbOutputImplementationLog.AppendLine("#nullable enable");
+            sbOutputImplementationLog.AppendLine("");
+            printFileImplementationLog(lstUsed, printClassLog, storedProcedureNames, ignoreTypePropertyNames, ctxt);
+            sbOutputImplementationLog.AppendLine("");
+            sbOutputImplementationLog.AppendLine("//#endif");
+            var outputPathLog = outputPath.Replace("SqlAccess.Generated.cs", "SqlAccessLog.Generated.cs");
+            if (WriteText(outputPathLog, sbOutputImplementationLog.ToString())) {
+                Console.WriteLine($"Modfied: {outputPathLog}");
+            } else {
+                Console.WriteLine($"not changed: {outputPathLog}");
+            }
+        }
+        return success;
     }
 
     private static MemberDefinition[] ConvertParameter(StoredProcedureParameterCollection parameters) {
@@ -166,13 +183,6 @@ public partial class GeneratorForTypedSqlAccess {
             DictIgnoreTypePropertyNames ignoreTypePropertyNames,
             PrintContext ctxt
         ) {
-        /*
-        ctxt.AppendLine("using System;");
-        ctxt.AppendLine("using System.Collections.Generic;");
-        ctxt.AppendLine("using System.Data;");
-        ctxt.AppendLine("using System.Threading.Tasks;");
-        */
-        ctxt.AppendLine("");
 
         printCurly($"namespace {printClass.Namespace}", "", ctxt, (ctxt) => {
 
@@ -861,6 +871,102 @@ public partial class GeneratorForTypedSqlAccess {
 #endif
             //ctxt.AppendLine("throw new NotImplementedException();");
         }
+    }
+
+    private static void printFileImplementationLog(
+           List<PrintSPPair> lstUsed,
+           PrintClass printClass,
+           DictGetStoredProcedureNames storedProcedureNames,
+           DictIgnoreTypePropertyNames ignoreTypePropertyNames,
+           PrintContext ctxt
+       ) {
+
+        printCurly($"namespace {printClass.Namespace}", "", ctxt, (ctxt) => {
+
+            var lstInterfaceMethod = new List<string>();
+            printCurly($"partial class {printClass.ClassName}", "", ctxt, (ctxt) => {
+                var hsReaderDefinition = new HashSet<string>();
+                foreach (var (dbSP, spDef) in lstUsed) {
+                    if (dbSP is not null && spDef is not null) {
+                        printExecuteLogMethod(
+                            dbSP,
+                            spDef,
+                            lstInterfaceMethod,
+                            storedProcedureNames,
+                            ignoreTypePropertyNames,
+                            ctxt);
+                    }
+                }
+            });
+        });
+    }
+
+    private static void printExecuteLogMethod(
+            DatabaseStoredProcedure dbSP,
+            StoredProcedureDefintion spDef,
+            List<string> lstInterfaceMethod,
+            DictGetStoredProcedureNames storedProcedureNames,
+            DictIgnoreTypePropertyNames ignoreTypePropertyNames,
+            PrintContext ctxt
+        ) {
+        var spDef_Return = spDef.Return;
+        var spDef_Argument = spDef.Argument;
+        var spDef_ExecutionMode = spDef.ExecutionMode;
+
+        var (csCompleteReturnType, csReturnTypeRecord, csReturnTypeRecordQ) = getReturnType(spDef_Return, spDef_ExecutionMode);
+
+        var csAsyncModifier = "";
+        var csAwait = "";
+        //string methodName = $"Execute{dbSP.SP.Name}";
+        if (storedProcedureNames.TryGetValue(dbSP.SPDefinition.SqlName, out var methodName)) {
+        } else {
+            methodName = $"Execute{dbSP.SP.Name}";
+        }
+        if (spDef_Return.IsAsync) {
+            methodName = $"{methodName}Async";
+            csAsyncModifier = "async ";
+            csAwait = "await ";
+        }
+        var nonArgs = spDef_Argument.IsNone()
+            || spDef_Argument.IsVoid();
+        var csArgs = spDef_Argument is null || nonArgs
+            ? ""
+            : $"{spDef_Argument.Name} args";
+        //
+        //var csMethod = $"{csCompleteReturnType} {methodName}({csArgs}IDbTransaction? tx = null) ";
+        var csMethod = $"{csCompleteReturnType} {methodName}({csArgs})";
+        lstInterfaceMethod.Add($"{csMethod};");
+        printCurly($"public {csAsyncModifier}{csMethod} ", Environment.NewLine, ctxt, (ctxt) => {
+            //
+            if (spDef_Return.IsNone() || spDef_Return.IsVoid()) {
+                if (nonArgs) {
+                    ctxt.AppendLine($"{csAwait}this._Inner.{methodName}();");
+                    ctxt.AppendLine($"if (this.IsLogEnabled(\"{methodName}\")) {{");
+                    ctxt.AppendLine($"    this.Log(\"{methodName}\", \"\", \"\");");
+                    ctxt.AppendLine("}");
+                } else {
+                    ctxt.AppendLine($"{csAwait}this._Inner.{methodName}(args);");
+                    ctxt.AppendLine($"if (this.IsLogEnabled(\"{methodName}\")) {{");
+                    ctxt.AppendLine($"    this.Log(\"{methodName}\", this.SerializeArgs(args), \"\");");
+                    ctxt.AppendLine("}");
+                }
+            } else {
+                var serializeResult = spDef_Return.IsList ? "this.SerializeResultList(result)" : "this.SerializeResult(result)";
+                if (nonArgs) {
+                    ctxt.AppendLine($"var result = {csAwait}this._Inner.{methodName}();");
+                    ctxt.AppendLine($"if (this.IsLogEnabled(\"{methodName}\")) {{");
+                    ctxt.AppendLine($"    this.Log(\"{methodName}\", \"\", {serializeResult});");
+                    ctxt.AppendLine("}");
+                    ctxt.AppendLine("return result;");
+                } else {
+                    ctxt.AppendLine($"var result = {csAwait}this._Inner.{methodName}(args);");
+                    ctxt.AppendLine($"if (this.IsLogEnabled(\"{methodName}\")) {{");
+                    ctxt.AppendLine($"    this.Log(\"{methodName}\", this.SerializeArgs(args), {serializeResult});");
+                    ctxt.AppendLine("}");
+                    ctxt.AppendLine("return result;");
+                }
+            }
+        });
     }
 
     private static void printCurly(string line1, string line2, PrintContext ctxt, Action<PrintContext> inner) {

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Text.Json;
 
 namespace Brimborium.Extensions.Logging.LocalFile;
 
@@ -75,4 +76,24 @@ public class BatchingLoggerOptions
     /// Defaults to <c>false</c>.
     /// </summary>
     public bool IncludeScopes { get; set; }
+
+    /// <summary>
+    /// Gets or sets format string used to format timestamp in logging messages. Defaults to <c>null</c>.
+    /// </summary>
+    //[StringSyntax(StringSyntaxAttribute.DateTimeFormat)] dotnet 7?
+    public string? TimestampFormat { get; set; }
+
+    /// <summary>
+    /// Gets or sets indication whether or not UTC timezone should be used to format timestamps in logging messages. Defaults to <c>false</c>.
+    /// </summary>
+    public bool UseUtcTimestamp { get; set; }
+
+    public bool IncludeEventId { get; set; }
+
+    public bool UseJSONFormat { get; set; }
+
+    /// <summary>
+    /// Gets or sets JsonWriterOptions.
+    /// </summary>
+    public JsonWriterOptions JsonWriterOptions { get; set; }
 }

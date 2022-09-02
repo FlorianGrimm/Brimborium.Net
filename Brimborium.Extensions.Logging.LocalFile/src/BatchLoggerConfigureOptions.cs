@@ -17,6 +17,14 @@ public class BatchLoggerConfigureOptions : IConfigureOptions<BatchingLoggerOptio
 
     public void Configure(BatchingLoggerOptions options) {
         options.IsEnabled = TextToBoolean(this._configuration.GetSection(this._isEnabledKey)?.Value);
+        if (this._isEnabledKey == "LocalFileEnabled") { 
+            options.IncludeScopes = TextToBoolean(this._configuration.GetSection("LocalFileIncludeScopes")?.Value);
+            options.TimestampFormat = this._configuration.GetSection("LocalFileTimestampFormat")?.Value;
+            options.TimestampFormat = this._configuration.GetSection("LocalFile")?.Value;
+            options.UseUtcTimestamp = TextToBoolean(this._configuration.GetSection("LocalFileUseUtcTimestamp")?.Value);
+            options.IncludeEventId = TextToBoolean(this._configuration.GetSection("LocalFileIncludeEventId")?.Value);
+            options.UseJSONFormat = TextToBoolean(this._configuration.GetSection("LocalFileUseJSONFormat")?.Value);
+        }
     }
 
     private static bool TextToBoolean(string text) {

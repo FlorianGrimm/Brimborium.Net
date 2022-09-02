@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,7 +33,10 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     private bool _includeScopes;
     private IExternalScopeProvider _scopeProvider;
 
+
     internal protected IExternalScopeProvider ScopeProvider => this._includeScopes ? this._scopeProvider : null;
+
+    internal protected bool IncludeScopes => this._includeScopes;
 
     internal protected BatchingLoggerProvider(IOptionsMonitor<BatchingLoggerOptions> options)
     {
@@ -56,15 +60,40 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
         this.UpdateOptions(options.CurrentValue);
     }
 
+    
+
     /// <summary>
     /// Checks if the queue is enabled.
     /// </summary>
     public bool IsEnabled { get; private set; }
 
+    public bool UseJSONFormat { get; private set; }
+
+    public bool IncludeEventId { get; private set; }
+
+    public JsonWriterOptions JsonWriterOptions { get; private set; }
+
+    /// <summary>
+    /// Gets or sets format string used to format timestamp in logging messages. Defaults to <c>null</c>.
+    /// </summary>
+    //[StringSyntax(StringSyntaxAttribute.DateTimeFormat)]
+    public string? TimestampFormat { get; set; }
+
+    /// <summary>
+    /// Gets or sets indication whether or not UTC timezone should be used to format timestamps in logging messages. Defaults to <c>false</c>.
+    /// </summary>
+    public bool UseUtcTimestamp { get; set; }
+
     private void UpdateOptions(BatchingLoggerOptions options)
     {
         var oldIsEnabled = this.IsEnabled;
         this.IsEnabled = options.IsEnabled;
+        this.UseJSONFormat = options.UseJSONFormat;
+        this.TimestampFormat = options.TimestampFormat;
+        this.UseUtcTimestamp = options.UseUtcTimestamp;
+        this.IncludeEventId = options.IncludeEventId;
+        this.JsonWriterOptions = options.JsonWriterOptions;
+
         this._includeScopes = options.IncludeScopes;
 
         if (oldIsEnabled != this.IsEnabled)

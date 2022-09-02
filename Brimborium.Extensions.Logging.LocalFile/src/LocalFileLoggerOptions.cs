@@ -6,4 +6,7 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 /// <summary>
 /// Options for local file logging.
 /// </summary>
-public class LocalFileLoggerOptions : FileBasedLoggerOptions { }
+public class LocalFileLoggerOptions : FileBasedLoggerOptions {
+    public LocalFileLoggerOptions() {
+    }
+}
