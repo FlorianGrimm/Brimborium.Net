@@ -9,7 +9,7 @@
 	<Import Project="..\..\build\package.targets" Condition="Exists('..\..\build\package.targets')" />
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+	  <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 	  <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
 	</ItemGroup>

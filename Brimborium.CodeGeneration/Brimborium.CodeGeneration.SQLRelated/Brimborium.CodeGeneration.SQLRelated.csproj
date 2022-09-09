@@ -13,8 +13,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
-		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="161.47008.0" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.0" />
+		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="161.47027.0" />
 	</ItemGroup>
 
 </Project>
