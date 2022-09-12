@@ -21,7 +21,7 @@ public interface ITrackingSet<TValue>
     where TValue : class {
     ICollection<TValue> Values { get; }
 
-    void ClearAndAttachRange(IEnumerable<TValue>? items);
+    void ClearAndAttachRange(IEnumerable<TValue>? items, Func<TValue, TValue, bool>? itemEqual = default);
 }
 
 public interface ITrackingSet<TKey, TValue>

@@ -189,12 +189,40 @@ public class TrackingSet<TKey, TValue>
         return result;
     }
 
-    public virtual void ClearAndAttachRange(IEnumerable<TValue>? items) {
-        this.Clear();
-        if (items is not null) { 
+    public virtual void ClearAndAttachRange(IEnumerable<TValue>? items, Func<TValue, TValue, bool>? itemEqual = default) {
+        if (items is not null) {
+            if (itemEqual is not null) {
+                var bEq = (this.Count == items.Count());
+                if (bEq) {
+                    foreach (var item in items) {
+                        if (this.TryExtractKey(item, out var foundKey)) {
+                            if (this.TryGetValue(foundKey, out var foundValue)) {
+                                if (itemEqual(foundValue, item)) {
+                                    //
+                                } else {
+                                    bEq = false;
+                                    break;
+                                }
+                            } else {
+                                bEq = false;
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                if (bEq) {
+                    return;
+                }
+            }
+
+            this.Clear();
             foreach (var item in items) {
                 this.Attach(item);
             }
+        } else {
+            this.Clear();
         }
     }
 
@@ -210,15 +238,15 @@ public class TrackingSet<TKey, TValue>
         //if (!this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
         //    throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
         //} else {
-            if (this._Items.TryGetValue(oldKey, out var toOld)) {
-                if (ReferenceEquals(toOld, trackingObject) && oldKey.Equals(trackingObject.Key)) {
-                    // do nothing
-                } else { 
-                    this._Items.Remove(oldKey);
-                    this._Items.Add(trackingObject.Key, trackingObject);
-                }
+        if (this._Items.TryGetValue(oldKey, out var toOld)) {
+            if (ReferenceEquals(toOld, trackingObject) && oldKey.Equals(trackingObject.Key)) {
+                // do nothing
+            } else {
+                this._Items.Remove(oldKey);
+                this._Items.Add(trackingObject.Key, trackingObject);
             }
-            // this._Items[key] = trackingObject;
+        }
+        // this._Items[key] = trackingObject;
         //}
     }
 
