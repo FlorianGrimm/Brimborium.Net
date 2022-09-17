@@ -8,7 +8,7 @@ public class MayBeNoValue : MayBe {
     }
 
     public override bool Success => false;
-
+    public override bool HasValue => false;
     public override bool Fail => false;
 
     public MayBeNoValue() {

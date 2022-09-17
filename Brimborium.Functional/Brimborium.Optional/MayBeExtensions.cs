@@ -61,17 +61,51 @@ public static class MayBeExtensions {
     /// <param name="cases">the cases are executed in order, the first that returns successfull or failure is used as result</param>
     /// <returns>the first execution result (successfull or failure) or the defaultResult(this).</returns>
     public static async Task<MayBe<V, E>> SwitchOnAsync<V, E, Args>(
-            this MayBeValue<V, E> defaultResult,
+            this MayBe<V, E> defaultResult,
             Args args,
             params Func<MayBeValue<V, E>, Args, Task<MayBe<V, E>?>?>[] cases
             ) {
-        foreach (var currentCase in cases) {
-            var task = currentCase(defaultResult, args);
-            if (task is not null) {
-                var result = await task;
-                if (result is not null) {
-                    if (result.Fail || result.Success) {
-                        return result;
+        if (defaultResult is MayBeValue<V, E> mayBaValue) {
+            foreach (var currentCase in cases) {
+                var task = currentCase(mayBaValue, args);
+                if (task is not null) {
+                    var result = await task;
+                    if (result is not null) {
+                        if (result.Fail || result.Success) {
+                            return result;
+                        }
+                    }
+                }
+            }
+        }
+        return defaultResult;
+    }
+
+    /// <summary>
+    /// return the result of the first case that returns successfull or failure otherwise defaultResult(this).
+    /// </summary>
+    /// <typeparam name="V">Type of the value</typeparam>
+    /// <typeparam name="E">Type of the Failure-Value</typeparam>
+    /// <typeparam name="Args">Type of the Arguments</typeparam>
+    /// <param name="defaultResult">defaultResult (this) is return if no case returns successfull or failure</param>
+    /// <param name="args">extra arguments to avoid scoping</param>
+    /// <param name="cases">the cases are executed in order, the first that returns successfull or failure is used as result</param>
+    /// <returns>the first execution result (successfull or failure) or the defaultResult(this).</returns>
+    public static async Task<MayBe<V, E>> SwitchOnAsync<V, E, Args>(
+            this Task<MayBe<V, E>> taskOfDefaultResult,
+            Args args,
+            params Func<MayBeValue<V, E>, Args, Task<MayBe<V, E>?>?>[] cases
+            ) {
+        var defaultResult = await taskOfDefaultResult;
+        if (defaultResult is MayBeValue<V, E> mayBaValue) {
+            foreach (var currentCase in cases) {
+                var task = currentCase(mayBaValue, args);
+                if (task is not null) {
+                    var result = await task;
+                    if (result is not null) {
+                        if (result.Fail || result.Success) {
+                            return result;
+                        }
                     }
                 }
             }
@@ -113,7 +147,8 @@ public static class MayBeExtensions {
         params Func<MayBeValue<V, E>, MayBe<V, E>?>[] steps
         ) {
         if (value is MayBeValue<V, E> mayBaValue) {
-            foreach (var currentStep in steps) {
+            for (int idx = 0; idx < steps.Length; idx++) {
+                var currentStep = steps[idx];
                 var result = currentStep(mayBaValue);
                 if (result is not null) {
                     if (result.Fail) {
@@ -150,7 +185,8 @@ public static class MayBeExtensions {
             params Func<MayBeValue<V, E>, Task<MayBe<V, E>?>?>[] steps
             ) {
         if (value is MayBeValue<V, E> mayBaValue) {
-            foreach (var currentStep in steps) {
+            for(int idx = 0; idx < steps.Length; idx++) {
+                var currentStep = steps[idx];
                 var task = currentStep(mayBaValue);
                 if (task is not null) {
                     var result = await task;
@@ -190,7 +226,8 @@ public static class MayBeExtensions {
             ) {
         var value = await taskOfValue;
         if (value is MayBeValue<V, E> mayBaValue) {
-            foreach (var currentStep in steps) {
+            for (int idx = 0; idx < steps.Length; idx++) {
+                var currentStep = steps[idx];
                 var task = currentStep(mayBaValue);
                 if (task is not null) {
                     var result = await task;
@@ -230,7 +267,8 @@ public static class MayBeExtensions {
             params Func<MayBeValue<V, E>, Args, MayBe<V, E>?>[] steps
             ) {
         if (value is MayBeValue<V, E> mayBaValue) {
-            foreach (var currentStep in steps) {
+            for (int idx = 0; idx < steps.Length; idx++) {
+                var currentStep = steps[idx];
 
                 var result = currentStep(mayBaValue, args);
                 if (result is not null) {
@@ -269,7 +307,8 @@ public static class MayBeExtensions {
             params Func<MayBeValue<V, E>, Args, Task<MayBe<V, E>?>?>[] steps
             ) {
         if (value is MayBeValue<V, E> mayBaValue) {
-            foreach (var currentStep in steps) {
+            for (int idx = 0; idx < steps.Length; idx++) {
+                var currentStep = steps[idx];
                 var task = currentStep(mayBaValue, args);
                 if (task is not null) {
                     var result = await task;
@@ -305,13 +344,14 @@ public static class MayBeExtensions {
     /// <param name="steps">the steps are executed in order, the last that returns successfull or the first failure is used as result</param>
     /// <returns>the last execution result of successfull or the first failure or the value(this).</returns>
     public static async Task<MayBe<V, E>> ChainOnAsync<V, E, Args>(
-            this Task<MayBeValue<V, E>> taskOfValue,
+            this Task<MayBe<V, E>> taskOfValue,
             Args args,
             params Func<MayBeValue<V, E>, Args, Task<MayBe<V, E>?>?>[] steps
             ) {
         var value = await taskOfValue;
         if (value is MayBeValue<V, E> mayBaValue) {
-            foreach (var currentStep in steps) {
+            for (int idx = 0; idx < steps.Length; idx++) {
+                var currentStep = steps[idx];
                 var task = currentStep(mayBaValue, args);
                 if (task is not null) {
                     var result = await task;

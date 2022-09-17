@@ -4,6 +4,7 @@ namespace Brimborium.Optional;
 
 public class MayBeFail<E> : MayBe {
     public override bool Success => false;
+    public override bool HasValue => false;
     public override bool Fail => true;
 
     public E Error { get; init; }

@@ -126,22 +126,24 @@ public class MayBeExtensionsTests {
     }
 
     [Fact()]
-    public void SwitchOnAsyncTest() {
+    public async Task SwitchOnAsyncTest() {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = sut.SwitchOn(args);
+            var act = await sut.SwitchOnAsync(args);
             Assert.True(object.ReferenceEquals(act, sut));
         }
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = sut.SwitchOn(args,
-                (r, a) => {
+            var act = await sut.SwitchOnAsync(args,
+                async (r, a) => {
                     Assert.Equal(42, a);
+                    await Task.CompletedTask;
                     return r.WithSuccessfullValue(2);
                 },
-                (r, a) => {
+                async (r, a) => {
+                    await Task.CompletedTask;
                     throw new Exception("Failed");
                 }
                 );
@@ -152,16 +154,19 @@ public class MayBeExtensionsTests {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = sut.SwitchOn(args,
-                (r, a) => {
+            var act = await sut.SwitchOnAsync(args,
+                async (r, a) => {
                     Assert.Equal(42, a);
+                    await Task.CompletedTask;
                     return r.WithUndecidedValue(2);
                 },
-                (r, a) => {
+                async (r, a) => {
                     Assert.Equal(42, a);
+                    await Task.CompletedTask;
                     return r.WithSuccessfullValue(3);
                 },
-                (r, a) => {
+                async (r, a) => {
+                    await Task.CompletedTask;
                     throw new Exception("Failed");
                 }
                 );
@@ -172,16 +177,19 @@ public class MayBeExtensionsTests {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = sut.SwitchOn(args,
-                (r, a) => {
+            var act = await sut.SwitchOnAsync(args,
+                async (r, a) => {
                     Assert.Equal(42, a);
+                    await Task.CompletedTask;
                     return r.WithUndecidedValue(2);
                 },
-                (r, a) => {
+                async (r, a) => {
                     Assert.Equal(42, a);
+                    await Task.CompletedTask;
                     return r.WithFailure(new Exception("ok"));
                 },
-                (r, a) => {
+                async (r, a) => {
+                    await Task.CompletedTask;
                     throw new Exception("Failed");
                 }
                 );
@@ -192,9 +200,10 @@ public class MayBeExtensionsTests {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = sut.SwitchOn(args,
-                (r, a) => {
+            var act = await sut.SwitchOnAsync(args,
+                async (r, a) => {
                     Assert.Equal(42, a);
+                    await Task.CompletedTask;
                     return r.WithUndecidedValue(2);
                 }
                 );
@@ -206,17 +215,121 @@ public class MayBeExtensionsTests {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = sut.SwitchOn(args,
-                (r, a) => {
+            var act = await sut.SwitchOnAsync(args,
+                async (r, a) => {
                     Assert.Equal(42, a);
+                    await Task.CompletedTask;
                     return r;
                 }
                 );
             Assert.NotNull(act);
-            Assert.True(ReferenceEquals(act,sut));
+            Assert.True(ReferenceEquals(act, sut));
         }
     }
 
+    [Fact()]
+    public async Task SwitchOnAsync2Test() {
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainAsync().SwitchOnAsync(args);
+            Assert.True(object.ReferenceEquals(act, sut));
+        }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainAsync().SwitchOnAsync(args,
+                async(r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithSuccessfullValue(2);
+                },
+                async (r, a) => {
+                    await Task.CompletedTask;
+                    throw new Exception("Failed");
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+            Assert.Equal(2, r);
+        }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainAsync().SwitchOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithUndecidedValue(2);
+                },
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithSuccessfullValue(3);
+                },
+                async(r, a) => {
+                    await Task.CompletedTask;
+                    throw new Exception("Failed");
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+            Assert.Equal(3, r);
+        }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainAsync().SwitchOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithUndecidedValue(2);
+                },
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithFailure(new Exception("ok"));
+                },
+                async (r, a) => {
+                    await Task.CompletedTask;
+                    throw new Exception("Failed");
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetFailureValue(out var r));
+            Assert.Equal("ok", r.Message);
+        }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainAsync().SwitchOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithUndecidedValue(2);
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.Success);
+            Assert.Equal(true, act.TryGetValue(out var r));
+            Assert.Equal(1, r);
+        }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainAsync().SwitchOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r;
+                }
+                );
+            Assert.NotNull(act);
+            Assert.True(ReferenceEquals(act, sut));
+        }
+    }
+
+    
     [Fact()]
     public void ChainTest() {
         {
@@ -457,26 +570,41 @@ public class MayBeExtensionsTests {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = await sut.SwitchOnAsync(args,
+            var act = await sut.ChainOnAsync(args,
                 async (r, a) => {
                     Assert.Equal(42, a);
                     await Task.CompletedTask;
                     return r.WithSuccessfullValue(2);
-                },
-                async (r, a) => {
-                    await Task.CompletedTask;
-                    throw new Exception("Failed");
                 }
                 );
             Assert.NotNull(act);
             Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
             Assert.Equal(2, r);
         }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithSuccessfullValue(2);
+                },
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithSuccessfullValue(3);
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+            Assert.Equal(3, r);
+        }
 
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = await sut.SwitchOnAsync(args,
+            var act = await sut.ChainOnAsync(args,
                 async (r, a) => {
                     Assert.Equal(42, a);
                     await Task.CompletedTask;
@@ -489,7 +617,7 @@ public class MayBeExtensionsTests {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = await sut.SwitchOnAsync(args,
+            var act = await sut.ChainOnAsync(args,
                 async (r, a) => {
                     Assert.Equal(42, a);
                     await Task.CompletedTask;
@@ -509,15 +637,102 @@ public class MayBeExtensionsTests {
         {
             var args = 42;
             var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = await sut.SwitchOnAsync(args,
+            var act = await sut.ChainOnAsync(args,
                 async (r, a) => {
                     Assert.Equal(42, a);
                     await Task.CompletedTask;
                     return r.WithFailure(new Exception("4"));
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetFailureValue(out var r));
+            Assert.Equal("4", r.Message);
+        }
+    }
+
+    [Fact()]
+    public async Task ChainOnAsync2Test() {
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainOnAsync(args).ChainOnAsync(args);
+            Assert.True(object.ReferenceEquals(act, sut));
+        }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainOnAsync(args).ChainOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithSuccessfullValue(2);
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+            Assert.Equal(2, r);
+        }
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainOnAsync(args).ChainOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithSuccessfullValue(2);
                 },
                 async (r, a) => {
+                    Assert.Equal(42, a);
                     await Task.CompletedTask;
-                    throw new Exception("Failed");
+                    return r.WithSuccessfullValue(3);
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+            Assert.Equal(3, r);
+        }
+
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainOnAsync(args).ChainOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithUndecidedValue(3);
+                }
+                );
+            Assert.True(object.ReferenceEquals(act, sut));
+        }
+
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainOnAsync(args).ChainOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithUndecidedValue(3);
+                },
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithSuccessfullValue(2);
+                }
+                );
+            Assert.NotNull(act);
+            Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+            Assert.Equal(2, r);
+        }
+
+        {
+            var args = 42;
+            var sut = new MayBeValue<int, Exception>(true, 1);
+            var act = await sut.ChainOnAsync(args).ChainOnAsync(args,
+                async (r, a) => {
+                    Assert.Equal(42, a);
+                    await Task.CompletedTask;
+                    return r.WithFailure(new Exception("4"));
                 }
                 );
             Assert.NotNull(act);

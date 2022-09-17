@@ -1,7 +1,7 @@
 ﻿#pragma warning disable xUnit2004 // Do not use equality check to test for boolean conditions
 
 namespace Brimborium.Optional {
-    public class MayBeValueTests {
+    public class MayBeValue2VETests {
         [Fact()]
         public void DeconstructTest() {
             var sut = new MayBeValue<int, Exception>(true, 1);
@@ -56,7 +56,7 @@ namespace Brimborium.Optional {
         [Fact()]
         public void WithSuccessfullValueTest() {
             var sut = new MayBeValue<int, Exception>(false, 1);
-            var act = sut.WithSuccessfullValue( 2);
+            var act = sut.WithSuccessfullValue(2);
             Assert.Equal(true, act.Success);
             Assert.Equal(2, act.Value);
         }
@@ -71,15 +71,56 @@ namespace Brimborium.Optional {
 
         [Fact()]
         public void MapTest() {
-            var sut = new MayBeValue<int, Exception>(true, 1);
-            var act = sut.Map<string, Exception>(
-                onSuccessfull: (a, r) => r.WithSuccessfullValue(a.Value.ToString()),
-                onUndecided: (_, _) => throw new Exception("onUndecided"),
-                onFail: (_, _) => throw new Exception("onFail"),
-                onNoValue: (_) => throw new Exception("onNoValue")
-                ) ;
-            Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
-            Assert.Equal("1", r);
+            {
+                var sut = new MayBeValue<int, Exception>(true, 1);
+                var act = sut.Map<string, Exception>(
+                    onSuccessfull: (a, r) => r.WithSuccessfullValue("OK"),
+                    onUndecided: (_, _) => throw new Exception("onUndecided"),
+                    onFail: (_, _) => throw new Exception("onFail"),
+                    onNoValue: (_) => throw new Exception("onNoValue")
+                    );
+                Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+                Assert.Equal("OK", r);
+            }
+            {
+                var sut = new MayBeValue<int, Exception>(false, 1);
+                var act = sut.Map<string, Exception>(
+                    onSuccessfull: (a, r) => throw new Exception("onSuccessfull"),
+                    onUndecided: (_, r) => r.WithSuccessfullValue("OK"),
+                    onFail: (_, _) => throw new Exception("onFail"),
+                    onNoValue: (_) => throw new Exception("onNoValue")
+                    );
+                Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+                Assert.Equal("OK", r);
+            }
+            {
+                var sut = new MayBeFail<int, Exception>(new Exception("OK"));
+                var act = sut.Map<string, Exception>(
+                    onSuccessfull: (_, _) => throw new Exception("onSuccessfull"),
+                    onUndecided: (_, _) => throw new Exception("onUndecided"),
+                    onFail: (_, r) => r.WithSuccessfullValue("OK"),
+                    onNoValue: (_) => throw new Exception("onNoValue")
+                    );
+                Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+                Assert.Equal("OK", r);
+            }
+            {
+                var sut = MayBeNoValue<int, Exception>.Empty();
+                var act = sut.Map<string, Exception>(
+                    onSuccessfull: (a, r) => r.WithSuccessfullValue("OK"),
+                    onUndecided: (_, _) => throw new Exception("onUndecided"),
+                    onFail: (_, _) => throw new Exception("onFail"),
+                    onNoValue: (r) => r.WithSuccessfullValue("OK")
+                    );
+                Assert.Equal(true, act.TryGetSuccessfullValue(out var r));
+                Assert.Equal("OK", r);
+            }
+            {
+                var sut = new MayBeValue<int, Exception>(true, 1);
+                var act = sut.Map<string, Exception>();
+                Assert.Equal(false, act.Success);
+                Assert.Equal(false, act.Fail);
+            }
         }
 
         [Fact()]

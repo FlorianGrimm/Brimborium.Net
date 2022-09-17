@@ -6,6 +6,7 @@ public class MayBeFail<V, E> : MayBe<V, E> {
     private readonly E _Value;
 
     public override bool Success => false;
+    public override bool HasValue => false;
     public override bool Fail => true;
 
     public MayBeFail(E value) {

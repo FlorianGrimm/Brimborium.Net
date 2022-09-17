@@ -9,7 +9,7 @@ public class MayBeNoValue<V, E> : MayBe<V, E> {
     }
 
     public override bool Success => false;
-
+    public override bool HasValue => false;
     public override bool Fail => false;
 
     public MayBeNoValue() {

@@ -2,6 +2,7 @@
 
 public abstract class MayBe {
     public abstract bool Success { get; }
+    public abstract bool HasValue { get; }
     public abstract bool Fail { get; }
     protected MayBe() { }
 
