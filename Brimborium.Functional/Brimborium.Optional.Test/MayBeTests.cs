@@ -1,41 +1,47 @@
-﻿#pragma warning disable xUnit2004 // Do not use equality check to test for boolean conditions
-
+﻿#pragma warning disable xUnit2003 // Do not use equality check to test for null value
+#pragma warning disable xUnit2004 // Do not use equality check to test for boolean conditions
 namespace Brimborium.Optional;
 
 public class MayBeTests {
-    [Fact()]
-    public void MayBeStaticMayValueTest() {
-        var (a,b)=MayBe.MayValue(true, 2);
-        Assert.Equal(true, a);
-        Assert.Equal(2,b);
-    }
+    [Fact]
+    public void MayBeTest() {
+        {
+            var act = MayBe.MayBeNoValue<int, string>();
+            Assert.Equal(MayBeMode.NoValue, act.Mode);
+            Assert.Equal(default, act.Value);
+            Assert.Equal(default, act.Failure);
+            Assert.Equal(default, act.Error);
+        }
+        {
+            var act = MayBe.MayBeGood<int, string>(1);
+            Assert.Equal(MayBeMode.Good, act.Mode);
+            Assert.Equal(1, act.Value);
+            Assert.Equal(default, act.Failure);
+            Assert.Equal(default, act.Error);
+        }
+        {
+            var act = MayBe.MayBeBad<int, string>(2);
+            Assert.Equal(MayBeMode.Bad, act.Mode);
+            Assert.Equal(2, act.Value);
+            Assert.Equal(default, act.Failure);
+            Assert.Equal(default, act.Error);
+        }
 
-    [Fact()]
-    public void MayBeStaticSuccessfullValueTest() {
-        var (a, b) = MayBe.SuccessfullValue( 2);
-        Assert.Equal(true, a);
-        Assert.Equal(2, b);
-    }
+        {
+            var act = MayBe.MayBeFail<int, string>("3");
+            Assert.Equal(MayBeMode.Fail, act.Mode);
+            Assert.Equal(default, act.Value);
+            Assert.Equal("3", act.Failure);
+            Assert.Equal(default, act.Error);
+        }
+        {
+            var act = MayBe.MayBeError<int, string>(new Exception("4"));
+            Assert.Equal(MayBeMode.Error, act.Mode);
+            Assert.Equal(default, act.Value);
+            Assert.Equal(default, act.Failure);
+            Assert.Equal("4", act.Error?.Message);
+        }
 
-    [Fact()]
-    public void MayBeStaticUndecidedValueTest() {
-        var (a, b) = MayBe.UndecidedValue<int>( 2);
-        Assert.Equal(false, a);
-        Assert.Equal(2, b);
 
-    }
-
-    [Fact()]
-    public void MayBeStaticNoValueTest() {
-        var sut = MayBe.NoValue<int>();
-        Assert.NotNull(sut);
-        Assert.True(sut is MayBe<int>);
-
-    }
-
-    [Fact()]
-    public void MayBeStaticFailErrorTest() {
-        var sut = MayBe.FailError(42);
-        Assert.Equal(42, sut.Error);
     }
 }
