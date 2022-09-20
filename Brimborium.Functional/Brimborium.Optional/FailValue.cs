@@ -1,6 +1,6 @@
 ﻿namespace Brimborium.Optional;
 
-public struct FailValue<F>
+public partial struct FailValue<F>
         where F : notnull {
     private F _Failure;
     public F Failure => _Failure;

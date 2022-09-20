@@ -1,7 +1,7 @@
 ﻿namespace Brimborium.Optional;
 
 //
-public struct ErrorValue {
+public partial struct ErrorValue {
     private Exception _Error;
     public Exception Error => _Error;
     public ErrorValue(Exception error) {

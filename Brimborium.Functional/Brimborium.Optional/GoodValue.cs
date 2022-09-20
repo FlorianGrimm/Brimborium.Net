@@ -1,7 +1,7 @@
 ﻿namespace Brimborium.Optional;
 
 //
-public struct GoodValue<V>
+public partial struct GoodValue<V>
         where V : notnull {
     private V _Value;
     public V Value=> _Value;

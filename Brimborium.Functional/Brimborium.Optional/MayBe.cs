@@ -22,6 +22,8 @@ public static class MayBe {
         where F : notnull
         => new MayBe<V, F>(MayBeMode.Error, default, default, error);
 
+    public static NoValue NoValue()
+        => new NoValue();
     public static GoodValue<V> GoodValue<V>(V value)
         where V : notnull
         => new GoodValue<V>(value);
@@ -33,4 +35,5 @@ public static class MayBe {
         => new FailValue<F>(failure);
     public static ErrorValue ErrorValue(Exception error)
         => new ErrorValue(error);
+
 }
