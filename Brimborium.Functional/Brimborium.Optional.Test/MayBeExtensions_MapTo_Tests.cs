@@ -5,11 +5,12 @@ namespace Brimborium.Optional;
 
 public class MayBeExtensions_MapTo_Tests {
 
+#if false
     [Fact]
     public void MapToOn_NoResult_WithHandler_Test() {
         {
             var sut = MayBe.MayBeNoValue<int, string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args) => args,
@@ -145,14 +146,14 @@ public class MayBeExtensions_MapTo_Tests {
             Assert.Equal(3, act);
         }
     }
-
+#endif
     //
 
     [Fact]
     public void MapToOn_WithResult_WithHandler_Test() {
         {
             var sut = MayBe.MayBeNoValue<int, string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => args + result,
@@ -166,7 +167,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.GoodValue(1).ToMayBeAddFailureType<string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
@@ -180,7 +181,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.BadValue(1).ToMayBeAddFailureType<string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
@@ -194,7 +195,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.FailValue("1").ToMayBeAddValueType<string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
@@ -208,7 +209,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.ErrorValue(new Exception("2")).ToMayBe<int, string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
@@ -224,7 +225,7 @@ public class MayBeExtensions_MapTo_Tests {
     public void MapToOn_WithResult_NoHandler_Test() {
         {
             var sut = MayBe.MayBeNoValue<int, string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: default,
@@ -238,7 +239,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.GoodValue(1).ToMayBeAddFailureType<string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
@@ -252,7 +253,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.BadValue(1).ToMayBeAddFailureType<string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
@@ -266,7 +267,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.FailValue("1").ToMayBeAddValueType<string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
@@ -280,7 +281,7 @@ public class MayBeExtensions_MapTo_Tests {
 
         {
             var sut = MayBe.ErrorValue(new Exception("2")).ToMayBe<int, string>();
-            var act = sut.MapToOn(
+            var act = sut.MapToOnWithArgsDefault(
                 2,
                 3,
                 onNoValue: (that, args, result) => throw new InvalidOperationException(),
