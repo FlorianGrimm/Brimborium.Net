@@ -131,7 +131,7 @@ public partial struct MayBe<V, F>
     public bool IsFailOrError => (this._Mode == MayBeMode.Fail) || (this._Mode == MayBeMode.Error);
 
     public MayBeMode Mode => this._Mode;
-    public V GoodValue => (this._Mode == MayBeMode.Good) ? this._Value : throw new InvalidOperationException("Mode must be Good");
+    public V GoodValue => ((this._Mode == MayBeMode.Good) && (this._Value is not null)) ? this._Value : throw new InvalidOperationException("Mode must be Good");
     public V? Value => ((this._Mode == MayBeMode.Good) || (this._Mode == MayBeMode.Bad)) ? this._Value : default;
     public F? Failure => (this._Mode == MayBeMode.Fail) ? this._Failure : default;
     public Exception? Error => (this._Mode == MayBeMode.Error) ? this._Error : default;
