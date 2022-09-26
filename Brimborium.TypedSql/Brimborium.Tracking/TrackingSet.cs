@@ -153,7 +153,7 @@ public class TrackingSet<TKey, TValue>
             return default;
         } else {
             if (!this._ExtractKey.TryExtractKey(item, out var key)) {
-                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", nameof(TValue));
             } else {
                 if (this._Items.TryGetValue(key, out var found)) {
                     this.AttachValidate(item);
@@ -271,7 +271,7 @@ public class TrackingSet<TKey, TValue>
             isValidKey = this._ExtractKey.TryExtractKey(value, out var keyFinally);
             if (!isValidKey
                 || (keyFinally is null)) {
-                throw new InvalidModificationException($"Invalid primary key", "PrimaryKey", "{}");
+                throw new InvalidModificationException($"Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
             }
 
             if ((key is not null)
@@ -279,7 +279,7 @@ public class TrackingSet<TKey, TValue>
                 // no change -> no need test again
             } else {
                 if (this._Items.TryGetValue(keyFinally, out _)) {
-                    throw new InvalidModificationException($"dupplicate key:{key}", "PrimaryKey", keyFinally.ToString() ?? "{}");
+                    throw new InvalidModificationException($"dupplicate key:{key}", "PrimaryKey", keyFinally.ToString() ?? "{}", typeof(TValue).Name);
                 }
             }
             var result = new TrackingObject<TKey, TValue>(
@@ -299,7 +299,7 @@ public class TrackingSet<TKey, TValue>
         if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
 
         if (!this._ExtractKey.TryExtractKey(value, out var key)) {
-            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
         } else {
             if (this._Items.TryGetValue(key, out var result)) {
                 if (result.Status == TrackingStatus.Original) {
@@ -348,7 +348,7 @@ public class TrackingSet<TKey, TValue>
             mode = 1; // adding
             isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
             if (!isValidKeyFinally) {
-                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
             } else {
                 key = keyFinally;
             }
@@ -357,7 +357,7 @@ public class TrackingSet<TKey, TValue>
                 value = this.OnAdding(value);
                 isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
                 if (!isValidKeyFinally) {
-                    throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+                    throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
                 } else {
                     if ((key is not null)
                         && (keyFinally is not null)
@@ -434,7 +434,7 @@ public class TrackingSet<TKey, TValue>
         if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
 
         if (!this._ExtractKey.TryExtractKey(value, out var key)) {
-            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
         } else {
             if (this._Items.TryGetValue(key, out var result)) {
                 //if (ReferenceEquals(result.GetValue(), trackingObject)) {
@@ -509,7 +509,7 @@ public class TrackingSet<TKey, TValue>
             throw new InvalidModificationException("wrong TrackingSet");
         } else {
             if (!this._ExtractKey.TryExtractKey(trackingObject.Value, out var key)) {
-                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}");
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
             } else {
                 if (this._Items.TryGetValue(key, out var found)) {
                     if (found.Status == TrackingStatus.Original) {
