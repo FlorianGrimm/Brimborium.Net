@@ -173,7 +173,7 @@ public class TrackingSet<TKey, TValue>
                         status: TrackingStatus.Original,
                         trackingSet: this
                     );
-                    this.ItemsChanged();
+                    // this.ItemsChanged();
                     this._Items.Add(result.Key, result);
                     return result;
                 }
