@@ -336,55 +336,48 @@ public class TrackingSet<TKey, TValue>
     public virtual TrackingObject<TKey, TValue> Upsert(TValue value) {
         if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
 
-        TrackingObject<TKey, TValue>? result = default;
-
         var isValidKey = this._ExtractKey.TryExtractKey(value, out var key);
 
-        bool isValidKeyFinally;
-
-        int mode;
-        if (!isValidKey) {
-            value = this.OnAdding(value);
-            mode = 1; // adding
-            isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
-            if (!isValidKeyFinally) {
+        if ((key is null) || (!isValidKey)) {
+            var valueValidated = this.OnAdding(value);
+            var isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
+            if (keyFinally is null) {
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "null", typeof(TValue).Name);
+            } else if (!isValidKeyFinally) {
                 throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
             } else {
-                key = keyFinally;
+                return modeAdding(keyFinally, valueValidated);
             }
         } else {
-            if (!this._Items.TryGetValue(key!, out result)) {
-                value = this.OnAdding(value);
-                isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
-                if (!isValidKeyFinally) {
+            if (!this._Items.TryGetValue(key, out var result)) {
+                var valueValidated = this.OnAdding(value);
+                var isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
+                if (keyFinally is null) {
+                    throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "null", typeof(TValue).Name);
+                } else if (!isValidKeyFinally) {
                     throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
                 } else {
-                    if ((key is not null)
-                        && (keyFinally is not null)
-                        && key.Equals(keyFinally)) {
+                    if (key.Equals(keyFinally)) {
                         // OK
-                        mode = 1; // adding
-                    } else if ((keyFinally is not null)
-                        && this._Items.TryGetValue(keyFinally, out result)) {
-                        mode = 2; // updateing
+                        return modeAdding(key, valueValidated);
+                    } else if (this._Items.TryGetValue(keyFinally, out var result2)) {
+                        return modeUpdateing(keyFinally, valueValidated, result2);
                     } else {
-                        key = keyFinally;
-                        mode = 1; // adding
+                        return modeAdding(keyFinally, valueValidated);
                     }
                 }
             } else {
-                mode = 2; // updateing
+                return modeUpdateing(key, value, result);
             }
         }
-        if (mode == 0) {
-            throw new InvalidOperationException("unexpected mode:0;");
-        } else if (mode == 1) {
+
+        TrackingObject<TKey, TValue> modeAdding(TKey key, TValue newValue) {
             if (key is null) {
                 throw new InvalidOperationException("mode:1; key is null");
             }
-            result = new TrackingObject<TKey, TValue>(
+            var result = new TrackingObject<TKey, TValue>(
                 key: key,
-                value: value,
+                value: newValue,
                 status: TrackingStatus.Added,
                 trackingSet: this
                 );
@@ -392,7 +385,8 @@ public class TrackingSet<TKey, TValue>
             this._Items.Add(result.Key, result);
             this.ItemsChanged();
             return result;
-        } else if (mode == 2) {
+        }
+        TrackingObject<TKey, TValue> modeUpdateing(TKey key, TValue newValue, TrackingObject<TKey, TValue>? result) {
             if (key is null) {
                 throw new InvalidOperationException("mode:1; key is null");
             }
@@ -400,22 +394,22 @@ public class TrackingSet<TKey, TValue>
                 throw new InvalidOperationException("mode:1; result is null");
             }
             if (result.Status == TrackingStatus.Original) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Original, TrackingStatus.Modified);
-                result.Set(value, TrackingStatus.Modified);
+                var valueNext = this.OnUpdating(newValue: newValue, oldValue: result.Value, TrackingStatus.Original, TrackingStatus.Modified);
+                result.Set(valueNext, TrackingStatus.Modified);
                 this.TrackingContext.TrackingChanges.Add(result);
                 this.ItemsChanged();
                 return result;
             }
             if (result.Status == TrackingStatus.Added) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Added, TrackingStatus.Added);
-                result.Set(value, TrackingStatus.Added);
+                var valueNext = this.OnUpdating(newValue: newValue, oldValue: result.Value, TrackingStatus.Added, TrackingStatus.Added);
+                result.Set(valueNext, TrackingStatus.Added);
                 // skip this.TrackingContext.TrackingChanges
                 this.ItemsChanged();
                 return result;
             }
             if (result.Status == TrackingStatus.Modified) {
-                value = this.OnUpdating(newValue: value, oldValue: result.Value, TrackingStatus.Modified, TrackingStatus.Modified);
-                result.Set(value, TrackingStatus.Modified);
+                var valueNext = this.OnUpdating(newValue: newValue, oldValue: result.Value, TrackingStatus.Modified, TrackingStatus.Modified);
+                result.Set(valueNext, TrackingStatus.Modified);
                 // skip this.TrackingContext.TrackingChanges
                 this.ItemsChanged();
                 return result;
@@ -424,8 +418,6 @@ public class TrackingSet<TKey, TValue>
                 throw new InvalidModificationException("item is already deleted.");
             }
             throw new InvalidModificationException($"unknown state:{result.Status}");
-        } else {
-            throw new InvalidOperationException($"unexpected mode:{mode};");
         }
 
     }
@@ -434,13 +426,17 @@ public class TrackingSet<TKey, TValue>
         if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
 
         if (!this._ExtractKey.TryExtractKey(value, out var key)) {
-            throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
+            if (key is null) {
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "null", typeof(TValue).Name);
+            } else {
+                throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "{}", typeof(TValue).Name);
+            }
         } else {
             if (this._Items.TryGetValue(key, out var result)) {
                 //if (ReferenceEquals(result.GetValue(), trackingObject)) {
                 if (result.Status == TrackingStatus.Original) {
-                    value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Original);
-                    result.Set(value, TrackingStatus.Deleted);
+                    var valueNext = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Original);
+                    result.Set(valueNext, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     this.TrackingContext.TrackingChanges.Add(result);
                     this.ItemsChanged();
@@ -452,17 +448,17 @@ public class TrackingSet<TKey, TValue>
                 }
                 if (result.Status == TrackingStatus.Added) {
                     // created and deleted
-                    value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Added);
+                    var valueNext = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Added);
                     this.TrackingContext.TrackingChanges.Remove(result);
-                    result.Set(value, TrackingStatus.Deleted);
+                    result.Set(valueNext, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     this.ItemsChanged();
                     return;
                 }
                 if (result.Status == TrackingStatus.Modified) {
-                    value = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
+                    var valueNext = this.OnDeleting(newValue: value, oldValue: result.Value, TrackingStatus.Modified);
                     this.TrackingContext.TrackingChanges.Remove(result);
-                    result.Set(value, TrackingStatus.Deleted);
+                    result.Set(valueNext, TrackingStatus.Deleted);
                     this._Items.Remove(key);
                     this.TrackingContext.TrackingChanges.Add(result);
                     this.ItemsChanged();
@@ -482,18 +478,18 @@ public class TrackingSet<TKey, TValue>
         if (this.IsReadOnly) { throw new InvalidOperationException("Not allowed it's IsReadOnly"); }
 
         if (trackingObject.Status == TrackingStatus.Original) {
-            value = this.OnUpdating(newValue: value, oldValue: trackingObject.Value, TrackingStatus.Original, TrackingStatus.Modified);
-            trackingObject.Set(value, TrackingStatus.Modified);
+            var valueNext = this.OnUpdating(newValue: value, oldValue: trackingObject.Value, TrackingStatus.Original, TrackingStatus.Modified);
+            trackingObject.Set(valueNext, TrackingStatus.Modified);
             this.TrackingContext.TrackingChanges.Add(trackingObject);
             this.ItemsChanged();
         } else if (trackingObject.Status == TrackingStatus.Added) {
-            value = this.OnUpdating(newValue: value, oldValue: trackingObject.Value, TrackingStatus.Added, TrackingStatus.Added);
-            trackingObject.Set(value, TrackingStatus.Added);
+            var valueNext = this.OnUpdating(newValue: value, oldValue: trackingObject.Value, TrackingStatus.Added, TrackingStatus.Added);
+            trackingObject.Set(valueNext, TrackingStatus.Added);
             // TrackingChange should be there
             this.ItemsChanged();
         } else if (trackingObject.Status == TrackingStatus.Modified) {
-            value = this.OnUpdating(newValue: value, oldValue: trackingObject.Value, TrackingStatus.Modified, TrackingStatus.Modified);
-            trackingObject.Set(value, TrackingStatus.Modified);
+            var valueNext = this.OnUpdating(newValue: value, oldValue: trackingObject.Value, TrackingStatus.Modified, TrackingStatus.Modified);
+            trackingObject.Set(valueNext, TrackingStatus.Modified);
             // TrackingChange should be there
             this.ItemsChanged();
         } else if (trackingObject.Status == TrackingStatus.Deleted) {
