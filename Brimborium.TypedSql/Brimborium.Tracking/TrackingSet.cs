@@ -340,7 +340,7 @@ public class TrackingSet<TKey, TValue>
 
         if ((key is null) || (!isValidKey)) {
             var valueValidated = this.OnAdding(value);
-            var isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
+            var isValidKeyFinally = this._ExtractKey.TryExtractKey(valueValidated, out var keyFinally);
             if (keyFinally is null) {
                 throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "null", typeof(TValue).Name);
             } else if (!isValidKeyFinally) {
@@ -351,7 +351,7 @@ public class TrackingSet<TKey, TValue>
         } else {
             if (!this._Items.TryGetValue(key, out var result)) {
                 var valueValidated = this.OnAdding(value);
-                var isValidKeyFinally = this._ExtractKey.TryExtractKey(value, out var keyFinally);
+                var isValidKeyFinally = this._ExtractKey.TryExtractKey(valueValidated, out var keyFinally);
                 if (keyFinally is null) {
                     throw new InvalidModificationException("Invalid primary key", "PrimaryKey", "null", typeof(TValue).Name);
                 } else if (!isValidKeyFinally) {
