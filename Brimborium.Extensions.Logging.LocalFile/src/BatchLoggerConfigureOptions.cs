@@ -27,7 +27,7 @@ public class BatchLoggerConfigureOptions : IConfigureOptions<BatchingLoggerOptio
         }
     }
 
-    private static bool TextToBoolean(string text) {
+    private static bool TextToBoolean(string? text) {
         if (string.IsNullOrEmpty(text) ||
             !bool.TryParse(text, out var result)) {
             result = false;

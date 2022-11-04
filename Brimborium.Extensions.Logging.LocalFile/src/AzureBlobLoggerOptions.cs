@@ -39,9 +39,9 @@ public class AzureBlobLoggerOptions : BatchingLoggerOptions
         return $"{context.AppName}/{timestamp.Year}/{timestamp.Month:00}/{timestamp.Day:00}/{timestamp.Hour:00}/{context.Identifier}";
     };
 
-    public string ContainerUrl { get; set; }
+    public string? ContainerUrl { get; set; }
 
-    public string ApplicationName { get; set; }
+    public string? ApplicationName { get; set; }
 
-    public string ApplicationInstanceId { get; set; }
+    public string? ApplicationInstanceId { get; set; }
 }

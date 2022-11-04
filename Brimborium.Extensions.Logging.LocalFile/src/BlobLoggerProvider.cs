@@ -22,7 +22,7 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 public class BlobLoggerProvider : BatchingLoggerProvider
 {
     private readonly IOptionsMonitor<AzureBlobLoggerOptions> _options;
-    private readonly Func<string, ICloudAppendBlob> _blobReferenceFactory;
+    private readonly Func<string, ICloudAppendBlob>? _blobReferenceFactory;
     private readonly HttpClient _httpClient;
 
     /// <summary>
@@ -31,10 +31,10 @@ public class BlobLoggerProvider : BatchingLoggerProvider
     /// <param name="options">The options to use when creating a provider.</param>
     [SuppressMessage("ApiDesign", "RS0022:Constructor make noninheritable base class inheritable", Justification = "Required for backwards compatibility")]
     public BlobLoggerProvider(IOptionsMonitor<AzureBlobLoggerOptions> options)
-        : this(options, null)
+        : this(options, null!)
     {
         this._blobReferenceFactory = name => new BlobAppendReferenceWrapper(
-            options.CurrentValue.ContainerUrl,
+            options.CurrentValue.ContainerUrl ?? throw new ArgumentException("options.CurrentValue.ContainerUrl is null"),
             name,
             this._httpClient);
     }
@@ -46,7 +46,7 @@ public class BlobLoggerProvider : BatchingLoggerProvider
     /// <param name="options">Options to be used in creating a logger.</param>
     internal protected BlobLoggerProvider(
         IOptionsMonitor<AzureBlobLoggerOptions> options,
-        Func<string, ICloudAppendBlob> blobReferenceFactory) :
+        Func<string, ICloudAppendBlob>? blobReferenceFactory) :
         base(options)
     {
         this._options = options;
@@ -64,10 +64,13 @@ public class BlobLoggerProvider : BatchingLoggerProvider
         {
             var key = eventGroup.Key;
             string blobName = options.FileNameFormat(new AzureBlobLoggerContext(
-                options.ApplicationName,
+                options.ApplicationName?? throw new ArgumentException("options.ApplicationName is null"),
                 identifier,
                 new DateTimeOffset(key.Year, key.Month, key.Day, key.Hour, 0, 0, TimeSpan.Zero)));
 
+            if (this._blobReferenceFactory is null) {
+                throw new ArgumentException("blobReferenceFactory is null.");
+            }
             var blob = this._blobReferenceFactory(blobName);
 
             using (var stream = new MemoryStream())

@@ -15,7 +15,7 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 
 [ProviderAlias("LocalFile")]
 public class LocalFileLoggerProvider : BatchingLoggerProvider {
-    private readonly string _path;
+    private readonly string? _path;
     private readonly string _fileName;
     private readonly int? _maxFileSize;
     private readonly int? _maxRetainedFiles;
@@ -36,6 +36,8 @@ public class LocalFileLoggerProvider : BatchingLoggerProvider {
     }
 
     internal protected override async Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken cancellationToken) {
+        if (this._path is null) { throw new System.ArgumentException("_path is null"); }
+
         Directory.CreateDirectory(this._path);
 
         foreach (var group in messages.GroupBy(this.GetGrouping)) {
@@ -60,6 +62,8 @@ public class LocalFileLoggerProvider : BatchingLoggerProvider {
     }
 
     private string GetFullName((int Year, int Month, int Day) group) {
+        if (this._path is null) { throw new System.ArgumentException("_path is null"); }
+
         return Path.Combine(this._path, $"{this._fileName}{group.Year:0000}{group.Month:00}{group.Day:00}.txt");
     }
 
@@ -68,6 +72,8 @@ public class LocalFileLoggerProvider : BatchingLoggerProvider {
     }
 
     private void RollFiles() {
+        if (this._path is null) { throw new System.ArgumentException("_path is null"); }
+
         try {
             if (this._maxRetainedFiles > 0) {
                 var files = new DirectoryInfo(this._path)

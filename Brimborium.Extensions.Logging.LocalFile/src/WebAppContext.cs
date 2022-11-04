@@ -19,13 +19,13 @@ public class WebAppContext : IWebAppContext
     private WebAppContext() { }
 
     /// <inheritdoc />
-    public string HomeFolder { get; } = Environment.GetEnvironmentVariable("HOME");
+    public string? HomeFolder { get; } = Environment.GetEnvironmentVariable("HOME");
 
     /// <inheritdoc />
-    public string SiteName { get; } = Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME");
+    public string? SiteName { get; } = Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME");
 
     /// <inheritdoc />
-    public string SiteInstanceId { get; } = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID");
+    public string? SiteInstanceId { get; } = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID");
 
     /// <inheritdoc />
     public bool IsRunningInAzureWebApp => !string.IsNullOrEmpty(this.HomeFolder) &&

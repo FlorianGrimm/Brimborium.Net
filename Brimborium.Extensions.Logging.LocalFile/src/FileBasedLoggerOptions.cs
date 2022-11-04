@@ -67,5 +67,5 @@ public class FileBasedLoggerOptions : BatchingLoggerOptions
         }
     }
 
-    public string LogDirectory { get; set; }
+    public string? LogDirectory { get; set; }
 }

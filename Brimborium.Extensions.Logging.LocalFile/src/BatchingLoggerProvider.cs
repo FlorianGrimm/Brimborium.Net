@@ -16,8 +16,7 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 /// <summary>
 /// A provider of <see cref="BatchingLogger"/> instances.
 /// </summary>
-public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternalScope
-{
+public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternalScope {
     private readonly List<LogMessage> _currentBatch = new List<LogMessage>();
     private readonly TimeSpan _interval;
     private readonly int? _queueSize;
@@ -26,29 +25,26 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
 
     private int _messagesDropped;
 
-    private BlockingCollection<LogMessage> _messageQueue;
-    private Task _outputTask;
-    private CancellationTokenSource _cancellationTokenSource;
+    private BlockingCollection<LogMessage>? _messageQueue;
+    private Task? _outputTask;
+    private CancellationTokenSource? _cancellationTokenSource;
 
     private bool _includeScopes;
-    private IExternalScopeProvider _scopeProvider;
+    private IExternalScopeProvider? _scopeProvider;
 
 
-    internal protected IExternalScopeProvider ScopeProvider => this._includeScopes ? this._scopeProvider : null;
+    internal protected IExternalScopeProvider? ScopeProvider => this._includeScopes ? this._scopeProvider : null;
 
     internal protected bool IncludeScopes => this._includeScopes;
 
-    internal protected BatchingLoggerProvider(IOptionsMonitor<BatchingLoggerOptions> options)
-    {
+    internal protected BatchingLoggerProvider(IOptionsMonitor<BatchingLoggerOptions> options) {
         // NOTE: Only IsEnabled is monitored
 
         var loggerOptions = options.CurrentValue;
-        if (loggerOptions.BatchSize <= 0)
-        {
+        if (loggerOptions.BatchSize <= 0) {
             throw new ArgumentOutOfRangeException(nameof(loggerOptions.BatchSize), $"{nameof(loggerOptions.BatchSize)} must be a positive number.");
         }
-        if (loggerOptions.FlushPeriod <= TimeSpan.Zero)
-        {
+        if (loggerOptions.FlushPeriod <= TimeSpan.Zero) {
             throw new ArgumentOutOfRangeException(nameof(loggerOptions.FlushPeriod), $"{nameof(loggerOptions.FlushPeriod)} must be longer than zero.");
         }
 
@@ -60,7 +56,7 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
         this.UpdateOptions(options.CurrentValue);
     }
 
-    
+
 
     /// <summary>
     /// Checks if the queue is enabled.
@@ -84,8 +80,7 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     /// </summary>
     public bool UseUtcTimestamp { get; set; }
 
-    private void UpdateOptions(BatchingLoggerOptions options)
-    {
+    private void UpdateOptions(BatchingLoggerOptions options) {
         var oldIsEnabled = this.IsEnabled;
         this.IsEnabled = options.IsEnabled;
         this.UseJSONFormat = options.UseJSONFormat;
@@ -96,14 +91,10 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
 
         this._includeScopes = options.IncludeScopes;
 
-        if (oldIsEnabled != this.IsEnabled)
-        {
-            if (this.IsEnabled)
-            {
+        if (oldIsEnabled != this.IsEnabled) {
+            if (this.IsEnabled) {
                 this.Start();
-            }
-            else
-            {
+            } else {
                 this.Stop();
             }
         }
@@ -112,39 +103,32 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
 
     internal protected abstract Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken token);
 
-    private async Task ProcessLogQueue()
-    {
-        while (!this._cancellationTokenSource.IsCancellationRequested)
-        {
+    private async Task ProcessLogQueue() {
+        if (this._cancellationTokenSource is null) { throw new ArgumentException("_cancellationTokenSource is null"); }
+        if (this._messageQueue is null) { throw new ArgumentException("_messageQueue is null"); }
+
+        while (!this._cancellationTokenSource.IsCancellationRequested) {
             var limit = this._batchSize ?? int.MaxValue;
 
-            while (limit > 0 && this._messageQueue.TryTake(out var message))
-            {
+            while (limit > 0 && this._messageQueue.TryTake(out var message)) {
                 this._currentBatch.Add(message);
                 limit--;
             }
 
             var messagesDropped = Interlocked.Exchange(ref this._messagesDropped, 0);
-            if (messagesDropped != 0)
-            {
+            if (messagesDropped != 0) {
                 this._currentBatch.Add(new LogMessage(DateTimeOffset.Now, $"{messagesDropped} message(s) dropped because of queue size limit. Increase the queue size or decrease logging verbosity to avoid this.{Environment.NewLine}"));
             }
 
-            if (this._currentBatch.Count > 0)
-            {
-                try
-                {
+            if (this._currentBatch.Count > 0) {
+                try {
                     await this.WriteMessagesAsync(this._currentBatch, this._cancellationTokenSource.Token).ConfigureAwait(false);
-                }
-                catch
-                {
+                } catch {
                     // ignored
                 }
 
                 this._currentBatch.Clear();
-            }
-            else
-            {
+            } else {
                 await this.IntervalAsync(this._interval, this._cancellationTokenSource.Token).ConfigureAwait(false);
             }
         }
@@ -156,31 +140,30 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     /// <param name="interval">The amount of time to wait.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the delay.</param>
     /// <returns>A <see cref="Task"/> which completes when the <paramref name="interval"/> has passed or the <paramref name="cancellationToken"/> has been canceled.</returns>
-    protected virtual Task IntervalAsync(TimeSpan interval, CancellationToken cancellationToken)
-    {
+    protected virtual Task IntervalAsync(TimeSpan interval, CancellationToken cancellationToken) {
         return Task.Delay(interval, cancellationToken);
     }
 
-    internal protected void AddMessage(DateTimeOffset timestamp, string message)
-    {
-        if (!this._messageQueue.IsAddingCompleted)
-        {
-            try
-            {
-                if (!this._messageQueue.TryAdd(new LogMessage(timestamp, message), millisecondsTimeout: 0, cancellationToken: this._cancellationTokenSource.Token))
-                {
+    internal protected void AddMessage(DateTimeOffset timestamp, string message) {
+        if (this._messageQueue is null) { throw new ArgumentException("_messageQueue is null"); }
+
+        if (!this._messageQueue.IsAddingCompleted) {
+            try {
+                if (!this._messageQueue.TryAdd(
+                   item: new LogMessage(timestamp, message),
+                    millisecondsTimeout: 0,
+                    cancellationToken: (this._cancellationTokenSource is null)
+                    ? CancellationToken.None
+                    : this._cancellationTokenSource.Token)) {
                     Interlocked.Increment(ref this._messagesDropped);
                 }
-            }
-            catch
-            {
+            } catch {
                 //cancellation token canceled or CompleteAdding called
             }
         }
     }
 
-    private void Start()
-    {
+    private void Start() {
         this._messageQueue = this._queueSize == null ?
             new BlockingCollection<LogMessage>(new ConcurrentQueue<LogMessage>()) :
             new BlockingCollection<LogMessage>(new ConcurrentQueue<LogMessage>(), this._queueSize.Value);
@@ -189,29 +172,21 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
         this._outputTask = Task.Run(this.ProcessLogQueue);
     }
 
-    private void Stop()
-    {
-        this._cancellationTokenSource.Cancel();
-        this._messageQueue.CompleteAdding();
+    private void Stop() {
+        this._cancellationTokenSource?.Cancel();
+        this._messageQueue?.CompleteAdding();
 
-        try
-        {
-            this._outputTask.Wait(this._interval);
-        }
-        catch (TaskCanceledException)
-        {
-        }
-        catch (AggregateException ex) when (ex.InnerExceptions.Count == 1 && ex.InnerExceptions[0] is TaskCanceledException)
-        {
+        try {
+            this._outputTask?.Wait(this._interval);
+        } catch (TaskCanceledException) {
+        } catch (AggregateException ex) when (ex.InnerExceptions.Count == 1 && ex.InnerExceptions[0] is TaskCanceledException) {
         }
     }
 
     /// <inheritdoc/>
-    public void Dispose()
-    {
+    public void Dispose() {
         this._optionsChangeToken?.Dispose();
-        if (this.IsEnabled)
-        {
+        if (this.IsEnabled) {
             this.Stop();
         }
     }
@@ -221,8 +196,7 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     /// </summary>
     /// <param name="categoryName">The name of the category to create this logger with.</param>
     /// <returns>The <see cref="BatchingLogger"/> that was created.</returns>
-    public ILogger CreateLogger(string categoryName)
-    {
+    public ILogger CreateLogger(string categoryName) {
         return new BatchingLogger(this, categoryName);
     }
 
@@ -230,8 +204,7 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     /// Sets the scope on this provider.
     /// </summary>
     /// <param name="scopeProvider">Provides the scope.</param>
-    void ISupportExternalScope.SetScopeProvider(IExternalScopeProvider scopeProvider)
-    {
+    void ISupportExternalScope.SetScopeProvider(IExternalScopeProvider scopeProvider) {
         this._scopeProvider = scopeProvider;
     }
 }

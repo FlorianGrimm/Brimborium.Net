@@ -28,7 +28,7 @@ public class ConfigurationBasedLevelSwitcher : IConfigureOptions<LoggerFilterOpt
         return TextToLogLevel(this._configuration.GetSection(this._levelKey)?.Value);
     }
 
-    private static LogLevel TextToLogLevel(string text) {
+    private static LogLevel TextToLogLevel(string? text) {
         switch (text?.ToUpperInvariant()) {
             case "ERROR":
                 return LogLevel.Error;

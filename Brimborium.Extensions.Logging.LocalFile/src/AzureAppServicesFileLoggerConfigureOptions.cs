@@ -21,6 +21,6 @@ public class AzureAppServicesFileLoggerConfigureOptions : BatchLoggerConfigureOp
     public void Configure(AzureAppServicesFileLoggerOptions options)
     {
         base.Configure(options);
-        options.LogDirectory = Path.Combine(this._context.HomeFolder, "LogFiles", "Application");
+        options.LogDirectory = Path.Combine(this._context.HomeFolder??".", "LogFiles", "Application");
     }
 }

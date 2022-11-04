@@ -25,22 +25,27 @@ public class BatchingLogger : ILogger {
         this._category = categoryName;
     }
 
-    public IDisposable BeginScope<TState>(TState state) {
-        return null;
-    }
+    public IDisposable BeginScope<TState>(TState state) 
+        // where TState : notnull
+        => this._provider.ScopeProvider?.Push(state) ?? NullScope.Instance;
 
     public bool IsEnabled(LogLevel logLevel) {
         return (this._provider.IsEnabled) && (logLevel != LogLevel.None);
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) {
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId, 
+        TState state, 
+        Exception? exception, 
+        Func<TState, Exception?, string> formatter) {
         DateTimeOffset now = this._provider.UseUtcTimestamp ? DateTimeOffset.UtcNow : DateTimeOffset.Now;
         this.Log(now, logLevel, eventId, state, exception, formatter);
     }
 
     private static byte[] crlf = new byte[] { 13, 10 };
 
-    public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) {
+    public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) {
         if (!this.IsEnabled(logLevel)) {
             return;
         }

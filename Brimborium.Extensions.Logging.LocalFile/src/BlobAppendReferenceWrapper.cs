@@ -32,6 +32,9 @@ public class BlobAppendReferenceWrapper : ICloudAppendBlob
     {
         Task<HttpResponseMessage> AppendDataAsync()
         {
+            if (data.Array is null) {
+                throw new ArgumentException("data.Array is null");
+            }
             var message = new HttpRequestMessage(HttpMethod.Put, this._appendUri)
             {
                 Content = new ByteArrayContent(data.Array, data.Offset, data.Count)
