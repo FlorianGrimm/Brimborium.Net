@@ -8,5 +8,6 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 /// </summary>
 public class LocalFileLoggerOptions : FileBasedLoggerOptions {
     public LocalFileLoggerOptions() {
+        this.BatchSize = null;
     }
 }
