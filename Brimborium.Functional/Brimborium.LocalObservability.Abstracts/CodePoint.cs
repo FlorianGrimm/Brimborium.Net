@@ -1,7 +1,4 @@
-﻿//using System.Runtime.CompilerServices;
-//[CallerMemberName]
-
-namespace Brimborium.LocalObservability;
+﻿namespace Brimborium.LocalObservability;
 
 public class CodePoint {
     public string Name;
@@ -9,13 +6,16 @@ public class CodePoint {
     public int EventId;
 
     public CodePoint(
-        string? name=default, 
-        string? description=default,
-        int eventId=1
+        string? name = default,
+        string? description = default,
+        int eventId = 1
         ) {
         this.Name = name ?? string.Empty;
         this.Description = description;
         this.EventId = eventId;
     }
 
+    public override string ToString() {
+        return Name ?? string.Empty;
+    }
 }
