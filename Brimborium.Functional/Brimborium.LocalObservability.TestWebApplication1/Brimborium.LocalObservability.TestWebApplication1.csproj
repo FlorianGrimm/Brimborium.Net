@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Brimborium.Extensions.Logging.Reactive\Brimborium.Extensions.Logging.Reactive.csproj" />
+    <ProjectReference Include="..\Brimborium.LocalObservability.Abstracts\Brimborium.LocalObservability.Abstracts.csproj" />
+  </ItemGroup>
+
+</Project>
