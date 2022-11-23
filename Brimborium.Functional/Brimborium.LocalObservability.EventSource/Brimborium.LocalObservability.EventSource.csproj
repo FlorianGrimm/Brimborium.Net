@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="LocalObservabilityEventSource.cs" />
+    <Compile Remove="SimpleLocalObservabilityEventSource.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="LocalObservabilityEventSource.cs" />
+    <None Include="SimpleLocalObservabilityEventSource.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Brimborium.LocalObservability\Brimborium.LocalObservability.csproj" />
   </ItemGroup>
 

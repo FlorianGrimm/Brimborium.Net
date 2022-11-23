@@ -1,6 +1,4 @@
-﻿using System.Reactive.Subjects;
-
-namespace Brimborium.Extensions.Logging.Reactive;
+﻿namespace Brimborium.Extensions.Logging.Reactive;
 
 public interface IReactiveLoggerSource {
     Subject<ILogEntry> SourceLogEntry { get; }
@@ -11,11 +9,17 @@ public interface IReactiveLoggerSource {
 }
 
 public interface IReactiveLoggerSink {
-    void Initialize(IReactiveLoggerSource reactiveLoggerSource);
+    IDisposable Subscribe(IReactiveLoggerSource reactiveLoggerSource);
+}
+
+public static class ReactiveLoggerSourceExtensions {
+    public static void UseServiceReactiveLoggerSource(this IServiceProvider serviceProvider) {
+        serviceProvider.GetRequiredService<IReactiveLoggerSource>().Initialize();
+    }
 }
 
 public class ReactiveLoggerSource : IReactiveLoggerSource {
-    // private bool _IsInitialized;
+
     private readonly IServiceProvider _ServiceProvider;
 
     public Subject<ILogEntry> SourceLogEntry { get; }
@@ -25,17 +29,14 @@ public class ReactiveLoggerSource : IReactiveLoggerSource {
         this._ServiceProvider = serviceProvider;
     }
 
-    public void Log<TState>(LogEntry<TState> logEntry) {
-        //if (!this._IsInitialized) {
-        //    this._IsInitialized = true;
-        //}
-        this.SourceLogEntry.OnNext(logEntry);
-    }
-
     public void Initialize() {
         var lstReactiveLoggerSink = this._ServiceProvider.GetServices<IReactiveLoggerSink>();
         foreach (var reactiveLoggerSink in lstReactiveLoggerSink) {
-            reactiveLoggerSink.Initialize(this);
+            reactiveLoggerSink.Subscribe(this);
         }
+    }
+
+    public void Log<TState>(LogEntry<TState> logEntry) {
+        this.SourceLogEntry.OnNext(logEntry);
     }
 }

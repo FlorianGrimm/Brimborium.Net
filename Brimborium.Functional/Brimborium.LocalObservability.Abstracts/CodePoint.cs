@@ -19,3 +19,13 @@ public class CodePoint {
         return Name ?? string.Empty;
     }
 }
+public class ActualCodePoint {
+    public ActualCodePoint(
+        CodePoint codePoint,
+        IEnumerable<KeyValuePair<string, object>> values
+        ) {
+        this.CodePoint = codePoint;
+    }
+
+    public CodePoint CodePoint { get; }
+}

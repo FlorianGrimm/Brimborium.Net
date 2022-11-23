@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Brimborium.Extensions.Logging.Reactive\Brimborium.Extensions.Logging.Reactive.csproj" />
     <ProjectReference Include="..\Brimborium.LocalObservability.Abstracts\Brimborium.LocalObservability.Abstracts.csproj" />
+    <ProjectReference Include="..\Brimborium.LocalObservability\Brimborium.LocalObservability.csproj" />
   </ItemGroup>
 
 </Project>

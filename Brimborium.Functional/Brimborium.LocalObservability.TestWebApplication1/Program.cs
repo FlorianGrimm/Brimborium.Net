@@ -17,11 +17,10 @@ namespace Brimborium.LocalObservability.TestWebApplication1 {
                 // options.Cookie.Name = ".TestWebApplication1.Session";
             });
             builder.Services.AddSingleton<Logic>();
-            builder.Services.AddSingleton<IReactiveLoggerSink, ReactiveLoggerSinkMatcher>();
+            builder.Services.AddSingleton<IReactiveLoggerSink, Brimborium.LocalObservability.ReactiveLoggerSinkMatcher>();
             var app = builder.Build();
-
-            app.Services.GetRequiredService<IReactiveLoggerSource>().Initialize();
-
+            
+            app.Services.UseServiceReactiveLoggerSource();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment()) {
