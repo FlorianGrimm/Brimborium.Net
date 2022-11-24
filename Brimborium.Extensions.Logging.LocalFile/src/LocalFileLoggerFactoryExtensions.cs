@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Runtime.CompilerServices;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,27 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 /// Extension methods for adding Azure diagnostics logger.
 /// </summary>
 public static class LocalFileLoggerFactoryExtensions {
+    /// <summary>
+    /// Adds an Azure Web Apps diagnostics logger.
+    /// </summary>
+    /// <param name="builder">The extension method argument</param>
+    /// <returns></returns>
+    public static ILoggingBuilder AddWebAppDiagnostics(
+        this ILoggingBuilder builder, IConfiguration configuration) {
+        var context = WebAppContext.Default;
+        // Only add the provider if we're in Azure WebApp. That cannot change once the apps started
+        return builder.AddWebAppDiagnostics(context, configuration, _ => { });
+    }
+    public static ILoggingBuilder AddWebAppDiagnostics(
+        this ILoggingBuilder builder,
+        IConfiguration configuration,
+        Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
+        var context = WebAppContext.Default;
+        // Only add the provider if we're in Azure WebApp. That cannot change once the apps started
+        return builder.AddWebAppDiagnostics(context, configuration, configureBlobLoggerOptions);
+    }
+
+
     /// <summary>
     /// Adds an Azure Web Apps diagnostics logger.
     /// </summary>
@@ -44,12 +66,28 @@ public static class LocalFileLoggerFactoryExtensions {
     }
 
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-    public static ILoggingBuilder AddWebAppDiagnostics(this ILoggingBuilder builder, IWebAppContext context, string configurationFile, Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
-        var isRunningInAzureWebApp = context.IsRunningInAzureWebApp;
-
+    public static ILoggingBuilder AddWebAppDiagnostics(
+        this ILoggingBuilder builder,
+        IWebAppContext context,
+        string configurationFile,
+        Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
         builder.AddConfiguration();
 
-        var config = SiteConfigurationProvider.GetAzureLoggingConfiguration(context,  configurationFile);
+        var configuration = SiteConfigurationProvider.GetAzureLoggingConfiguration(context, configurationFile);
+        if (configuration is not null) {
+            builder.AddWebAppDiagnostics(context, configuration, configureBlobLoggerOptions);
+        }
+        return builder;
+    }
+
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+    public static ILoggingBuilder AddWebAppDiagnostics(
+        this ILoggingBuilder builder,
+        IWebAppContext context,
+        IConfiguration configuration,
+        Action<AzureBlobLoggerOptions> configureBlobLoggerOptions) {
+        var isRunningInAzureWebApp = context.IsRunningInAzureWebApp;
+
         var services = builder.Services;
 
         var addedAzureFileLogger = (isRunningInAzureWebApp) && TryAddEnumerable(services, Singleton<ILoggerProvider, AzureAppServicesFileLoggerProvider>());
@@ -59,30 +97,30 @@ public static class LocalFileLoggerFactoryExtensions {
         if (addedAzureFileLogger || addedBlobLogger || addedLocalFileLogger) {
             services.AddSingleton(context);
             services.AddSingleton<IOptionsChangeTokenSource<LoggerFilterOptions>>(
-                new ConfigurationChangeTokenSource<LoggerFilterOptions>(config));
+                new ConfigurationChangeTokenSource<LoggerFilterOptions>(configuration));
         }
 
         if (addedAzureFileLogger) {
-            services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateAzureFileFilterConfigureOptions(config));
-            services.AddSingleton<IConfigureOptions<AzureAppServicesFileLoggerOptions>>(new AzureAppServicesFileLoggerConfigureOptions(config, context));
+            services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateAzureFileFilterConfigureOptions(configuration));
+            services.AddSingleton<IConfigureOptions<AzureAppServicesFileLoggerOptions>>(new AzureAppServicesFileLoggerConfigureOptions(configuration, context));
             services.AddSingleton<IOptionsChangeTokenSource<AzureAppServicesFileLoggerOptions>>(
-                new ConfigurationChangeTokenSource<AzureAppServicesFileLoggerOptions>(config));
+                new ConfigurationChangeTokenSource<AzureAppServicesFileLoggerOptions>(configuration));
             LoggerProviderOptions.RegisterProviderOptions<AzureAppServicesFileLoggerOptions, AzureAppServicesFileLoggerProvider>(builder.Services);
         }
 
         if (addedBlobLogger) {
-            services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateBlobFilterConfigureOptions(config));
-            services.AddSingleton<IConfigureOptions<AzureBlobLoggerOptions>>(new BlobLoggerConfigureOptions(config, context, configureBlobLoggerOptions));
+            services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateBlobFilterConfigureOptions(configuration));
+            services.AddSingleton<IConfigureOptions<AzureBlobLoggerOptions>>(new BlobLoggerConfigureOptions(configuration, context, configureBlobLoggerOptions));
             services.AddSingleton<IOptionsChangeTokenSource<AzureBlobLoggerOptions>>(
-                new ConfigurationChangeTokenSource<AzureBlobLoggerOptions>(config));
+                new ConfigurationChangeTokenSource<AzureBlobLoggerOptions>(configuration));
             LoggerProviderOptions.RegisterProviderOptions<AzureBlobLoggerOptions, BlobLoggerProvider>(builder.Services);
         }
 
         if (addedLocalFileLogger) {
-            services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateLocalFileFilterConfigureOptions(config));
-            services.AddSingleton<IConfigureOptions<LocalFileLoggerOptions>>(new LocalFileLoggerConfigureOptions(config, context));
+            services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateLocalFileFilterConfigureOptions(configuration));
+            services.AddSingleton<IConfigureOptions<LocalFileLoggerOptions>>(new LocalFileLoggerConfigureOptions(configuration, context));
             services.AddSingleton<IOptionsChangeTokenSource<LocalFileLoggerOptions>>(
-                new ConfigurationChangeTokenSource<LocalFileLoggerOptions>(config));
+                new ConfigurationChangeTokenSource<LocalFileLoggerOptions>(configuration));
             LoggerProviderOptions.RegisterProviderOptions<LocalFileLoggerOptions, LocalFileLoggerProvider>(builder.Services);
         }
 
