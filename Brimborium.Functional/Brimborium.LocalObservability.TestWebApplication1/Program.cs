@@ -16,8 +16,16 @@ namespace Brimborium.LocalObservability.TestWebApplication1 {
                 options.Cookie.IsEssential = true;
                 // options.Cookie.Name = ".TestWebApplication1.Session";
             });
+
             builder.Services.AddSingleton<Logic>();
+            // TODO builder
             builder.Services.AddSingleton<IReactiveLoggerSink, Brimborium.LocalObservability.ReactiveLoggerSinkMatcher>();
+            builder.Services.AddSingleton<IMatchingEngine, MatchingEngine>();
+            builder.Services.AddSingleton<MatchingEngineOptions>((serviceProvider) => {
+                var result = new MatchingEngineOptions();
+                result.LstRule.Add(new ForAspNetCore.MatchingRuleForAspNetCore());
+                return result;
+            });
             var app = builder.Build();
             
             app.Services.UseServiceReactiveLoggerSource();

@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.Extensions.Loggi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.LocalObservability.TestWebApplication1", "Brimborium.LocalObservability.TestWebApplication1\Brimborium.LocalObservability.TestWebApplication1.csproj", "{FA9A935F-D110-4F1B-B375-55F9AA359803}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.LocalObservability.ForAspNetCore", "Brimborium.LocalObservability.ForAspNetCore\Brimborium.LocalObservability.ForAspNetCore.csproj", "{0C84A843-B7EA-49AF-AE3B-8246EF8FC48B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{FA9A935F-D110-4F1B-B375-55F9AA359803}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA9A935F-D110-4F1B-B375-55F9AA359803}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA9A935F-D110-4F1B-B375-55F9AA359803}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C84A843-B7EA-49AF-AE3B-8246EF8FC48B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C84A843-B7EA-49AF-AE3B-8246EF8FC48B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C84A843-B7EA-49AF-AE3B-8246EF8FC48B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C84A843-B7EA-49AF-AE3B-8246EF8FC48B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

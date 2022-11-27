@@ -1,6 +1,4 @@
-﻿using static System.Formats.Asn1.AsnWriter;
-
-namespace Brimborium.Extensions.Logging.Reactive;
+﻿namespace Brimborium.Extensions.Logging.Reactive;
 
 
 public interface ILogEntry {

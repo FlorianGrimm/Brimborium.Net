@@ -19,13 +19,23 @@ public class CodePoint {
         return Name ?? string.Empty;
     }
 }
-public class ActualCodePoint {
+
+public interface IActualCodePoint {
+    CodePoint CodePoint { get; }
+
+    IEnumerable<KeyValuePair<string, object>> GetValues();
+}
+
+public class ActualCodePoint : IActualCodePoint {
+    private readonly IEnumerable<KeyValuePair<string, object>> _Values;
     public ActualCodePoint(
         CodePoint codePoint,
         IEnumerable<KeyValuePair<string, object>> values
         ) {
         this.CodePoint = codePoint;
+        this._Values = values;
     }
+    public IEnumerable<KeyValuePair<string, object>> GetValues() => this._Values;
 
     public CodePoint CodePoint { get; }
 }

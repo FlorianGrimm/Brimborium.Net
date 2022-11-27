@@ -10,7 +10,7 @@ public interface IMatchingRule {
     // IMatchingCondition MatchingCondition { get; }
     // IStateTransition StateTransition { get; }
     string Name { get; }
-    ActualCodePoint? DoesConditionMatch(IMatchingEntry entry);
+    IActualCodePoint? DoesConditionMatch(IMatchingEntry entry);
 }
 
 
@@ -19,6 +19,20 @@ public interface IMatchingEngine {
 }
 
 public interface IMatchingEntry {
+}
+public interface IMatchingEntry<T> {
+    T? GetLogEntry();
+    /*
+    string? GetCategoryName();
+    LogLevel? GetLogLevel()?
+    EventId EventId { get; }
+    //TState state { get; }
+    Exception? Exception { get; }
+    DateTimeOffset TimeStamp { get; }
+    string Line { get; }
+    List<object>? Scopes { get; }
+    object? GetState();
+     */
 }
 
 public interface IStateTransition {

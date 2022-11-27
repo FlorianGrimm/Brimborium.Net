@@ -1,16 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Brimborium.Extensions.Logging.Reactive\Brimborium.Extensions.Logging.Reactive.csproj" />
     <ProjectReference Include="..\Brimborium.LocalObservability.Abstracts\Brimborium.LocalObservability.Abstracts.csproj" />
     <ProjectReference Include="..\Brimborium.LocalObservability\Brimborium.LocalObservability.csproj" />
-    <ProjectReference Include="..\Brimborium.LocalObservability.ForAspNetCore\Brimborium.LocalObservability.ForAspNetCore.csproj" />
   </ItemGroup>
-
 </Project>

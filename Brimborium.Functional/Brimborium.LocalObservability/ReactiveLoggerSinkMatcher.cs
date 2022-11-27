@@ -35,11 +35,3 @@ public class ReactiveLoggerSinkMatcher
     }
 
 }
-
-public class ProxyILogEntry2MatchingEntry : IMatchingEntry {
-    private readonly ILogEntry _LogEntry;
-
-    public ProxyILogEntry2MatchingEntry(ILogEntry logEntry) {
-        this._LogEntry = logEntry;
-    }
-}
