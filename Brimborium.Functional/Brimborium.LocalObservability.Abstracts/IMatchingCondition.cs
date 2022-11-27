@@ -1,14 +1,6 @@
 ﻿namespace Brimborium.LocalObservability;
 
-//public interface IMatchingCondition {
-//    bool DoesMatch(IMatchingEntry entry);
-//    string Name { get; }
-//}
-
-
 public interface IMatchingRule {
-    // IMatchingCondition MatchingCondition { get; }
-    // IStateTransition StateTransition { get; }
     string Name { get; }
     IActualCodePoint? DoesConditionMatch(IMatchingEntry entry);
 }
@@ -36,7 +28,8 @@ public interface IMatchingEntry<T> {
 }
 
 public interface IStateTransition {
-    Action<IMatchingEntry>? Execute(IMatchingEntry entry);
+    bool DoesActualCodePointMatch(IActualCodePoint actualCodePoint);
+    (ICodePointState CodePointState, bool Done) Execute(IActualCodePoint actualCodePoint, ICodePointState codePointState);
 }
 
 public interface ICodePointState {

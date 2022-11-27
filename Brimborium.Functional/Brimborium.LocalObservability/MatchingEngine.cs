@@ -1,32 +1,51 @@
 ﻿namespace Brimborium.LocalObservability;
 
 public class MatchingEngineOptions {
-    public readonly List<IMatchingRule> LstRule;
+    public readonly List<IMatchingRule> ListMatchingRule;
+    public readonly List<IStateTransition> ListStateTransition;
+    
     public MatchingEngineOptions() {
-        this.LstRule = new List<IMatchingRule>();
+        this.ListMatchingRule = new List<IMatchingRule>();
+        this.ListStateTransition = new List<IStateTransition>();
     }
 }
 
 public class MatchingEngine 
     : IMatchingEngine
-    , ICodePointState // ??
+    , ICodePointState
     {
-    private readonly List<IMatchingRule> _LstRule;
+    private readonly List<IMatchingRule> _ListMatchingRule;
+    private readonly List<IStateTransition> _ListStateTransition;
     private readonly CodePointState _CodePointState;
 
     public MatchingEngine(
         MatchingEngineOptions options
         ) {
         this._CodePointState = new CodePointState();
-        this._LstRule = new List<IMatchingRule>(options.LstRule);
+        this._ListMatchingRule = new List<IStateTransition>(options.ListMatchingRule);
+        this._ListStateTransition = new List<IStateTransition>(options.ListStateTransition);
     }
 
-
     public void Match(IMatchingEntry entry) {
-        foreach (var rule in this._LstRule) {
-            var actualCodePoint = rule.DoesConditionMatch(entry);
+        // TODO Dictionary to speed up
+        foreach (var matchingRule in this._ListMatchingRule) {
+            var actualCodePoint = matchingRule.DoesConditionMatch(entry);
             if (actualCodePoint is not null) {
-
+                { 
+                    if (matchingRule is IStateTransition stateTransition) {
+                        if (stateTransition.DoesActualCodePointMatch(actualCodePoint)) {
+                            stateTransition.Execute(actualCodePoint);
+                            continue;
+                        }
+                    }
+                }
+                // TODO Dictionary to speed up
+                foreach (var stateTransition in this._ListStateTransition) {
+                    if (stateTransition.DoesActualCodePointMatch(actualCodePoint)) {
+                        stateTransition.Execute(actualCodePoint);
+                        break;
+                    }
+                }
                 //rule.Execute(entry, sideeffects)
                 //this.StepState(entry, rule);
                 //rule.StateTransition.Execute(entry);

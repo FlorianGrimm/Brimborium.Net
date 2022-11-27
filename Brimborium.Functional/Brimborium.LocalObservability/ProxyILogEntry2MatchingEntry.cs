@@ -28,10 +28,10 @@ public class ProxyStateLogEntry: IEnumerable<KeyValuePair<string, object>> {
     }
 
     public IEnumerator<KeyValuePair<string, object>> GetEnumerator() {
-        throw new NotImplementedException();
+        return this._State.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
-        throw new NotImplementedException();
+        return ((IEnumerable)this._State).GetEnumerator();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Brimborium.LocalObservability.ForAspNetCore;
 
-public class MatchingRuleForAspNetCore : IMatchingRule {
+public class MatchingRuleForAspNetCore : IMatchingRule, IStateTransition {
     public MatchingRuleForAspNetCore() {
     }
 
@@ -21,6 +21,18 @@ public class MatchingRuleForAspNetCore : IMatchingRule {
             }
         }
         return default;
+    }
+
+    public bool DoesActualCodePointMatch(IActualCodePoint actualCodePoint) {
+        if (actualCodePoint.CodePoint == WaypointsForAspNetCore.StartSession) {
+            // TODO check session
+            return true;
+        }
+        return false;
+    }
+
+    public (ICodePointState CodePointState, bool Done) Execute(IActualCodePoint actualCodePoint, ICodePointState codePointState) {
+        return (CodePointState:codePointState, Done:false);
     }
 }
 
