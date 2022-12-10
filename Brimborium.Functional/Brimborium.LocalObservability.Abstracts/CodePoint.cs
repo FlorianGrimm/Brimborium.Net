@@ -27,15 +27,16 @@ public interface IActualCodePoint {
 }
 
 public class ActualCodePoint : IActualCodePoint {
-    private readonly IEnumerable<KeyValuePair<string, object>> _Values;
+    private readonly LogEntryData _EntryData;
+
     public ActualCodePoint(
         CodePoint codePoint,
-        IEnumerable<KeyValuePair<string, object>> values
+        LogEntryData entryData
         ) {
         this.CodePoint = codePoint;
-        this._Values = values;
+        this._EntryData = entryData;
     }
-    public IEnumerable<KeyValuePair<string, object>> GetValues() => this._Values;
+    public IEnumerable<KeyValuePair<string, object>> GetValues() => this._EntryData.GetValues();
 
     public CodePoint CodePoint { get; }
 }

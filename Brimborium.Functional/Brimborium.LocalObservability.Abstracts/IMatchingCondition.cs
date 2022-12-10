@@ -1,30 +1,45 @@
-﻿namespace Brimborium.LocalObservability;
+﻿using Microsoft.Extensions.Logging;
+
+namespace Brimborium.LocalObservability;
+
+public record struct LogEntryData(
+    object Data,
+    ILogEntryDataAccessor DataAccessor
+    ) {
+    public string CategoryName => this.DataAccessor.GetCategoryName(this.Data);
+    public EventId EventId => this.DataAccessor.GetEventId(this.Data);
+    public IEnumerable<KeyValuePair<string, object>> GetValues() => this.DataAccessor.GetValues(this.Data);
+}
+
+public interface ILogEntryDataAccessor {
+    string GetCategoryName(object data);
+    EventId GetEventId(object data);
+    IEnumerable<KeyValuePair<string, object>> GetValues(object data);
+}
+
+public interface IEnumerableIEnumerable : IEnumerable<KeyValuePair<string, object>> {
+}
+
+public enum MatchingKind {
+    Start,
+    Intercept,
+    Normal,
+    Stop
+}
 
 public interface IMatchingRule {
+    MatchingKind Kind { get; }
+    int Priority { get; }
     string Name { get; }
-    IActualCodePoint? DoesConditionMatch(IMatchingEntry entry);
+    IActualCodePoint? DoesConditionMatch(LogEntryData entry);
 }
 
 
 public interface IMatchingEngine {
-    void Match(IMatchingEntry entry);
+    void Match(LogEntryData entry);
 }
 
-public interface IMatchingEntry {
-}
-public interface IMatchingEntry<T> {
-    T? GetLogEntry();
-    /*
-    string? GetCategoryName();
-    LogLevel? GetLogLevel()?
-    EventId EventId { get; }
-    //TState state { get; }
-    Exception? Exception { get; }
-    DateTimeOffset TimeStamp { get; }
-    string Line { get; }
-    List<object>? Scopes { get; }
-    object? GetState();
-     */
+public interface IProxyStateLogEntry : IEnumerable<KeyValuePair<string, object>> {
 }
 
 public interface IStateTransition {
@@ -33,7 +48,9 @@ public interface IStateTransition {
 }
 
 public interface ICodePointState {
-    ICodePointState GetChild(string childName, string childKey);
+    ICodePointState CreateChild(string childName, string childKey);
+    ICodePointState? GetChild(string childName, string childKey);
+    ICodePointState? RemoveChild(string childName, string childKey);
 }
 
 public interface IStatefullEngine {
