@@ -51,6 +51,8 @@ public interface ICodePointState {
     ICodePointState CreateChild(string childName, string childKey);
     ICodePointState? GetChild(string childName, string childKey);
     ICodePointState? RemoveChild(string childName, string childKey);
+    object? GetValue(string name);
+    void SetValue(string name, object? value);
 }
 
 public interface IStatefullEngine {

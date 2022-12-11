@@ -12,14 +12,14 @@ public class MatchingRuleForAspNetCore1Start : IMatchingRule, IStateTransition {
         var eventId = entry.EventId;
         if (categoryName == "Microsoft.AspNetCore.Hosting.Diagnostics") {
             if (eventId.Id == 1) {
-                return new ActualCodePoint(WaypointsForAspNetCore.StartSession, entry);
+                return new ActualCodePoint(WaypointsForAspNetCore.RequestStart, entry);
             }
         }
         return default;
     }
 
     public bool DoesActualCodePointMatch(IActualCodePoint actualCodePoint) {
-        if (actualCodePoint.CodePoint == WaypointsForAspNetCore.StartSession) {
+        if (actualCodePoint.CodePoint == WaypointsForAspNetCore.RequestStart) {
             var valueRequestId = actualCodePoint.GetValues().FirstOrDefault(kv => kv.Key == "RequestId").Value as string;
             return !string.IsNullOrEmpty(valueRequestId);
         }

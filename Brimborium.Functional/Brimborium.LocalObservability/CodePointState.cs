@@ -1,7 +1,10 @@
+using System.Linq.Expressions;
+
 namespace Brimborium.LocalObservability;
 
 public class CodePointState : ICodePointState {
     private Dictionary<string, ConcurrentDictionary<string, ICodePointState>>? _Child;
+    private Dictionary<string, object>? _Values;
 
     public CodePointState() {
     }
@@ -61,5 +64,23 @@ public class CodePointState : ICodePointState {
             }
         }
         return default;
+    }
+
+    public object? GetValue(string name) {
+        if (this._Values is not null) {
+            if (this._Values.TryGetValue(name, out var result)) {
+                return result;
+            }
+        }
+        return default;
+    }
+
+    public void SetValue(string name, object? value) {
+        var values = this._Values ??= new Dictionary<string, object>();
+        if (value is null) {
+            values.Remove(name);
+        } else {
+            values[name] = value;
+        }
     }
 }

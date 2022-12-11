@@ -1,28 +1,71 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using static System.Formats.Asn1.AsnWriter;
+
 namespace Brimborium.LocalObservability;
 
-public class ProxyILogEntry2MatchingEntry 
+public class LogEntryDataAccessor 
      : ILogEntryDataAccessor {
-    private static ProxyILogEntry2MatchingEntry? _Instance;
-    public static ProxyILogEntry2MatchingEntry GetInstance() => _Instance ??= new ProxyILogEntry2MatchingEntry();
+    private static LogEntryDataAccessor? _Instance;
+    public static LogEntryDataAccessor GetInstance() => _Instance ??= new LogEntryDataAccessor();
 
-    public ProxyILogEntry2MatchingEntry() {
+    public LogEntryDataAccessor() {
     }
 
     public string GetCategoryName(object data) {
-        throw new NotImplementedException();
+        if (data is ILogEntry logEntry) {
+            return logEntry.CategoryName;
+        } else { 
+            throw new ArgumentException(nameof(data));
+        }
     }
 
     public EventId GetEventId(object data) {
-        throw new NotImplementedException();
+        if (data is ILogEntry logEntry) {
+            return logEntry.EventId;
+        } else {
+            throw new ArgumentException(nameof(data));
+        }
     }
 
     public IEnumerable<KeyValuePair<string, object>> GetValues(object data) {
-        throw new NotImplementedException();
+        if (data is ILogEntry logEntry) {
+            var state = logEntry.GetState();
+            var scopes = logEntry.Scopes;
+            if (state is not null) {
+                if (state is IEnumerable<KeyValuePair<string, object>> ekv) {
+                    foreach (var item in ekv) { yield return item; }
+                }
+            }
+
+            if (scopes is not null) {
+                foreach (var scope in scopes) {
+                    if (scope is IEnumerable<KeyValuePair<string, object>> ekv) {
+                        foreach (var item in ekv) {
+                            yield return item;
+                        }
+                    } else if (scope is IEnumerable scopeE) {
+                        foreach (var item in scopeE) {
+                            if (item is null) {
+                                continue;
+                            }
+                            if (item is KeyValuePair<string, object> kv) {
+                                yield return kv;
+                            } else {
+                                System.Console.WriteLine(item.GetType().FullName);
+                            }
+                        }
+                    } else {
+                        System.Console.WriteLine(scope.GetType().FullName);
+                    }
+                }
+            }
+        } else {
+            throw new ArgumentException(nameof(data));
+        }
     }
 
-    
+
     //private readonly ILogEntry _LogEntry;
 
     //public ProxyILogEntry2MatchingEntry(ILogEntry logEntry) {

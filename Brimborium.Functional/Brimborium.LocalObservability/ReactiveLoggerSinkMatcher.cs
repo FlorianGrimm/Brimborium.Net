@@ -24,7 +24,7 @@ public class ReactiveLoggerSinkMatcher
                 System.Console.WriteLine(scope);
             }
         }
-        this._MatchingEngine.Match(new LogEntryData(logEntry, ProxyILogEntry2MatchingEntry.GetInstance()));
+        this._MatchingEngine.Match(new LogEntryData(logEntry, LogEntryDataAccessor.GetInstance()));
     }
 
     public void OnCompleted() {
