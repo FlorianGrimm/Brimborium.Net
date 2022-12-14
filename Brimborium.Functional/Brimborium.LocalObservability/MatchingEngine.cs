@@ -1,4 +1,6 @@
-﻿namespace Brimborium.LocalObservability;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Brimborium.LocalObservability;
 
 public class MatchingEngineOptions {
     public readonly List<IMatchingRule> ListMatchingRule;
@@ -21,16 +23,44 @@ public class MatchingEngine
         MatchingEngineOptions options
         ) {
         this._CodePointState = new CodePointState();
-        this._ListMatchingRule = new List<IMatchingRule>(options.ListMatchingRule);
+        this._ListMatchingRule = new List<IMatchingRule>(options.ListMatchingRule.OrderBy(matchingRule => matchingRule.Kind).ThenBy(matchingRule => matchingRule.Priority).ThenBy(matchingRule => matchingRule.Name));
         this._ListStateTransition = new List<IStateTransition>(options.ListStateTransition);
     }
 
-    public void Match(IMatchingEntry entry) {
-        // TODO Dictionary to speed up
-        ICodePointState codePointState = this._CodePointState;
-        bool done = false;
-        foreach (var matchingRule in this._ListMatchingRule) {
-            if (done) { break; }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="entry"></param>
+    public void Match(LogEntryData entry) {
+        var polymorphCodePoint =new  PolymorphCodePoint(entry);
+        foreach(var matchingRule in this._ListMatchingRule) {
+            matchingRule.Match(polymorphCodePoint);
+            // if (actualCodePoint is not null) {
+            //     foreach (var stateTransition in this._ListStateTransition) {
+            //         if (stateTransition.DoesActualCodePointMatch(actualCodePoint)) {
+            //             // var (codePointState, done) = stateTransition.Execute(actualCodePoint, this._CodePointState);
+            //             // if (done) {
+            //             //     break;
+            //             // }
+            //         }
+            //     }
+            // }
+        }
+         if (polymorphCodePoint.ListActualCodePoint.Count >1) {
+            // TODO
+        }
+    }
+
+#if no
+// TODO Dictionary to speed up
+        // ICodePointState codePointState = this._CodePointState;
+        // codePointState = this.matchForList(entry, codePointState, this._ListMatchingRule1Start);
+        // codePointState = this.matchForList(entry, codePointState, this._ListMatchingRule2Intercept);
+        // codePointState = this.matchForList(entry, codePointState, this._ListMatchingRule3Normal);
+        // this.matchForList(entry, codePointState, this._ListMatchingRule4Stop);
+    private ICodePointState matchForList(LogEntryData entry, ICodePointState codePointState, List<IMatchingRule> listMatchingRule) {
+        foreach (var matchingRule in listMatchingRule) {
+            var done = false;
             var actualCodePoint = matchingRule.DoesConditionMatch(entry);
             if (actualCodePoint is not null) {
                 {
@@ -38,33 +68,40 @@ public class MatchingEngine
                         if (stateTransition.DoesActualCodePointMatch(actualCodePoint)) {
                             (codePointState, done) = stateTransition.Execute(actualCodePoint, codePointState);
                             if (done) {
-                                continue;
+                                break;
                             }
                         }
                     }
                 }
-                // TODO Dictionary to speed up
                 foreach (var stateTransition in this._ListStateTransition) {
                     if (stateTransition.DoesActualCodePointMatch(actualCodePoint)) {
                         (codePointState, done) = stateTransition.Execute(actualCodePoint, codePointState);
-                        break;
+                        if (done) {
+                            break;
+                        }
                     }
                 }
             }
         }
+        //
+        return codePointState;
     }
+#endif
 
-    // ??
-    public ICodePointState GetChild(string childName, string childKey)
+    public ICodePointState CreateChild(string childName, string childKey)
+        => this._CodePointState.CreateChild(childName, childKey);
+
+    public ICodePointState? GetChild(string childName, string childKey)
         => this._CodePointState.GetChild(childName, childKey);
-}
 
+    public ICodePointState? RemoveChild(string childName, string childKey)
+        => this._CodePointState.RemoveChild(childName, childKey);
 
-public class CodePointState : ICodePointState {
-    public CodePointState() {
+    public object? GetValue(string name) {
+        return this._CodePointState.GetValue(name);
     }
 
-    public ICodePointState GetChild(string childName, string childKey) {
-        throw new NotImplementedException();
+    public void SetValue(string name, object? value) {
+        this._CodePointState.SetValue(name, value);
     }
 }

@@ -1,36 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<ImplicitUsings>disabdisable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="ThinkOf\IgnoreLocalObservabilitySink.cs" />
-	  <Compile Remove="ThinkOf\ILocalObservabilitySink.cs" />
-	  <Compile Remove="ThinkOf\ISimpleLocalObservabilityCollector.cs" />
-	  <Compile Remove="ThinkOf\LocalObservabilityExtension.cs" />
-	  <Compile Remove="ThinkOf\SimpleLocalObservabilityItem.cs" />
-	  <Compile Remove="ThinkOf\SimpleLocalObservabilitySink.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="ThinkOf\IgnoreLocalObservabilitySink.cs" />
-	  <None Include="ThinkOf\ILocalObservabilitySink.cs" />
-	  <None Include="ThinkOf\ISimpleLocalObservabilityCollector.cs" />
-	  <None Include="ThinkOf\LocalObservabilityExtension.cs" />
-	  <None Include="ThinkOf\SimpleLocalObservabilityItem.cs" />
-	  <None Include="ThinkOf\SimpleLocalObservabilitySink.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Brimborium.Extensions.Logging.Reactive\Brimborium.Extensions.Logging.Reactive.csproj" />
-	  <ProjectReference Include="..\Brimborium.LocalObservability.Abstracts\Brimborium.LocalObservability.Abstracts.csproj" />
-	</ItemGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disabdisable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="ThinkOf\IgnoreLocalObservabilitySink.cs" />
+    <Compile Remove="ThinkOf\ILocalObservabilitySink.cs" />
+    <Compile Remove="ThinkOf\ISimpleLocalObservabilityCollector.cs" />
+    <Compile Remove="ThinkOf\LocalObservabilityExtension.cs" />
+    <Compile Remove="ThinkOf\SimpleLocalObservabilityItem.cs" />
+    <Compile Remove="ThinkOf\SimpleLocalObservabilitySink.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThinkOf\IgnoreLocalObservabilitySink.cs" />
+    <None Include="ThinkOf\ILocalObservabilitySink.cs" />
+    <None Include="ThinkOf\ISimpleLocalObservabilityCollector.cs" />
+    <None Include="ThinkOf\LocalObservabilityExtension.cs" />
+    <None Include="ThinkOf\SimpleLocalObservabilityItem.cs" />
+    <None Include="ThinkOf\SimpleLocalObservabilitySink.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Brimborium.Extensions.Logging.Reactive\Brimborium.Extensions.Logging.Reactive.csproj" />
+    <ProjectReference Include="..\Brimborium.LocalObservability.Abstracts\Brimborium.LocalObservability.Abstracts.csproj" />
+  </ItemGroup>
 </Project>

@@ -7,3 +7,4 @@ global using global::System.Text;
 global using global::System.Threading.Tasks;
 
 global using global::Brimborium.LocalObservability;
+global using global::Microsoft.Extensions.Logging;

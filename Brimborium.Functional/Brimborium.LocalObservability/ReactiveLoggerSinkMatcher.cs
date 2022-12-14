@@ -1,9 +1,8 @@
 ﻿namespace Brimborium.LocalObservability;
 
-public class ReactiveLoggerSinkMatcher 
+public class ReactiveLoggerSinkMatcher
     : IReactiveLoggerSink
-    , IObserver<ILogEntry>
-    {
+    , IObserver<ILogEntry> {
     private readonly IMatchingEngine _MatchingEngine;
 
     public ReactiveLoggerSinkMatcher(
@@ -25,7 +24,7 @@ public class ReactiveLoggerSinkMatcher
                 System.Console.WriteLine(scope);
             }
         }
-        this._MatchingEngine.Match(new ProxyILogEntry2MatchingEntry(logEntry));
+        this._MatchingEngine.Match(new LogEntryData(logEntry, LogEntryDataAccessor.GetInstance()));
     }
 
     public void OnCompleted() {
