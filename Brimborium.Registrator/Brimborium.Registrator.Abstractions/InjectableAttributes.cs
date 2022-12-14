@@ -63,21 +63,49 @@ namespace Brimborium.Registrator {
         IncludeAll = 7
     }
 
+    /// <summary>
+    /// Annotate class as service.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public class ServiceDescriptorAttribute : Attribute {
-        public ServiceDescriptorAttribute() : this(null) { }
+        /// <summary>
+        /// Register this class as a (Transient) service (with the default rules for serviceTypes).
+        /// </summary>
+        public ServiceDescriptorAttribute() {
+            Mode = ServiceTypeMode.IncludeSelfAndInterfaces;
+            ServiceType = null;
+            Lifetime = ServiceLifetime.Transient;
+        }
 
-        public ServiceDescriptorAttribute(Type? serviceType) : this(serviceType, ServiceLifetime.Transient) {
+        /// <summary>
+        /// Register this class as a (Transient) service with the given serviceType.
+        /// </summary>
+        /// <param name="serviceType">The serviceType is the the type that is used while resolving <see cref="IServiceProvider.GetService"/></param>
+        public ServiceDescriptorAttribute(Type? serviceType) {
+            ServiceType = serviceType;
+            Lifetime = ServiceLifetime.Transient;
             Mode = ServiceTypeMode.IncludeSelfAndInterfaces;
         }
 
+        /// <summary>
+        /// Register this class as a service with the given serviceType and lifetime.
+        /// </summary>
+        /// <param name="serviceType">The serviceType is the the type that is used while resolving <see cref="IServiceProvider.GetService"/></param>
+        /// <param name="lifetime">The lifeTime for the service instances.</param>
         public ServiceDescriptorAttribute(Type? serviceType, ServiceLifetime lifetime) {
-            Mode = ServiceTypeMode.IncludeSelfAndInterfaces;
             ServiceType = serviceType;
             Lifetime = lifetime;
+            Mode = ServiceTypeMode.IncludeSelfAndInterfaces;
         }
-        
+        public ServiceDescriptorAttribute(Type? serviceType, ServiceLifetime lifetime, ServiceTypeMode mode) {
+            ServiceType = serviceType;
+            Lifetime = lifetime;
+            Mode = mode;
+        }
 
+        /// <summary>
+        /// Gets the <see cref="ServiceTypeMode"/>.
+        /// </summary>
         public ServiceTypeMode Mode { get; init; }
 
         /// <summary>
