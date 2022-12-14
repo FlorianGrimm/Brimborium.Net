@@ -32,7 +32,8 @@ public class MatchingEngine
     /// </summary>
     /// <param name="entry"></param>
     public void Match(LogEntryData entry) {
-        var polymorphCodePoint =new  PolymorphCodePoint(entry);
+        // initialize the polymorphCodePoint with the MatchingRules
+        var polymorphCodePoint =new  ActualPolymorphCodePoint(entry);
         foreach(var matchingRule in this._ListMatchingRule) {
             matchingRule.Match(polymorphCodePoint);
             // if (actualCodePoint is not null) {
@@ -46,7 +47,7 @@ public class MatchingEngine
             //     }
             // }
         }
-         if (polymorphCodePoint.ListActualCodePoint.Count >1) {
+        if (polymorphCodePoint.ListActualCodePoint.Count >1) {
             // TODO
         }
     }

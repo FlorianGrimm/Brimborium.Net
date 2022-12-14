@@ -8,7 +8,7 @@ public class MatchingRuleForAspNetCore : IMatchingRule {
     public int Priority => 0;
     public string Name => "ForAspNetCore";
 
-    public bool Match(PolymorphCodePoint polymorphCodePoint) {
+    public bool Match(ActualPolymorphCodePoint polymorphCodePoint) {
         var categoryName = polymorphCodePoint.EntryData.CategoryName;
         if (categoryName == "Microsoft.AspNetCore.Hosting.Diagnostics") {
             var eventId = polymorphCodePoint.EntryData.EventId;

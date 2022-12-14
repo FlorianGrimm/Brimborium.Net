@@ -1,15 +1,5 @@
 namespace Brimborium.LocalObservability;
 
-public class PolymorphCodePoint {
-    public PolymorphCodePoint(LogEntryData entryData) {
-        this.ListActualCodePoint = new List<IActualCodePoint>();
-        this.EntryData = entryData;
-    }
-
-    public List<IActualCodePoint> ListActualCodePoint { get; }
-    public LogEntryData EntryData { get; }
-}
-
 /// <summary>
 /// Contains the actual code point and the values.
 /// </summary>

@@ -37,7 +37,7 @@ public interface IMatchingRule {
     MatchingKind Kind { get; }
     int Priority { get; }
     string Name { get; }
-    bool Match(PolymorphCodePoint polymorphCodePoint);
+    bool Match(ActualPolymorphCodePoint polymorphCodePoint);
 }
 
 /// <summary>
