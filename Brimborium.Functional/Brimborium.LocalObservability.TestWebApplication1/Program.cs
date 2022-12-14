@@ -23,7 +23,7 @@ namespace Brimborium.LocalObservability.TestWebApplication1 {
             builder.Services.AddSingleton<IMatchingEngine, MatchingEngine>();
             builder.Services.AddSingleton<MatchingEngineOptions>((serviceProvider) => {
                 var result = new MatchingEngineOptions();
-                result.ListMatchingRule.Add(new ForAspNetCore.MatchingRuleForAspNetCore1Start());
+                result.ListMatchingRule.Add(new ForAspNetCore.MatchingRuleForAspNetCore());
                 return result;
             });
             var app = builder.Build();
