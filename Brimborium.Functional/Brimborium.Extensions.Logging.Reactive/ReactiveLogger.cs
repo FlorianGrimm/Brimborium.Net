@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
+﻿namespace Brimborium.Extensions.Logging.Reactive;
 
-namespace Brimborium.Extensions.Logging.Reactive;
 public class ReactiveLogger : ILogger {
     private readonly ReactiveLoggerProvider _Provider;
     private readonly string _CategoryName;

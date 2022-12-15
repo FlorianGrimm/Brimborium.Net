@@ -8,30 +8,32 @@ public class MatchingRuleForAspNetCore : IMatchingRule {
     public int Priority => 0;
     public string Name => "ForAspNetCore";
 
-    public bool Match(ActualPolymorphCodePoint polymorphCodePoint) {
-        var categoryName = polymorphCodePoint.EntryData.CategoryName;
-        if (categoryName == "Microsoft.AspNetCore.Hosting.Diagnostics") {
-            var eventId = polymorphCodePoint.EntryData.EventId;
-            if (eventId.Id == 1) {
-                var requestId = polymorphCodePoint.EntryData.GetValues().FirstOrDefault(kv => kv.Key == "RequestId").Value as string;
-                if (!string.IsNullOrEmpty(requestId)) {
-                    polymorphCodePoint.ListActualCodePoint.Add(
+    public bool Match(LogEntryData entryData, ActualPolymorphCodePoint polymorphCodePoint) {
+        var requestId = entryData.GetValues().FirstOrDefault(kv => kv.Key == "RequestId").Value as string;
+        if (!string.IsNullOrEmpty(requestId)) {
+            var categoryName = entryData.CategoryName;
+            if (categoryName == "Microsoft.AspNetCore.Hosting.Diagnostics") {
+                var eventId = entryData.EventId;
+                if (eventId.Id == 1) {
+                    polymorphCodePoint.AddActualCodePoint(
                         new ActualCodePoint(
                             WaypointsForAspNetCore.RequestStart,
                             new RequestIdValues(requestId)));
-                    return true;
-                };
-            }
-            if (eventId.Id == 2) {
-                var requestId = polymorphCodePoint.EntryData.GetValues().FirstOrDefault(kv => kv.Key == "RequestId").Value as string;
-                if (!string.IsNullOrEmpty(requestId)) {
-                    polymorphCodePoint.ListActualCodePoint.Add(
+                    return false;
+                }
+                if (eventId.Id == 2) {
+                    polymorphCodePoint.AddActualCodePoint(
                         new ActualCodePoint(
                             WaypointsForAspNetCore.RequestStop,
                             new RequestIdValues(requestId)));
-                    return true;
-                };
+                    return false;
+                }
             }
+            polymorphCodePoint.AddActualCodePoint(
+                new ActualCodePoint(
+                        WaypointsForAspNetCore.RequestMember,
+                        new RequestIdValues(requestId)));
+            return false;
         }
         return false;
     }
@@ -48,4 +50,3 @@ public record class RequestIdValues(
         return this.GetEnumerator();
     }
 }
-

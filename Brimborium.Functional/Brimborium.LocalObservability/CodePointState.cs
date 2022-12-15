@@ -1,12 +1,18 @@
-using System.Linq.Expressions;
-
 namespace Brimborium.LocalObservability;
 
 public class CodePointState : ICodePointState {
     private Dictionary<string, ConcurrentDictionary<string, ICodePointState>>? _Child;
     private Dictionary<string, object>? _Values;
+    public readonly List<ActualPolymorphCodePoint> CodePoints;
+    private readonly ICodePointState? _Parent;
 
     public CodePointState() {
+        this.CodePoints= new List<ActualPolymorphCodePoint>();
+        this._Parent= null;
+    }
+    public CodePointState(ICodePointState parent) {
+        this.CodePoints = new List<ActualPolymorphCodePoint>();
+        this._Parent = parent;
     }
 
     public ICodePointState CreateChild(string childName, string childKey) {
@@ -15,7 +21,7 @@ public class CodePointState : ICodePointState {
         if (this_Child is null) {
             this_Child = new Dictionary<string, ConcurrentDictionary<string, ICodePointState>>();
             dictChildKey = new ConcurrentDictionary<string, ICodePointState>();
-            dictChildKey.TryAdd(childKey, new CodePointState());
+            dictChildKey.TryAdd(childKey, new CodePointState(this));
             this_Child.Add(childName, dictChildKey);
             this._Child = this_Child;
         }
@@ -34,7 +40,7 @@ public class CodePointState : ICodePointState {
             if (dictChildKey.TryGetValue(childKey, out result)) {
                 return result;
             } else {
-                result = new CodePointState();
+                result = new CodePointState(this);
                 if (dictChildKey.TryAdd(childKey, result)) {
                     return result;
                 }
@@ -82,5 +88,9 @@ public class CodePointState : ICodePointState {
         } else {
             values[name] = value;
         }
+    }
+
+    public void Add(ActualPolymorphCodePoint codePoint) { 
+        this.CodePoints.Add(codePoint);
     }
 }

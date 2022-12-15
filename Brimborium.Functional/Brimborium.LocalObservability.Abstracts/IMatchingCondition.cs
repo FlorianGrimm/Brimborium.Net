@@ -1,4 +1,7 @@
-﻿namespace Brimborium.LocalObservability;
+﻿using System.Threading;
+using System.Threading.Channels;
+
+namespace Brimborium.LocalObservability;
 
 /// <summary>
 /// Combines the (log entry) data with an uniformed access to the data.
@@ -18,10 +21,16 @@ public record struct LogEntryData(
 public interface ILogEntryDataAccessor {
     string GetCategoryName(object data);
     EventId GetEventId(object data);
+    LogLevel GetLogLevel(object data);
+    Exception? GetException (object data);
+    DateTimeOffset GetTimeStamp (object data);
+    string GetLine(object data);
+    //List<object>? Scopes { get; }
+    //object? GetState();
+    IEnumerable<KeyValuePair<string, object>> GetScopeValues(object data);
+    IEnumerable<KeyValuePair<string, object>> GetStateValues(object data);
     IEnumerable<KeyValuePair<string, object>> GetValues(object data);
 }
-
-// public interface IEnumerableIEnumerable : IEnumerable<KeyValuePair<string, object>> {}
 
 public enum MatchingKind {
     Start,
@@ -37,7 +46,14 @@ public interface IMatchingRule {
     MatchingKind Kind { get; }
     int Priority { get; }
     string Name { get; }
-    bool Match(ActualPolymorphCodePoint polymorphCodePoint);
+
+    /// <summary>
+    /// If this rule matches the polymorphCodePoint.EntryData 
+    /// it's stores the CodePoint the given polymorphCodePoint.MatchedActualCodePoint
+    /// </summary>
+    /// <param name="polymorphCodePoint">the item to match</param>
+    /// <returns>true to skip this and stop matching</returns>
+    bool Match(LogEntryData entryData, ActualPolymorphCodePoint polymorphCodePoint);
 }
 
 /// <summary>
@@ -48,24 +64,18 @@ public interface IMatchingEngine {
     void Match(LogEntryData entry);
 }
 
-public interface IProxyStateLogEntry : IEnumerable<KeyValuePair<string, object>> {
+public interface IIncidentProcessingEngine1 {
+ 
+    // external
+    void SetReport(IActualCodePoint acp, string message);
+    void SetReport(ActualPolymorphCodePoint actualPolymorphCodePoint, string message);
+    void SetTerminating(IActualCodePoint acp, ICodePointState codePointState);
 }
+public interface IIncidentProcessingEngine2: IIncidentProcessingEngine1 {
+    // internal
+    ChannelWriter<ActualPolymorphCodePoint> GetChannelWriter();
+    Task Execute(CancellationToken stoppingToken);
 
-public interface IStateTransition {
-    bool DoesActualCodePointMatch(IActualCodePoint actualCodePoint);
-    ICodePointState Execute(IActualCodePoint actualCodePoint, ICodePointState codePointState);
 }
-
-public interface ICodePointState {
-    ICodePointState CreateChild(string childName, string childKey);
-    ICodePointState? GetChild(string childName, string childKey);
-    ICodePointState? RemoveChild(string childName, string childKey);
-    object? GetValue(string name);
-    void SetValue(string name, object? value);
-}
-
-public interface IStatefullEngine {
-    //ICodePointState CreateState();
-    //void Match(IMatchingRule matchingRule, IMatchingEngine matchingEngine);
-    //void Match(IMatchingRule matchingRule, IMatchingEngine matchingEngine);
-}
+//public interface IProxyStateLogEntry : IEnumerable<KeyValuePair<string, object>> {
+//}

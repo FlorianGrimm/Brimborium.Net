@@ -2,10 +2,10 @@
 
 
 public interface ILogEntry {
+    //TState state { get; }
     string CategoryName { get; }
     LogLevel LogLevel { get; }
     EventId EventId { get; }
-    //TState state { get; }
     Exception? Exception { get; }
     DateTimeOffset TimeStamp { get; }
     string Line { get; }
@@ -13,7 +13,7 @@ public interface ILogEntry {
     object? GetState();
 }
 
-public record LogEntry<TState>(
+public record struct LogEntry<TState>(
     string CategoryName,
     LogLevel LogLevel,
     EventId EventId,

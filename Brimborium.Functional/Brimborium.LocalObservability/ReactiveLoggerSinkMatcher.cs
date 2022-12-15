@@ -9,7 +9,6 @@ public class ReactiveLoggerSinkMatcher
         IMatchingEngine matchingEngine
         ) {
         this._MatchingEngine = matchingEngine;
-        //this.SourceMatches = new Subject<object>();
     }
 
     public IDisposable Subscribe(IReactiveLoggerSource reactiveLoggerSource) {
@@ -18,13 +17,17 @@ public class ReactiveLoggerSinkMatcher
 
     public void OnNext(ILogEntry logEntry) {
         // HACK for now
-        System.Console.WriteLine(logEntry.ToString());
-        if (logEntry.Scopes is not null) {
-            foreach (var scope in logEntry.Scopes) {
-                System.Console.WriteLine(scope);
-            }
+        //System.Console.WriteLine(logEntry.ToString());
+        //if (logEntry.Scopes is not null) {
+        //    foreach (var scope in logEntry.Scopes) {
+        //        System.Console.WriteLine(scope);
+        //    }
+        //}
+        try {
+            this._MatchingEngine.Match(new LogEntryData(logEntry, LogEntryDataAccessor.GetInstance()));
+        } catch (Exception error) {
+#warning error
         }
-        this._MatchingEngine.Match(new LogEntryData(logEntry, LogEntryDataAccessor.GetInstance()));
     }
 
     public void OnCompleted() {

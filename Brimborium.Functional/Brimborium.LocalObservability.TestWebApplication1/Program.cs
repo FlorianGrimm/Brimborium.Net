@@ -1,8 +1,12 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 namespace Brimborium.LocalObservability.TestWebApplication1 {
     public class Program {
         public static void Main(string[] args) {
             var builder = WebApplication.CreateBuilder(args);
             builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
             builder.Logging.AddReactiveLogger((reactiveLoggerOptions) => {
                 reactiveLoggerOptions.IncludeScopes = true;
             });
@@ -21,13 +25,17 @@ namespace Brimborium.LocalObservability.TestWebApplication1 {
             // TODO builder
             builder.Services.AddSingleton<IReactiveLoggerSink, Brimborium.LocalObservability.ReactiveLoggerSinkMatcher>();
             builder.Services.AddSingleton<IMatchingEngine, MatchingEngine>();
+            builder.Services.AddSingleton<IncidentProcessingEngine, IncidentProcessingEngine>();
+            builder.Services.AddSingleton<IIncidentProcessingEngine1>((sp)=>sp.GetRequiredService<IncidentProcessingEngine>());
+            builder.Services.AddSingleton<IIncidentProcessingEngine2>((sp)=>sp.GetRequiredService<IncidentProcessingEngine>());
             builder.Services.AddSingleton<MatchingEngineOptions>((serviceProvider) => {
                 var result = new MatchingEngineOptions();
                 result.ListMatchingRule.Add(new ForAspNetCore.MatchingRuleForAspNetCore());
+                result.ListStateTransition.Add(new ForAspNetCore.StateTransitionForAspNetCore());
                 return result;
             });
+            builder.Services.AddHostedService<IncidentProcessingEngineHostedService>();
             var app = builder.Build();
-            
             app.Services.UseServiceReactiveLoggerSource();
 
             // Configure the HTTP request pipeline.

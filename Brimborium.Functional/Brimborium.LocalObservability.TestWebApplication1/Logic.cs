@@ -72,7 +72,7 @@ namespace Brimborium.LocalObservability.TestWebApplication1 {
                 return page.RedirectToPage("cheat");
             }
             if (step.Effect == 4) {
-                return page.RedirectToPage("index   ");
+                return page.RedirectToPage("index");
             }
             return page.Page();
         }

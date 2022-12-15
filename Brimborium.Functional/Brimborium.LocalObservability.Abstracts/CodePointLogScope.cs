@@ -22,12 +22,12 @@ public class CodePointLogScope : IReadOnlyList<KeyValuePair<string, object?>> {
     }
 
     public override string ToString() {
-        if (_cachedToString == null) {
+        if (this._cachedToString == null) {
 
-            _cachedToString = $"CodePoint: {this._CodePoint}";
+            this._cachedToString = $"CodePoint: {this._CodePoint}";
         }
 
-        return _cachedToString;
+        return this._cachedToString;
     }
 
     public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() {

@@ -7,6 +7,7 @@ public interface IActualCodePoint {
     CodePoint CodePoint { get; }
 
     IEnumerable<KeyValuePair<string, object>> Values { get; }
+    ActualPolymorphCodePoint? Container { get; set; }
 }
 
 /// <summary>
@@ -23,4 +24,5 @@ public class ActualCodePoint : IActualCodePoint {
 
     public CodePoint CodePoint { get; }
     public IEnumerable<KeyValuePair<string, object>> Values { get; }
+    public ActualPolymorphCodePoint? Container { get; set; }
 }
