@@ -26,7 +26,7 @@ public class BatchingLogger : ILogger {
     }
 
     public IDisposable BeginScope<TState>(TState state) 
-        // where TState : notnull
+        where TState : notnull
         => this._provider.ScopeProvider?.Push(state) ?? NullScope.Instance;
 
     public bool IsEnabled(LogLevel logLevel) {

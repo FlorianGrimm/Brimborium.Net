@@ -17,7 +17,11 @@ namespace Brimborium.Registrator {
         /// <param name="services"></param>
         public static void AddAttributtedServices(this IServiceCollection services, Func<AssemblyName, bool>? predicate) {
             services.AddServicesWithRegistrator(scan => {
-                var implementationTypeSelector = scan.FromApplicationDependencies(DependencyContext.Default,predicate);
+                var defaultContext = DependencyContext.Default;
+                if (defaultContext is null) {
+                    throw new InvalidOperationException("DependencyContext.Default is null");
+                }
+                var implementationTypeSelector = scan.FromApplicationDependencies(defaultContext, predicate);
                 services.AddAttributtedServices(implementationTypeSelector);
             });
         }

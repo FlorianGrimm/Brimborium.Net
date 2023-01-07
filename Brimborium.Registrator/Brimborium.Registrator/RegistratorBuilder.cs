@@ -19,7 +19,11 @@ namespace Brimborium.Registrator {
         public void Build() {
             this._Services.AddServicesWithRegistrator(
                 (ITypeSourceSelector typeSourceSelector) => {
-                    var implementationTypeSelector = typeSourceSelector.FromDependencyContext(DependencyContext.Default);
+                    var defaultContext = DependencyContext.Default;
+                    if (defaultContext is null) {
+                        throw new InvalidOperationException("DependencyContext.Default is null");
+                    }
+                    var implementationTypeSelector = typeSourceSelector.FromDependencyContext(defaultContext);
                     //implementationTypeSelector.AddClasses()
                 },
                 (ISelectorTarget selectorTarget) => { 

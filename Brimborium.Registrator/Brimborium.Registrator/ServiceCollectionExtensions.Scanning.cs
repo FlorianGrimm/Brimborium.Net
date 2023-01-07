@@ -32,7 +32,11 @@ namespace Microsoft.Extensions.DependencyInjection {
             if (actionAdd is not null) {
                 actionAdd(selector);
             } else {
-                selector.FromApplicationDependencies(DependencyContext.Default)
+                var defaultContext = DependencyContext.Default;
+                if (defaultContext is null) {
+                    throw new InvalidOperationException("DependencyContext.Default is null");
+                }
+                selector.FromApplicationDependencies(defaultContext)
                     .AddClasses()
                     .UsingAttributes();
             }
