@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 using Microsoft.Extensions.Configuration;
@@ -38,7 +39,6 @@ public static class LocalFileLoggerFactoryExtensions {
         // Only add the provider if we're in Azure WebApp. That cannot change once the apps started
         return builder.AddWebAppDiagnostics(context, configuration, configureBlobLoggerOptions);
     }
-
 
     /// <summary>
     /// Adds an Azure Web Apps diagnostics logger.
@@ -117,13 +117,37 @@ public static class LocalFileLoggerFactoryExtensions {
         }
 
         if (addedLocalFileLogger) {
-            services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateLocalFileFilterConfigureOptions(configuration));
+            if (services.Any(sd => sd.ServiceType == typeof(IConfigureOptions<LoggerFilterOptions>))) {
+            } else {
+                services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(CreateLocalFileFilterConfigureOptions(configuration));
+            }
             services.AddSingleton<IConfigureOptions<LocalFileLoggerOptions>>(new LocalFileLoggerConfigureOptions(configuration, context));
             services.AddSingleton<IOptionsChangeTokenSource<LocalFileLoggerOptions>>(
                 new ConfigurationChangeTokenSource<LocalFileLoggerOptions>(configuration));
             LoggerProviderOptions.RegisterProviderOptions<LocalFileLoggerOptions, LocalFileLoggerProvider>(builder.Services);
         }
 
+        return builder;
+    }
+    public static ILoggingBuilder AddLocalFileLogger(
+        this ILoggingBuilder builder,
+        IConfiguration configuration) {
+        var context = WebAppContext.Default;
+        return AddLocalFileLogger(builder, context, configuration);
+    }
+    public static ILoggingBuilder AddLocalFileLogger(
+        this ILoggingBuilder builder,
+        WebAppContext context,
+        IConfiguration configuration
+        ) {
+        var services = builder.Services;
+        var addedLocalFileLogger = TryAddEnumerable(services, Singleton<ILoggerProvider, LocalFileLoggerProvider>());
+        if (addedLocalFileLogger) {
+            services.AddSingleton<IConfigureOptions<LocalFileLoggerOptions>>(new LocalFileLoggerConfigureOptions(configuration, context, true));
+            services.AddSingleton<IOptionsChangeTokenSource<LocalFileLoggerOptions>>(
+                new ConfigurationChangeTokenSource<LocalFileLoggerOptions>(configuration));
+            LoggerProviderOptions.RegisterProviderOptions<LocalFileLoggerOptions, LocalFileLoggerProvider>(builder.Services);
+        }
         return builder;
     }
 
