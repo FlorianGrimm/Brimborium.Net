@@ -24,7 +24,7 @@ public class ConfigureOptionsTests
             }).Build();
 
         var options = new BatchingLoggerOptions();
-        new BatchLoggerConfigureOptions(configuration, "IsEnabledKey").Configure(options);
+        new BatchLoggerConfigureOptions(configuration, "IsEnabledKey", false).Configure(options);
 
         Assert.Equal(enabled ?? false, options.IsEnabled);
     }
