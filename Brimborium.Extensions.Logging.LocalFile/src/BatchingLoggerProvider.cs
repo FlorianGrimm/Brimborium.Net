@@ -80,7 +80,7 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     /// </summary>
     public bool UseUtcTimestamp { get; set; }
 
-    private void UpdateOptions(BatchingLoggerOptions options) {
+    protected virtual void UpdateOptions(BatchingLoggerOptions options) {
         var oldIsEnabled = this.IsEnabled;
         this.IsEnabled = options.IsEnabled;
         this.UseJSONFormat = options.UseJSONFormat;

@@ -12,7 +12,7 @@ public class FileBasedLoggerOptions : BatchingLoggerOptions
 {
     private int? _fileSizeLimit = 10 * 1024 * 1024;
     private int? _retainedFileCountLimit = 2;
-    private string _fileName = "diagnostics-";
+    private string _FileName = "diagnostics-";
 
     /// <summary>
     /// Gets or sets a strictly positive value representing the maximum log size in bytes or null for no limit.
@@ -56,16 +56,19 @@ public class FileBasedLoggerOptions : BatchingLoggerOptions
     /// </summary>
     public string FileName
     {
-        get { return this._fileName; }
+        get { return this._FileName; }
         set
         {
             if (string.IsNullOrEmpty(value))
             {
                 throw new ArgumentNullException(nameof(value));
             }
-            this._fileName = value;
+            this._FileName = value;
         }
     }
 
+    /// <summary>
+    /// The directory in which log files will be written, relative to the app process.
+    /// </summary>
     public string? LogDirectory { get; set; }
 }
