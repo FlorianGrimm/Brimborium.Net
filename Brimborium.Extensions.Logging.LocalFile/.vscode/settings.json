@@ -1,0 +1,4 @@
+{
+    "dotnet-test-explorer.testProjectPath": "test/Brimborium.Extensions.Logging.LocalFile.Test.csproj",
+    "x":"abc/abc.test/abc.test.csproj"
+}
