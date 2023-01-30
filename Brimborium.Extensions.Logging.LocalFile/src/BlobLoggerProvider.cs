@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,11 +20,19 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 /// The <see cref="ILoggerProvider"/> implementation that stores messages by appending them to Azure Blob in batches.
 /// </summary>
 [ProviderAlias("AzureAppServicesBlob")]
-public class BlobLoggerProvider : BatchingLoggerProvider
-{
+public class BlobLoggerProvider : BatchingLoggerProvider {
+    public static BlobLoggerProvider Create(
+        IOptionsMonitor<AzureBlobLoggerOptions> options,
+        Func<string, ICloudAppendBlob>? blobReferenceFactory
+        )
+        => new BlobLoggerProvider(
+            options,
+            blobReferenceFactory);
+
     private readonly IOptionsMonitor<AzureBlobLoggerOptions> _options;
-    private readonly Func<string, ICloudAppendBlob>? _blobReferenceFactory;
+    private readonly Func<string, ICloudAppendBlob> _blobReferenceFactory;
     private readonly HttpClient _httpClient;
+    private AzureBlobLoggerOptions _CurrentOptions;
 
     /// <summary>
     /// Creates a new instance of <see cref="BlobLoggerProvider"/>
@@ -31,12 +40,7 @@ public class BlobLoggerProvider : BatchingLoggerProvider
     /// <param name="options">The options to use when creating a provider.</param>
     [SuppressMessage("ApiDesign", "RS0022:Constructor make noninheritable base class inheritable", Justification = "Required for backwards compatibility")]
     public BlobLoggerProvider(IOptionsMonitor<AzureBlobLoggerOptions> options)
-        : this(options, null!)
-    {
-        this._blobReferenceFactory = name => new BlobAppendReferenceWrapper(
-            options.CurrentValue.ContainerUrl ?? throw new ArgumentException("options.CurrentValue.ContainerUrl is null"),
-            name,
-            this._httpClient);
+        : this(options, null) {
     }
 
     /// <summary>
@@ -46,25 +50,36 @@ public class BlobLoggerProvider : BatchingLoggerProvider
     /// <param name="options">Options to be used in creating a logger.</param>
     internal protected BlobLoggerProvider(
         IOptionsMonitor<AzureBlobLoggerOptions> options,
-        Func<string, ICloudAppendBlob>? blobReferenceFactory) :
-        base(options)
-    {
+        Func<string, ICloudAppendBlob>? blobReferenceFactory
+        ) : base(options) {
         this._options = options;
-        this._blobReferenceFactory = blobReferenceFactory;
+        this._CurrentOptions = options.CurrentValue;
+        this._blobReferenceFactory = blobReferenceFactory ?? defaultBlobReferenceFactory;
         this._httpClient = new HttpClient();
+        this._options.OnChange(optionsOnChange);
     }
 
-    internal protected override async Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken cancellationToken)
-    {
+    private void optionsOnChange(
+        AzureBlobLoggerOptions options, string? name
+        ) {
+        this._CurrentOptions = options;
+    }
+    
+    private ICloudAppendBlob defaultBlobReferenceFactory(string name)
+        => new BlobAppendReferenceWrapper(
+            this._CurrentOptions.ContainerUrl ?? throw new ArgumentException("options.CurrentValue.ContainerUrl is null"),
+            name,
+            this._httpClient);
+
+    internal protected override async Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken cancellationToken) {
         var eventGroups = messages.GroupBy(this.GetBlobKey);
         var options = this._options.CurrentValue;
         var identifier = options.ApplicationInstanceId + "_" + options.BlobName;
 
-        foreach (var eventGroup in eventGroups)
-        {
+        foreach (var eventGroup in eventGroups) {
             var key = eventGroup.Key;
             string blobName = options.FileNameFormat(new AzureBlobLoggerContext(
-                options.ApplicationName?? throw new ArgumentException("options.ApplicationName is null"),
+                options.ApplicationName ?? throw new ArgumentException("options.ApplicationName is null"),
                 identifier,
                 new DateTimeOffset(key.Year, key.Month, key.Day, key.Hour, 0, 0, TimeSpan.Zero)));
 
@@ -73,27 +88,22 @@ public class BlobLoggerProvider : BatchingLoggerProvider
             }
             var blob = this._blobReferenceFactory(blobName);
 
-            using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream))
-            {
-                foreach (var logEvent in eventGroup)
-                {
-                    writer.Write(logEvent.Message);
-                }
+            using (var stream = new MemoryStream()) {
+                using (var writer = new StreamWriter(stream)) {
+                    foreach (var logEvent in eventGroup) {
+                        writer.Write(logEvent.Message);
+                    }
 
-                await writer.FlushAsync().ConfigureAwait(false);
-                var tryGetBuffer = stream.TryGetBuffer(out var buffer);
-                System.Diagnostics.Debug.Assert(tryGetBuffer);
-                await blob.AppendAsync(buffer, cancellationToken).ConfigureAwait(false);
+                    await writer.FlushAsync().ConfigureAwait(false);
+                    var tryGetBuffer = stream.TryGetBuffer(out var buffer);
+                    System.Diagnostics.Debug.Assert(tryGetBuffer);
+                    await blob.AppendAsync(buffer, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
     }
 
-    private (int Year, int Month, int Day, int Hour) GetBlobKey(LogMessage e)
-    {
-        return (e.Timestamp.Year,
-            e.Timestamp.Month,
-            e.Timestamp.Day,
-            e.Timestamp.Hour);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private FileGroupingYMDH GetBlobKey(LogMessage message) 
+        => FileGroupingYMDH.FromDateTimeOffset(message.Timestamp);
 }

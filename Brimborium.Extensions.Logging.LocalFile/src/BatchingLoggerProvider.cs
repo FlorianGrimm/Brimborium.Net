@@ -1,15 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
+using Brimborium.Extensions.Logging.LocalFile.Formatters;
 
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Brimborium.Extensions.Logging.LocalFile;
 
@@ -18,27 +12,24 @@ namespace Brimborium.Extensions.Logging.LocalFile;
 /// </summary>
 public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternalScope {
     private readonly List<LogMessage> _currentBatch = new List<LogMessage>();
-    private readonly TimeSpan _interval;
-    private readonly int? _queueSize;
-    private readonly int? _batchSize;
-    private readonly IDisposable? _optionsChangeToken;
+    private readonly TimeSpan _Interval;
+    private readonly int _QueueSize;
+    private readonly long _BatchSize;
+    private IDisposable? _OptionsChangeToken;
 
-    private int _messagesDropped;
+    private bool _Started;
+    private BlockingCollection<LogMessage>? _MessageQueue;
+    private Task? _OutputTask;
+    private CancellationTokenSource? _CancellationTokenSource;
+    private long _MessagesDropped;
 
-    private BlockingCollection<LogMessage>? _messageQueue;
-    private Task? _outputTask;
-    private CancellationTokenSource? _cancellationTokenSource;
+    private BatchingLoggerState _BatchingLoggerState;
+    protected ILogFormatterB? _LogFormatter;
 
-    private bool _includeScopes;
-    private IExternalScopeProvider? _scopeProvider;
-
-
-    internal protected IExternalScopeProvider? ScopeProvider => this._includeScopes ? this._scopeProvider : null;
-
-    internal protected bool IncludeScopes => this._includeScopes;
-
-    internal protected BatchingLoggerProvider(IOptionsMonitor<BatchingLoggerOptions> options) {
-        // NOTE: Only IsEnabled is monitored
+    internal protected BatchingLoggerProvider(
+        IOptionsMonitor<BatchingLoggerOptions> options
+        ) {
+        this._BatchingLoggerState = BatchingLoggerState.Empty();
 
         var loggerOptions = options.CurrentValue;
         if (loggerOptions.BatchSize <= 0) {
@@ -48,88 +39,108 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
             throw new ArgumentOutOfRangeException(nameof(loggerOptions.FlushPeriod), $"{nameof(loggerOptions.FlushPeriod)} must be longer than zero.");
         }
 
-        this._interval = loggerOptions.FlushPeriod;
-        this._batchSize = loggerOptions.BatchSize;
-        this._queueSize = loggerOptions.BackgroundQueueSize;
+        this._Interval = loggerOptions.FlushPeriod;
+        this._BatchSize = loggerOptions.BatchSize ?? long.MaxValue;
+        this._QueueSize = loggerOptions.BackgroundQueueSize ?? 0;
 
-        this._optionsChangeToken = options.OnChange(this.UpdateOptions);
+
+        this._OptionsChangeToken = options.OnChange(this.UpdateOptions);
         this.UpdateOptions(options.CurrentValue);
     }
 
+    public BatchingLoggerState GetBatchingLoggerState()
+        => this._BatchingLoggerState;
 
+    internal protected virtual ILogFormatterB GetLogFormatter()
+        => this._LogFormatter ??= this.CreateLogFormatter<AzureLogFormatter>();
 
-    /// <summary>
-    /// Checks if the queue is enabled.
-    /// </summary>
-    public bool IsEnabled { get; private set; }
+    protected ILogFormatterB CreateLogFormatter<T>()
+        where T : ILogFormatterB, new() {
 
-    public bool UseJSONFormat { get; private set; }
+        if (this._BatchingLoggerState.LogFormatter is not null) {
+            return this._BatchingLoggerState.LogFormatter;
+        }
 
-    public bool IncludeEventId { get; private set; }
-
-    public JsonWriterOptions JsonWriterOptions { get; private set; }
-
-    /// <summary>
-    /// Gets or sets format string used to format timestamp in logging messages. Defaults to <c>null</c>.
-    /// </summary>
-    //[StringSyntax(StringSyntaxAttribute.DateTimeFormat)]
-    public string? TimestampFormat { get; set; }
-
-    /// <summary>
-    /// Gets or sets indication whether or not UTC timezone should be used to format timestamps in logging messages. Defaults to <c>false</c>.
-    /// </summary>
-    public bool UseUtcTimestamp { get; set; }
+        if (!string.IsNullOrEmpty(this._BatchingLoggerState.UseLogFormatter)) {
+            var logFormatter = LogFormatterBFactory.GetInstance().CreateILogFormatterB(
+                this._BatchingLoggerState.UseLogFormatter);
+            if (logFormatter is not null) {
+                return logFormatter;
+            }
+        }
+        {
+            return new T();
+        }
+    }
 
     protected virtual void UpdateOptions(BatchingLoggerOptions options) {
-        var oldIsEnabled = this.IsEnabled;
-        this.IsEnabled = options.IsEnabled;
-        this.UseJSONFormat = options.UseJSONFormat;
-        this.TimestampFormat = options.TimestampFormat;
-        this.UseUtcTimestamp = options.UseUtcTimestamp;
-        this.IncludeEventId = options.IncludeEventId;
-        this.JsonWriterOptions = options.JsonWriterOptions;
+        var oldState = this._BatchingLoggerState;
+        var currentState = new BatchingLoggerState(
+            IncludeScopes: options.IncludeScopes,
+            ScopeProvider: this._BatchingLoggerState.ScopeProvider,
+            IsEnabled: options.IsEnabled,
+            IncludeEventId: options.IncludeEventId,
+            JsonWriterOptions: options.JsonWriterOptions,
+            TimestampFormat: options.TimestampFormat,
+            UseUtcTimestamp: options.UseUtcTimestamp,
+            UseLogFormatter: options.UseLogFormatter,
+            LogFormatter: options.LogFormatter
+            );
+        this._BatchingLoggerState = currentState;
 
-        this._includeScopes = options.IncludeScopes;
+        if (!(ReferenceEquals(oldState.LogFormatter, currentState.LogFormatter)
+            && string.Equals(oldState.UseLogFormatter, currentState.UseLogFormatter, StringComparison.OrdinalIgnoreCase)
+            )) {
+            this._LogFormatter = null;
+        }
 
-        if (oldIsEnabled != this.IsEnabled) {
-            if (this.IsEnabled) {
+        if (oldState.IsEnabled != currentState.IsEnabled) {
+            if (currentState.IsEnabled) {
                 this.Start();
             } else {
                 this.Stop();
             }
         }
-
     }
 
     internal protected abstract Task WriteMessagesAsync(IEnumerable<LogMessage> messages, CancellationToken token);
 
     private async Task ProcessLogQueue() {
-        if (this._cancellationTokenSource is null) { throw new ArgumentException("_cancellationTokenSource is null"); }
-        if (this._messageQueue is null) { throw new ArgumentException("_messageQueue is null"); }
+        if (this._CancellationTokenSource is null) { throw new ArgumentException("_cancellationTokenSource is null"); }
+        if (this._MessageQueue is null) { throw new ArgumentException("_messageQueue is null"); }
 
-        while (!this._cancellationTokenSource.IsCancellationRequested) {
-            var limit = this._batchSize ?? int.MaxValue;
+        while (!this._CancellationTokenSource.IsCancellationRequested) {
+            var limit = this._BatchSize;
 
-            while (limit > 0 && this._messageQueue.TryTake(out var message)) {
-                this._currentBatch.Add(message);
-                limit--;
+            if (System.Threading.Interlocked.Read(ref this._MessagesDropped) == 0) {
+                if (this._MessageQueue.TryTake(out var message, 60000, this._CancellationTokenSource.Token)) {
+                    this._currentBatch.Add(message);
+                    limit--;
+                }
             }
 
-            var messagesDropped = Interlocked.Exchange(ref this._messagesDropped, 0);
+            {
+                while (limit > 0 && this._MessageQueue.TryTake(out var message)) {
+                    this._currentBatch.Add(message);
+                    limit--;
+                }
+            }
+
+            var messagesDropped = Interlocked.Exchange(ref this._MessagesDropped, 0);
             if (messagesDropped != 0) {
                 this._currentBatch.Add(new LogMessage(DateTimeOffset.Now, $"{messagesDropped} message(s) dropped because of queue size limit. Increase the queue size or decrease logging verbosity to avoid this.{Environment.NewLine}"));
             }
 
             if (this._currentBatch.Count > 0) {
                 try {
-                    await this.WriteMessagesAsync(this._currentBatch, this._cancellationTokenSource.Token).ConfigureAwait(false);
+                    await this.WriteMessagesAsync(this._currentBatch, this._CancellationTokenSource.Token).ConfigureAwait(false);
                 } catch {
                     // ignored
                 }
 
                 this._currentBatch.Clear();
             } else {
-                await this.IntervalAsync(this._interval, this._cancellationTokenSource.Token).ConfigureAwait(false);
+                await this.IntervalAsync(this._Interval, this._CancellationTokenSource.Token).ConfigureAwait(false);
             }
         }
     }
@@ -145,17 +156,17 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     }
 
     internal protected void AddMessage(DateTimeOffset timestamp, string message) {
-        if (this._messageQueue is null) { throw new ArgumentException("_messageQueue is null"); }
+        if (this._MessageQueue is null) { throw new ArgumentException("_messageQueue is null"); }
 
-        if (!this._messageQueue.IsAddingCompleted) {
+        if (!this._MessageQueue.IsAddingCompleted) {
             try {
-                if (!this._messageQueue.TryAdd(
+                if (!this._MessageQueue.TryAdd(
                    item: new LogMessage(timestamp, message),
                     millisecondsTimeout: 0,
-                    cancellationToken: (this._cancellationTokenSource is null)
+                    cancellationToken: (this._CancellationTokenSource is null)
                     ? CancellationToken.None
-                    : this._cancellationTokenSource.Token)) {
-                    Interlocked.Increment(ref this._messagesDropped);
+                    : this._CancellationTokenSource.Token)) {
+                    Interlocked.Increment(ref this._MessagesDropped);
                 }
             } catch {
                 //cancellation token canceled or CompleteAdding called
@@ -164,20 +175,26 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     }
 
     private void Start() {
-        this._messageQueue = this._queueSize == null ?
-            new BlockingCollection<LogMessage>(new ConcurrentQueue<LogMessage>()) :
-            new BlockingCollection<LogMessage>(new ConcurrentQueue<LogMessage>(), this._queueSize.Value);
+        if (this._Started) { return; }
+        this._Started = true;
 
-        this._cancellationTokenSource = new CancellationTokenSource();
-        this._outputTask = Task.Run(this.ProcessLogQueue);
+        this._MessageQueue = this._QueueSize <= 0 ?
+            new BlockingCollection<LogMessage>(new ConcurrentQueue<LogMessage>()) :
+            new BlockingCollection<LogMessage>(new ConcurrentQueue<LogMessage>(), this._QueueSize);
+
+        this._CancellationTokenSource = new CancellationTokenSource();
+        this._OutputTask = Task.Run(this.ProcessLogQueue);
     }
 
     private void Stop() {
-        this._cancellationTokenSource?.Cancel();
-        this._messageQueue?.CompleteAdding();
+        if (!this._Started) { return; }
+        this._Started = false;
+
+        this._CancellationTokenSource?.Cancel();
+        this._MessageQueue?.CompleteAdding();
 
         try {
-            this._outputTask?.Wait(this._interval);
+            this._OutputTask?.Wait(this._Interval);
         } catch (TaskCanceledException) {
         } catch (AggregateException ex) when (ex.InnerExceptions.Count == 1 && ex.InnerExceptions[0] is TaskCanceledException) {
         }
@@ -185,8 +202,8 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
 
     /// <inheritdoc/>
     public void Dispose() {
-        this._optionsChangeToken?.Dispose();
-        if (this.IsEnabled) {
+        this._OptionsChangeToken?.Dispose();
+        if (this._BatchingLoggerState.IsEnabled) {
             this.Stop();
         }
     }
@@ -205,6 +222,6 @@ public abstract class BatchingLoggerProvider : ILoggerProvider, ISupportExternal
     /// </summary>
     /// <param name="scopeProvider">Provides the scope.</param>
     void ISupportExternalScope.SetScopeProvider(IExternalScopeProvider scopeProvider) {
-        this._scopeProvider = scopeProvider;
+        this._BatchingLoggerState = this._BatchingLoggerState with { ScopeProvider = scopeProvider };
     }
 }
