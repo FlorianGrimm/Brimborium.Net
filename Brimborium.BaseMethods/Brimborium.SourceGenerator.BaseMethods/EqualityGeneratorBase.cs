@@ -85,8 +85,7 @@ internal class EqualityGeneratorBase {
               !(equatableInformationType.Explicit)
               || equatableInformationProperty.DefaultEquality) {
             sb.AppendLine(level,
-                $"&& global::Brimborium.BaseMethods.DefaultEqualityComparer<{typeName}>.GetDefault().Equals({propertyName}!, other.{propertyName}!)");
-                // $"&& global::Brimborium.BaseMethods.DefaultEqualityComparer<{typeName}>.Default.Equals({propertyName}!, other.{propertyName}!)");
+                $"&& global::Brimborium.BaseMethods.DefaultEqualityComparer<{typeName}>.Default.Equals({propertyName}!, other.{propertyName}!)");
         }
     }
 
@@ -157,7 +156,7 @@ internal class EqualityGeneratorBase {
         } else {
             //
             //sb.Append($"global::System.Collections.Generic.EqualityComparer<{typeName}>.Default");
-            sb.Append($"global::Brimborium.BaseMethods.DefaultEqualityComparer<{typeName}>.GetDefault()");
+            sb.Append($"global::Brimborium.BaseMethods.DefaultEqualityComparer<{typeName}>.Default");
         }
 
         sb.AppendLine(");");

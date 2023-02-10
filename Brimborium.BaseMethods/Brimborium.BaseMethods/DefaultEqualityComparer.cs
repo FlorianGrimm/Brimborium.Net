@@ -3,9 +3,8 @@
 public class DefaultEqualityComparer<T> : IEqualityComparer<T> {
     private static DefaultEqualityComparer<T>? _Default;
 
-    public static DefaultEqualityComparer<T> GetDefault()
+    public static DefaultEqualityComparer<T> Default
         => _Default ??= new DefaultEqualityComparer<T>();
-
 
     private static IEqualityComparer<T>? _UnderlyingEqualityComparer;
 

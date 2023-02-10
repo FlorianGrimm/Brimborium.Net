@@ -12,13 +12,13 @@ internal class ClassEqualityGenerator : EqualityGeneratorBase {
         sb.AppendLine(level, EqualsOperatorCodeComment);
         sb.AppendLine(level, GeneratedCodeAttributeDeclaration);
         sb.AppendLine(level, $"public static bool operator ==({symbolName}? left, {symbolName}? right)");
-        sb.AppendLine(level + 1, $" => global::Brimborium.BaseMethods.DefaultEqualityComparer<{symbolName}>.GetDefault().Equals(left, right);");
+        sb.AppendLine(level + 1, $" => global::Brimborium.BaseMethods.DefaultEqualityComparer<{symbolName}>.Default.Equals(left, right);");
         sb.AppendLine(level);
 
         sb.AppendLine(level, NotEqualsOperatorCodeComment);
         sb.AppendLine(level, GeneratedCodeAttributeDeclaration);
         sb.AppendLine(level, $"public static bool operator !=({symbolName}? left, {symbolName}? right)");
-        sb.AppendLine(level + 1, $" => !global::Brimborium.BaseMethods.DefaultEqualityComparer<{symbolName}>.GetDefault().Equals(left, right);");
+        sb.AppendLine(level + 1, $" => !global::Brimborium.BaseMethods.DefaultEqualityComparer<{symbolName}>.Default.Equals(left, right);");
         sb.AppendLine(level);
 
         sb.AppendLine(level, InheritDocComment);

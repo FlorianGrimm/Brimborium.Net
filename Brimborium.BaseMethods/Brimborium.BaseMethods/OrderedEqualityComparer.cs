@@ -7,7 +7,7 @@ public class OrderedEqualityComparer<T> : IEqualityComparer<IEnumerable<T>> {
 
     public IEqualityComparer<T> EqualityComparer { get; }
 
-    public OrderedEqualityComparer() : this(DefaultEqualityComparer<T>.GetDefault()) {
+    public OrderedEqualityComparer() : this(DefaultEqualityComparer<T>.Default) {
     }
 
     public OrderedEqualityComparer(IEqualityComparer<T> equalityComparer) {

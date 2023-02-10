@@ -16,7 +16,7 @@ namespace TestEffect.Classes
             /// <returns>true if the objects are equal; otherwise, false.</returns>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
             public static bool operator ==(global::TestEffect.Classes.ReferenceEquality.Sample? left, global::TestEffect.Classes.ReferenceEquality.Sample? right)
-                 => global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.ReferenceEquality.Sample>.GetDefault().Equals(left, right);
+                 => global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.ReferenceEquality.Sample>.Default.Equals(left, right);
             
             /// <summary>
             /// Indicates whether the object on the left is not equal to the object on the right.
@@ -26,7 +26,7 @@ namespace TestEffect.Classes
             /// <returns>true if the objects are not equal; otherwise, false.</returns>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
             public static bool operator !=(global::TestEffect.Classes.ReferenceEquality.Sample? left, global::TestEffect.Classes.ReferenceEquality.Sample? right)
-                 => !global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.ReferenceEquality.Sample>.GetDefault().Equals(left, right);
+                 => !global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.ReferenceEquality.Sample>.Default.Equals(left, right);
             
             /// <inheritdoc/>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]

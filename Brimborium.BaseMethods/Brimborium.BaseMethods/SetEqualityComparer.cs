@@ -5,7 +5,7 @@ public class SetEqualityComparer<T> : IEqualityComparer<IEnumerable<T>> {
 
     public IEqualityComparer<T> EqualityComparer { get; }
 
-    public SetEqualityComparer() : this(DefaultEqualityComparer<T>.GetDefault()) {
+    public SetEqualityComparer() : this(DefaultEqualityComparer<T>.Default) {
     }
 
     public SetEqualityComparer(IEqualityComparer<T> equalityComparer) {

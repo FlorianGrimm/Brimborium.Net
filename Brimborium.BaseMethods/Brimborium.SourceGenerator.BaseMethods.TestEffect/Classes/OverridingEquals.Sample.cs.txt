@@ -16,7 +16,7 @@ namespace TestEffect.Classes
             /// <returns>true if the objects are equal; otherwise, false.</returns>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
             public static bool operator ==(global::TestEffect.Classes.OverridingEquals.Person? left, global::TestEffect.Classes.OverridingEquals.Person? right)
-                 => global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.Person>.GetDefault().Equals(left, right);
+                 => global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.Person>.Default.Equals(left, right);
             
             /// <summary>
             /// Indicates whether the object on the left is not equal to the object on the right.
@@ -26,7 +26,7 @@ namespace TestEffect.Classes
             /// <returns>true if the objects are not equal; otherwise, false.</returns>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
             public static bool operator !=(global::TestEffect.Classes.OverridingEquals.Person? left, global::TestEffect.Classes.OverridingEquals.Person? right)
-                 => !global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.Person>.GetDefault().Equals(left, right);
+                 => !global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.Person>.Default.Equals(left, right);
             
             /// <inheritdoc/>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
@@ -39,7 +39,7 @@ namespace TestEffect.Classes
             {
                 return
                     !ReferenceEquals(other, null) && this.GetType() == other.GetType()
-                    && global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.GetDefault().Equals(Age!, other.Age!)
+                    && global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.Default.Equals(Age!, other.Age!)
                     ;
             }
             
@@ -52,7 +52,7 @@ namespace TestEffect.Classes
                 hashCode.Add(this.GetType());
                 hashCode.Add(
                     this.Age!,
-                    global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.GetDefault());
+                    global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.Default);
                 
                 return hashCode.ToHashCode();
             }
@@ -77,7 +77,7 @@ namespace TestEffect.Classes
             /// <returns>true if the objects are equal; otherwise, false.</returns>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
             public static bool operator ==(global::TestEffect.Classes.OverridingEquals.SeniorManager? left, global::TestEffect.Classes.OverridingEquals.SeniorManager? right)
-                 => global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.SeniorManager>.GetDefault().Equals(left, right);
+                 => global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.SeniorManager>.Default.Equals(left, right);
             
             /// <summary>
             /// Indicates whether the object on the left is not equal to the object on the right.
@@ -87,7 +87,7 @@ namespace TestEffect.Classes
             /// <returns>true if the objects are not equal; otherwise, false.</returns>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
             public static bool operator !=(global::TestEffect.Classes.OverridingEquals.SeniorManager? left, global::TestEffect.Classes.OverridingEquals.SeniorManager? right)
-                 => !global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.SeniorManager>.GetDefault().Equals(left, right);
+                 => !global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.OverridingEquals.SeniorManager>.Default.Equals(left, right);
             
             /// <inheritdoc/>
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
@@ -100,7 +100,7 @@ namespace TestEffect.Classes
             {
                 return
                     base.Equals(other as global::TestEffect.Classes.OverridingEquals.Manager)
-                    && global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.GetDefault().Equals(Shares!, other.Shares!)
+                    && global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.Default.Equals(Shares!, other.Shares!)
                     ;
             }
             
@@ -113,7 +113,7 @@ namespace TestEffect.Classes
                 hashCode.Add(base.GetHashCode());
                 hashCode.Add(
                     this.Shares!,
-                    global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.GetDefault());
+                    global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.Int32>.Default);
                 
                 return hashCode.ToHashCode();
             }
