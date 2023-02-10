@@ -1,0 +1,69 @@
+
+#nullable enable
+#pragma warning disable CS0612,CS0618
+
+namespace TestEffect.Classes
+{
+    partial class MultiplePartialsEquality
+    {
+        partial class Sample : global::System.IEquatable<Sample>
+        {
+            /// <summary>
+            /// Indicates whether the object on the left is equal to the object on the right.
+            /// </summary>
+            /// <param name="left">The left object</param>
+            /// <param name="right">The right object</param>
+            /// <returns>true if the objects are equal; otherwise, false.</returns>
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
+            public static bool operator ==(global::TestEffect.Classes.MultiplePartialsEquality.Sample? left, global::TestEffect.Classes.MultiplePartialsEquality.Sample? right)
+                 => global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.MultiplePartialsEquality.Sample>.GetDefault().Equals(left, right);
+            
+            /// <summary>
+            /// Indicates whether the object on the left is not equal to the object on the right.
+            /// </summary>
+            /// <param name="left">The left object</param>
+            /// <param name="right">The right object</param>
+            /// <returns>true if the objects are not equal; otherwise, false.</returns>
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
+            public static bool operator !=(global::TestEffect.Classes.MultiplePartialsEquality.Sample? left, global::TestEffect.Classes.MultiplePartialsEquality.Sample? right)
+                 => !global::Brimborium.BaseMethods.DefaultEqualityComparer<global::TestEffect.Classes.MultiplePartialsEquality.Sample>.GetDefault().Equals(left, right);
+            
+            /// <inheritdoc/>
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
+            public override bool Equals(object? obj) =>
+                Equals(obj as global::TestEffect.Classes.MultiplePartialsEquality.Sample);
+            
+            /// <inheritdoc/>
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
+            public bool Equals(global::TestEffect.Classes.MultiplePartialsEquality.Sample? other)
+            {
+                return
+                    !ReferenceEquals(other, null) && this.GetType() == other.GetType()
+                    && global::Brimborium.BaseMethods.OrderedEqualityComparer<string>.Default.Equals(Addresses!, other.Addresses!)
+                    && global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.String>.GetDefault().Equals(FirstName!, other.FirstName!)
+                    && global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.String>.GetDefault().Equals(LastName!, other.LastName!)
+                    ;
+            }
+            
+            /// <inheritdoc/>
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Brimborium.BaseMethods", "1.0.0.0")]
+            public override int GetHashCode()
+            {
+                var hashCode = new global::System.HashCode();
+                
+                hashCode.Add(this.GetType());
+                hashCode.Add(
+                    this.Addresses!,
+                    global::Brimborium.BaseMethods.OrderedEqualityComparer<string>.Default);
+                hashCode.Add(
+                    this.FirstName!,
+                    global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.String>.GetDefault());
+                hashCode.Add(
+                    this.LastName!,
+                    global::Brimborium.BaseMethods.DefaultEqualityComparer<global::System.String>.GetDefault());
+                
+                return hashCode.ToHashCode();
+            }
+        }
+    }
+}

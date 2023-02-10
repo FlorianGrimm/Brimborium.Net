@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.SourceGenerator.BaseMethods", "Brimborium.SourceGenerator.BaseMethods\Brimborium.SourceGenerator.BaseMethods.csproj", "{E0964B7A-64A4-4E69-940C-3358AFDAD9F9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.BaseMethods", "Brimborium.BaseMethods\Brimborium.BaseMethods.csproj", "{2B696DC2-6D04-466E-836B-651E02085DD2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.SourceGenerator.BaseMethods.Test", "Brimborium.SourceGenerator.BaseMethods.Test\Brimborium.SourceGenerator.BaseMethods.Test.csproj", "{1C25CA2C-1490-45DB-BD42-6F4E50E90E29}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brimborium.BaseMethods.SampleTest", "Brimborium.BaseMethods.SampleTest\Brimborium.BaseMethods.SampleTest.csproj", "{53B889ED-8D6F-4987-8A5D-1F8014ED5667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brimborium.SourceGenerator.BaseMethods.TestEffect", "Brimborium.SourceGenerator.BaseMethods.TestEffect\Brimborium.SourceGenerator.BaseMethods.TestEffect.csproj", "{B629FE5B-335B-4803-950F-D4589E4E68DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E0964B7A-64A4-4E69-940C-3358AFDAD9F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0964B7A-64A4-4E69-940C-3358AFDAD9F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0964B7A-64A4-4E69-940C-3358AFDAD9F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0964B7A-64A4-4E69-940C-3358AFDAD9F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B696DC2-6D04-466E-836B-651E02085DD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B696DC2-6D04-466E-836B-651E02085DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B696DC2-6D04-466E-836B-651E02085DD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B696DC2-6D04-466E-836B-651E02085DD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C25CA2C-1490-45DB-BD42-6F4E50E90E29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C25CA2C-1490-45DB-BD42-6F4E50E90E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C25CA2C-1490-45DB-BD42-6F4E50E90E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C25CA2C-1490-45DB-BD42-6F4E50E90E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53B889ED-8D6F-4987-8A5D-1F8014ED5667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53B889ED-8D6F-4987-8A5D-1F8014ED5667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53B889ED-8D6F-4987-8A5D-1F8014ED5667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53B889ED-8D6F-4987-8A5D-1F8014ED5667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B629FE5B-335B-4803-950F-D4589E4E68DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B629FE5B-335B-4803-950F-D4589E4E68DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B629FE5B-335B-4803-950F-D4589E4E68DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B629FE5B-335B-4803-950F-D4589E4E68DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {11BDA4CA-0008-4628-B3E5-5B07D27B4945}
+	EndGlobalSection
+EndGlobal
