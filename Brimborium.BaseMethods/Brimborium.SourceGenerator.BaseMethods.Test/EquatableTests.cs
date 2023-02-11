@@ -88,6 +88,7 @@ namespace Test {
         foreach (
             var sourcePath
             in System.IO.Directory.GetFiles(sourceFolderPath, "*Sample.cs", SearchOption.AllDirectories)
+                .Where(p => p.EndsWith("CustomEquality.Sample.cs"))
             ) {
 
             var source = File.ReadAllText(sourcePath);

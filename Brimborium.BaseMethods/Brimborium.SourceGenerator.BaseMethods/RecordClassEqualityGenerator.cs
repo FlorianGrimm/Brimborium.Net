@@ -23,12 +23,12 @@ internal class RecordClassEqualityGenerator : EqualityGeneratorBase {
             ? "!ReferenceEquals(other, null) && EqualityContract == other.EqualityContract"
             : $"base.Equals(({baseTypeName}?)other)");
 
-        foreach (var property in equatableInformationType.DictProperty.Values) {
+        foreach (var property in equatableInformationType.GetEnabledMembers()) {
             if (property.IsEqualityContract()) {
                 continue;
             }
 
-            BuildPropertyEquality(equatableInformationType, property, sb, level);
+            BuildMemberEquality(equatableInformationType, property, sb, level);
         }
 
         sb.AppendLine(level, ";");
@@ -56,7 +56,7 @@ internal class RecordClassEqualityGenerator : EqualityGeneratorBase {
             ? "hashCode.Add(this.EqualityContract);"
             : "hashCode.Add(base.GetHashCode());");
 
-        foreach (var property in equatableInformationType.DictProperty.Values) {
+        foreach (var property in equatableInformationType.GetEnabledMembers()) {
             if (property.IsEqualityContract()) { continue; }
 
             BuildPropertyHashCode(equatableInformationType, property, sb, level);

@@ -39,6 +39,7 @@ namespace TestEffect.Classes
             {
                 return
                     !ReferenceEquals(other, null) && this.GetType() == other.GetType()
+                    && global::Brimborium.BaseMethods.OrderedEqualityComparer<string>.Default.Equals(_addresses!, other._addresses!)
                     ;
             }
             

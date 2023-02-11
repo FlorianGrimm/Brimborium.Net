@@ -27,49 +27,57 @@ internal class EqualityGeneratorBase {
 
     internal const string InheritDocComment = "/// <inheritdoc/>";
 
-    public static void BuildPropertyEquality(
+    public static void BuildMemberEquality(
         EquatableInformationType equatableInformationType,
-        EquatableInformationProperty equatableInformationProperty,
+        EquatableInformationMember equatableInformationProperty,
         StringBuilder sb, 
         int level
         ) {
-        if (equatableInformationProperty.PropertySymbol is null) {
-            return;
-        }
-        IPropertySymbol property = equatableInformationProperty.PropertySymbol;
+        //if (equatableInformationProperty.PropertySymbol is null) {
+        //    return;
+        //}
+        //IPropertySymbol property = equatableInformationProperty.PropertySymbol;
 
         if (equatableInformationProperty.IgnoreEquality) {
             return;
         }
+        var member=equatableInformationProperty.Symbol;
+        var memberType = equatableInformationProperty.Type;
+        if (memberType is null) { return; }
+        //var dictionaryTypeArguments = equatableInformationProperty.GetIDictionaryTypeArguments();
 
-        var propertyName = property.ToFQF();
-
-        var typeName = property.Type.ToNullableFQF();
+        var propertyName = member.ToFQF();
+        
+        var typeName = memberType.ToNullableFQF();
 
         if (equatableInformationProperty.UnorderedEquality) {
-            var types = property.GetIDictionaryTypeArguments();
+            var types = equatableInformationProperty.GetIDictionaryTypeArguments();
 
             if (types != null) {
                 sb.AppendLine(level,
                     $"&& global::Brimborium.BaseMethods.DictionaryEqualityComparer<{string.Join(", ", types.Value)}>.Default.Equals({propertyName}!, other.{propertyName}!)");
             } else {
-                types = property.GetIEnumerableTypeArguments()!;
+                types = equatableInformationProperty.GetIEnumerableTypeArguments()!;
                 sb.AppendLine(level,
                     $"&& global::Brimborium.BaseMethods.UnorderedEqualityComparer<{string.Join(", ", types.Value)}>.Default.Equals({propertyName}!, other.{propertyName}!)");
             }
+        
         } else if (equatableInformationProperty.OrderedEquality) {
-            var types = property.GetIEnumerableTypeArguments()!;
+            var types = equatableInformationProperty.GetIEnumerableTypeArguments()!;
 
             sb.AppendLine(level,
                 $"&& global::Brimborium.BaseMethods.OrderedEqualityComparer<{string.Join(", ", types.Value)}>.Default.Equals({propertyName}!, other.{propertyName}!)");
+        
         } else if (equatableInformationProperty.ReferenceEquality) {
             sb.AppendLine(level,
                 $"&& global::Brimborium.BaseMethods.ReferenceEqualityComparer<{typeName}>.Default.Equals({propertyName}!, other.{propertyName}!)");
+        
         } else if (equatableInformationProperty.SetEquality) {
-            var types = property.GetIEnumerableTypeArguments()!;
+            var types = equatableInformationProperty.GetIEnumerableTypeArguments()!;
 
             sb.AppendLine(level,
                 $"&& global::Brimborium.BaseMethods.SetEqualityComparer<{string.Join(", ", types.Value)}>.Default.Equals({propertyName}!, other.{propertyName}!)");
+        
         } else if (equatableInformationProperty.GetCustomEquality()) {
             var comparerType = equatableInformationProperty.EqualityType!;
             var comparerMemberName = equatableInformationProperty.FieldOrPropertyName!;
@@ -82,7 +90,7 @@ internal class EqualityGeneratorBase {
                     $"&& new {comparerType.ToFQF()}().Equals({propertyName}!, other.{propertyName}!)");
             }
         } else if (
-              !(equatableInformationType.Explicit)
+              !equatableInformationType.Explicit
               || equatableInformationProperty.DefaultEquality) {
             sb.AppendLine(level,
                 $"&& global::Brimborium.BaseMethods.DefaultEqualityComparer<{typeName}>.Default.Equals({propertyName}!, other.{propertyName}!)");
@@ -91,7 +99,7 @@ internal class EqualityGeneratorBase {
 
     public static void BuildPropertyHashCode(
         EquatableInformationType equatableInformationType,
-        EquatableInformationProperty equatableInformationProperty,
+        EquatableInformationMember equatableInformationProperty,
         StringBuilder sb,
         int level) {
         if (equatableInformationProperty.PropertySymbol is null) {

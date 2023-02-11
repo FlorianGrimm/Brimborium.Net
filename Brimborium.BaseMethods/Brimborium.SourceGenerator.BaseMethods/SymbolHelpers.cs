@@ -43,16 +43,42 @@ public static class SymbolHelpers {
     public static bool HasAttribute(this ISymbol symbol, INamedTypeSymbol attribute) =>
         GetAttribute(symbol, attribute) != null;
 
-    public static INamedTypeSymbol? GetInterface(this IPropertySymbol property, string interfaceFqn) {
-        return property.Type.AllInterfaces
+    public static INamedTypeSymbol? GetInterface(this IPropertySymbol that, string interfaceFqn) {
+        return that.Type.AllInterfaces
             .FirstOrDefault(x => x.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == interfaceFqn);
     }
 
-    public static ImmutableArray<ITypeSymbol>? GetIEnumerableTypeArguments(this IPropertySymbol property) {
-        return property.GetInterface("global::System.Collections.Generic.IEnumerable<T>")?.TypeArguments;
+    public static INamedTypeSymbol? GetInterface(this IFieldSymbol that, string interfaceFqn) {
+        return that.Type.AllInterfaces
+            .FirstOrDefault(x => x.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == interfaceFqn);
     }
 
-    public static ImmutableArray<ITypeSymbol>? GetIDictionaryTypeArguments(this IPropertySymbol property) {
-        return property.GetInterface("global::System.Collections.Generic.IDictionary<TKey, TValue>")?.TypeArguments;
+    public static INamedTypeSymbol? GetInterface(this IParameterSymbol that, string interfaceFqn) {
+        return that.Type.AllInterfaces
+            .FirstOrDefault(x => x.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == interfaceFqn);
+    }
+
+    public static ImmutableArray<ITypeSymbol>? GetIEnumerableTypeArguments(this IPropertySymbol that) {
+        return that.GetInterface("global::System.Collections.Generic.IEnumerable<T>")?.TypeArguments;
+    }
+
+    public static ImmutableArray<ITypeSymbol>? GetIEnumerableTypeArguments(this IFieldSymbol that) {
+        return that.GetInterface("global::System.Collections.Generic.IEnumerable<T>")?.TypeArguments;
+    }
+
+    public static ImmutableArray<ITypeSymbol>? GetIEnumerableTypeArguments(this IParameterSymbol that) {
+        return that.GetInterface("global::System.Collections.Generic.IEnumerable<T>")?.TypeArguments;
+    }
+
+    public static ImmutableArray<ITypeSymbol>? GetIDictionaryTypeArguments(this IPropertySymbol that) {
+        return that.GetInterface("global::System.Collections.Generic.IDictionary<TKey, TValue>")?.TypeArguments;
+    }
+
+    public static ImmutableArray<ITypeSymbol>? GetIDictionaryTypeArguments(this IFieldSymbol that) {
+        return that.GetInterface("global::System.Collections.Generic.IDictionary<TKey, TValue>")?.TypeArguments;
+    }
+
+    public static ImmutableArray<ITypeSymbol>? GetIDictionaryTypeArguments(this IParameterSymbol that) {
+        return that.GetInterface("global::System.Collections.Generic.IDictionary<TKey, TValue>")?.TypeArguments;
     }
 }

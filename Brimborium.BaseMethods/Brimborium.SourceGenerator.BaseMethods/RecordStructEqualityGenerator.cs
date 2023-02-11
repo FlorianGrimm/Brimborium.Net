@@ -17,8 +17,8 @@ internal class RecordStructEqualityGenerator : EqualityGeneratorBase {
         sb.AppendLine(level, "return true");
         level++;
 
-        foreach (var property in equatableInformationType.DictProperty.Values) {
-            BuildPropertyEquality(equatableInformationType, property, sb, level);
+        foreach (var property in equatableInformationType.GetEnabledMembers()) {
+            BuildMemberEquality(equatableInformationType, property, sb, level);
         }
 
         sb.AppendLine(level, ";");
@@ -39,7 +39,7 @@ internal class RecordStructEqualityGenerator : EqualityGeneratorBase {
         sb.AppendLine(level, @"var hashCode = new global::System.HashCode();");
         sb.AppendLine(level);
 
-        foreach (var property in equatableInformationType.DictProperty.Values) {
+        foreach (var property in equatableInformationType.GetEnabledMembers()) {
             BuildPropertyHashCode(equatableInformationType, property, sb, level);
         }
 

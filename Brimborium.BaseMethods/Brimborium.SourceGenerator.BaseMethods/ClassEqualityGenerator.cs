@@ -39,8 +39,8 @@ internal class ClassEqualityGenerator : EqualityGeneratorBase {
             ? "!ReferenceEquals(other, null) && this.GetType() == other.GetType()"
             : $"base.Equals(other as {baseTypeName})");
 
-        foreach (var property in equatableInformationType.DictProperty.Values) {
-            BuildPropertyEquality(equatableInformationType, property, sb, level);
+        foreach (var property in equatableInformationType.GetEnabledMembers()) {
+            BuildMemberEquality(equatableInformationType, property, sb, level);
         }
 
         sb.AppendLine(level, ";");
@@ -69,7 +69,7 @@ internal class ClassEqualityGenerator : EqualityGeneratorBase {
             ? "hashCode.Add(this.GetType());"
             : "hashCode.Add(base.GetHashCode());");
 
-        foreach (var property in equatableInformationType.DictProperty.Values) {
+        foreach (var property in equatableInformationType.GetEnabledMembers()) {
             BuildPropertyHashCode(equatableInformationType, property, sb, level);
         }
 

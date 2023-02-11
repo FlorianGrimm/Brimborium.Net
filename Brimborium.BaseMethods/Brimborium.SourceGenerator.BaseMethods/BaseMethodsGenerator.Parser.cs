@@ -14,7 +14,7 @@ public partial class BaseMethodsGenerator {
         private readonly CancellationToken _cancellationToken;
         private readonly Compilation _compilation;
         private readonly Action<Diagnostic> _reportDiagnostic;
-        
+
         public Parser(Compilation compilation, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken) {
             _compilation = compilation;
             _cancellationToken = cancellationToken;
@@ -87,7 +87,7 @@ public partial class BaseMethodsGenerator {
 
                                 var declaredSymbol = semanticModel.GetDeclaredSymbol(parameterSyntax);
                                 if (declaredSymbol is IParameterSymbol parameterSymbol) {
-                                    AddProperty(
+                                    AddRecordCtorParameter(
                                         parameterSymbol,
                                         parameterSyntax.Identifier.Text,
                                         parameterSymbol.GetAttributes(),
@@ -103,33 +103,34 @@ public partial class BaseMethodsGenerator {
                         if (memberInfo is null) { continue; }
 
                         if (memberInfo.Kind == SymbolKind.Property) {
-                            {
-                                if (memberInfo is IPropertySymbol propertySymbol) {
-                                    if (propertySymbol.IsIndexer) { continue; }
-                                    if (propertySymbol.IsImplicitlyDeclared) { continue; }
-                                    if (propertySymbol.IsStatic) { continue; }
-                                    
-                                    AddProperty(
-                                        propertySymbol,
-                                        propertySymbol.Name,
-                                        propertySymbol.GetAttributes(),
-                                        equatableInformation,
-                                        semanticModel);
-                                    continue;
-                                }
+                            if (memberInfo is IPropertySymbol propertySymbol) {
+                                if (propertySymbol.IsIndexer) { continue; }
+                                if (propertySymbol.IsStatic) { continue; }
+                                if (propertySymbol.IsWriteOnly) { continue; }
+                                //if (propertySymbol.IsImplicitlyDeclared) { continue; }
+
+                                AddProperty(
+                                    propertySymbol,
+                                    propertySymbol.Name,
+                                    propertySymbol.GetAttributes(),
+                                    equatableInformation,
+                                    semanticModel);
+                                continue;
                             }
-                            // TODO
-                            //{
-                            //    if (memberInfo is IFieldSymbol fieldSymbol) {
-                            //        AddProperty(
-                            //            fieldSymbol,
-                            //            fieldSymbol.Name,
-                            //            fieldSymbol.GetAttributes(),
-                            //            equatableInformation,
-                            //            semanticModel);
-                            //        continue;
-                            //    }
-                            //}
+                        }
+                        if (memberInfo.Kind == SymbolKind.Field) {
+                            if (memberInfo is IFieldSymbol fieldSymbol) {
+                                if (memberInfo.IsStatic) { continue; }
+                                if (memberInfo.IsImplicitlyDeclared) { continue; }
+
+                                AddField(
+                                    fieldSymbol,
+                                    fieldSymbol.Name,
+                                    fieldSymbol.GetAttributes(),
+                                    equatableInformation,
+                                    semanticModel);
+                                continue;
+                            }
                         }
                     }
                 }
@@ -137,19 +138,41 @@ public partial class BaseMethodsGenerator {
             //
             return new List<EquatableInformationType>(dictEquatableInformation.Values);
 
-            void AddProperty(
-                ISymbol symbol,
+            void AddRecordCtorParameter(
+                IParameterSymbol symbol,
                 string name,
                 ImmutableArray<AttributeData> arrAttributes,
                 EquatableInformationType equatableInformation,
                 SemanticModel sm
                 ) {
-                /*IParameterSymbol | IPropertySymbol */
-                var (equatableProperty, _) = equatableInformation.AddProperty(symbol, name);
+                var (equatableProperty, _) = equatableInformation.AddMember(symbol, name);
+                readAttributes(arrAttributes, defaultEqualityAttribute, orderedEqualityAttribute, ignoreEqualityAttribute, unorderedEqualityAttribute, referenceEqualityAttribute, setEqualityAttribute, equatableProperty);
+            }
+            void AddProperty(
+                IPropertySymbol symbol,
+                string name,
+                ImmutableArray<AttributeData> arrAttributes,
+                EquatableInformationType equatableInformation,
+                SemanticModel sm
+                ) {
+                var (equatableProperty, _) = equatableInformation.AddMember(symbol, name);
                 if (equatableProperty.PropertySymbol is null
                     && symbol is IPropertySymbol propertySymbol) {
-                    equatableProperty.PropertySymbol = propertySymbol;
+                    //equatableProperty.PropertySymbol = propertySymbol;
                 }
+                readAttributes(arrAttributes, defaultEqualityAttribute, orderedEqualityAttribute, ignoreEqualityAttribute, unorderedEqualityAttribute, referenceEqualityAttribute, setEqualityAttribute, equatableProperty);
+            }
+            void AddField(
+                IFieldSymbol symbol,
+                string name,
+                ImmutableArray<AttributeData> arrAttributes,
+                EquatableInformationType equatableInformation,
+                SemanticModel sm) {
+                var (equatableProperty, _) = equatableInformation.AddMember(symbol, name);
+                readAttributes(arrAttributes, defaultEqualityAttribute, orderedEqualityAttribute, ignoreEqualityAttribute, unorderedEqualityAttribute, referenceEqualityAttribute, setEqualityAttribute, equatableProperty);
+            }
+
+            void readAttributes(ImmutableArray<AttributeData> arrAttributes, INamedTypeSymbol defaultEqualityAttribute, INamedTypeSymbol orderedEqualityAttribute, INamedTypeSymbol ignoreEqualityAttribute, INamedTypeSymbol unorderedEqualityAttribute, INamedTypeSymbol referenceEqualityAttribute, INamedTypeSymbol setEqualityAttribute, EquatableInformationMember equatableProperty) {
                 foreach (var attributeData in arrAttributes) {
                     if (defaultEqualityAttribute.Equals(attributeData.AttributeClass, SymbolEqualityComparer.Default)) {
                         equatableProperty.DefaultEquality = true;
