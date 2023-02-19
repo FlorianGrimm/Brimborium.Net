@@ -15,8 +15,8 @@ global using global::Markdig.Helpers;
 global using global::Markdig.Parsers;
 global using global::Markdig.Renderers;
 global using global::Markdig.Renderers.Normalize;
-
 global using global::Markdig.Syntax;
+global using global::Markdig.Syntax.Inlines;
 
 global using global::Microsoft.Extensions.Configuration;
 global using global::Microsoft.Extensions.DependencyInjection;

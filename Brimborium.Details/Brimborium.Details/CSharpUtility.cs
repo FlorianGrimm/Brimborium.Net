@@ -9,12 +9,12 @@ public class CSharpUtility {
     public async Task ParseCSharp() {
         var r = new System.Text.RegularExpressions.Regex("//[ \t]+§([^\\r\\n]+)");
 
-        string solutionPath = SolutionInfo.SolutionFilePath;
-        Console.WriteLine($"Loading solution '{solutionPath}'");
+        string solutionFile = SolutionInfo.SolutionFile;
+        Console.WriteLine($"Loading solution '{solutionFile}'");
         Microsoft.Build.Locator.MSBuildLocator.RegisterDefaults();
         using var workspace = MSBuildWorkspace.Create();
         workspace.WorkspaceFailed += (sender, args) => Console.WriteLine(args.Diagnostic.Message);
-        var solution = await workspace.OpenSolutionAsync(solutionPath);
+        var solution = await workspace.OpenSolutionAsync(solutionFile);
 
         /*
         foreach (var project in solution.Projects) {
@@ -39,7 +39,8 @@ public class CSharpUtility {
         }
 
         // TODO: make configurable
-        var filterPath = System.IO.Path.Combine(SolutionInfo.RootPath, "src");
+        //var filterPath = System.IO.Path.Combine(SolutionInfo.DetailsRoot, "src");
+        var filterPath = SolutionInfo.DetailsRoot;
 
         var projectDependencyGraph = solution.GetProjectDependencyGraph();
         var lstRelevantProject = new List<Microsoft.CodeAnalysis.Project>();

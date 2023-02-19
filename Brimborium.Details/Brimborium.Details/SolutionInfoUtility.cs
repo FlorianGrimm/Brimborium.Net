@@ -2,21 +2,20 @@ namespace Brimborium.Details;
 
 public static class SolutionInfoUtility{
     public static SolutionInfo LoadSolutionInfo(
-        IConfigurationRoot configuration,
-        string rootPath) {
+        IConfigurationRoot configuration
+        ) {
         var solutionInfoConfiguration = new SolutionInfoConfiguration();
         configuration.Bind(solutionInfoConfiguration);
 
         var solutionInfo = new SolutionInfo(
-            solutionInfoConfiguration.RootPath ?? "",
-            solutionInfoConfiguration.SolutionFilePath ?? "",
-            solutionInfoConfiguration.DetailPath ?? ""
+            solutionInfoConfiguration.DetailsRoot ?? "",
+            solutionInfoConfiguration.SolutionFile ?? "",
+            solutionInfoConfiguration.DetailsFolder ?? ""
         );
         solutionInfo.ListMainProjectName.AddRange(solutionInfoConfiguration.ListMainProjectName);
         solutionInfo.ListMainProjectInfo.AddRange(solutionInfoConfiguration.ListMainProjectInfo);
         solutionInfo.ListProject.AddRange(solutionInfoConfiguration.ListProject);
-        var result = solutionInfo.PostLoad(rootPath);
-        return result;
+        return solutionInfo;
     }
 
     public static async Task<SolutionInfo> ReadSolutionInfo(

@@ -1,13 +1,11 @@
-using Markdig.Syntax.Inlines;
-
 namespace Brimborium.Details;
 
-public class MarkdownUtility{
+public class MarkdownUtility {
     public readonly SolutionInfo SolutionInfo;
     private readonly MarkdownPipeline _Pipeline;
 
     public MarkdownUtility(SolutionInfo solutionInfo) {
-        this.SolutionInfo=solutionInfo;
+        this.SolutionInfo = solutionInfo;
 
         this._Pipeline = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()
@@ -16,8 +14,9 @@ public class MarkdownUtility{
     }
 
     public async Task ParseDetail() {
-        Console.WriteLine($"DetailPath: {SolutionInfo.DetailPath}");
-        foreach(var markdownFile in Directory.EnumerateFiles(SolutionInfo.DetailPath, "*.md", SearchOption.AllDirectories)){
+        Console.WriteLine($"DetailsFolder: {SolutionInfo.DetailsFolder}");
+        var lstMarkdownFile = Directory.EnumerateFiles(SolutionInfo.DetailsFolder, "*.md", SearchOption.AllDirectories);
+        foreach (var markdownFile in lstMarkdownFile) {
             await this.ParseMarkdownFile(markdownFile);
         }
         await Task.CompletedTask;
@@ -31,28 +30,28 @@ public class MarkdownUtility{
         List<string> listHeadings = new List<string>();
         for (int idx = 0; idx < document.Count; idx++) {
             var block = document[idx];
-            
+
             //ContainerInline? inline = default;
             //if (block is LeafBlock leafBlock) {
             //    inline = leafBlock.Inline;
             //}
 
             if (block is HeadingBlock headingBlock) {
-                if (headingBlock.Inline is null){
+                if (headingBlock.Inline is null) {
                     throw new NotImplementedException("headingBlock.Inline");
-                } 
+                }
                 // System.Console.Out.WriteLine($"headingBlock - {headingBlock.Level} - {GetText(headingBlock.Inline)}");                
-                while(listHeadings.Count >= headingBlock.Level) {
-                    listHeadings.RemoveAt(listHeadings.Count-1);
+                while (listHeadings.Count >= headingBlock.Level) {
+                    listHeadings.RemoveAt(listHeadings.Count - 1);
                 }
                 listHeadings.Add(GetText(headingBlock.Inline));
                 var heading = string.Join(" / ", listHeadings);
                 System.Console.Out.WriteLine($"headingBlock - {headingBlock.Level} - {heading}");
                 continue;
             } else if (block is ParagraphBlock paragraphBlock) {
-                if (paragraphBlock.Inline is not null){
+                if (paragraphBlock.Inline is not null) {
                     System.Console.Out.WriteLine("ParagraphBlock");
-                    for(var inline = paragraphBlock.Inline.FirstChild; inline is not null; inline = inline.NextSibling) {
+                    for (var inline = paragraphBlock.Inline.FirstChild; inline is not null; inline = inline.NextSibling) {
                         if (inline is LiteralInline literalInline) {
                             var match = MatchUtility.parseMatchIfMatches(literalInline.Content.ToString());
                             if (match is not null) {
@@ -60,7 +59,7 @@ public class MarkdownUtility{
                             } else {
                                 System.Console.Out.WriteLine($"  literalInline - {literalInline.Content}");
                             }
-                            if (match is not null && match.IsCommand){
+                            if (match is not null && match.IsCommand) {
                                 // var command = this.GetMatchCommand(match);
                                 // command
                             }
@@ -96,9 +95,9 @@ public class MarkdownUtility{
 
     public static string GetText(ContainerInline inline) {
         StringBuilder? sb = default;
-        for(var item = inline.FirstChild; item is not null; item = item.NextSibling) {
+        for (var item = inline.FirstChild; item is not null; item = item.NextSibling) {
             if (item is LiteralInline literalInline) {
-                if (item.NextSibling is null){
+                if (item.NextSibling is null) {
                     return literalInline.Content.ToString();
                 } else {
                     if (sb is null) {
@@ -114,7 +113,7 @@ public class MarkdownUtility{
     }
 
     public async Task WriteDetail() {
-        Console.WriteLine($"DetailPath {SolutionInfo.DetailPath}");
+        Console.WriteLine($"DetailPath {SolutionInfo.DetailsFolder}");
         await Task.CompletedTask;
     }
 }

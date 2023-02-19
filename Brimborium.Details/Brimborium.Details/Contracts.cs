@@ -6,35 +6,35 @@ public class SolutionInfoConfiguration {
         this.ListMainProjectInfo = new List<ProjectInfo>();
         this.ListProject = new List<ProjectInfo>();
     }
-    public string? RootPath { get; set; }
-    public string? SolutionFilePath { get; set; }
-    public string? DetailPath { get; set; }
+    public string? DetailsRoot { get; set; }
+    public string? SolutionFile { get; set; }
+    public string? DetailsFolder { get; set; }
     public List<string> ListMainProjectName { get; set; }
     public List<ProjectInfo> ListMainProjectInfo { get; set; }
     public List<ProjectInfo> ListProject { get; set; }
 }
 
 public record SolutionInfo(
-     string RootPath,
-     string SolutionFilePath,
-     string DetailPath
+     string DetailsRoot,
+     string SolutionFile,
+     string DetailsFolder
 ) {
     public List<string> ListMainProjectName { get; set; } = new List<string>();
     public List<ProjectInfo> ListMainProjectInfo { get; set; } = new List<ProjectInfo>();
     public List<ProjectInfo> ListProject { get; set; } = new List<ProjectInfo>();
 
     public string GetRelativePath(string documentFilePath) {
-        if (documentFilePath.StartsWith(this.RootPath)) {
-            return GetNormalizedPath(documentFilePath.Substring(this.RootPath.Length + 1));
+        if (documentFilePath.StartsWith(this.DetailsRoot)) {
+            return GetNormalizedPath(documentFilePath.Substring(this.DetailsRoot.Length + 1));
         } else {
-            return GetNormalizedPath(System.IO.Path.GetRelativePath(this.RootPath, documentFilePath));
+            return GetNormalizedPath(System.IO.Path.GetRelativePath(this.DetailsRoot, documentFilePath));
         }
     }
 
     public string GetFullPath(string documentFilePath) {
         return System.IO.Path.GetFullPath(
             System.IO.Path.Combine(
-                this.RootPath,
+                this.DetailsRoot,
                 GetOsPath(documentFilePath)))
             ?? throw new System.Exception($"GetFullPath failed for {documentFilePath}");
     }
@@ -50,17 +50,17 @@ public record SolutionInfo(
     public SolutionInfo PostLoad(string detailJsonDirectoryPath) {
         System.Console.Out.WriteLine($"detailJsonDirectoryPath: {detailJsonDirectoryPath}");
 
-        var rootPath = string.IsNullOrEmpty(this.RootPath)
+        var detailsRoot = string.IsNullOrEmpty(this.DetailsRoot)
             ? detailJsonDirectoryPath
-            : System.IO.Path.Combine(detailJsonDirectoryPath, this.RootPath)
+            : System.IO.Path.Combine(detailJsonDirectoryPath, this.DetailsRoot)
             ?? throw new InvalidOperationException();
-        System.Console.Out.WriteLine($"rootPath: {rootPath}");
+        System.Console.Out.WriteLine($"DetailsRoot: {DetailsRoot}");
 
-        var thisRootPath = this with { RootPath = rootPath };
+        var thisRooted = this with { DetailsRoot = detailsRoot };
 
-        var result = thisRootPath with {
-            SolutionFilePath = thisRootPath.GetFullPath(thisRootPath.SolutionFilePath),
-            DetailPath = thisRootPath.GetFullPath(thisRootPath.DetailPath),
+        var result = thisRooted with {
+            SolutionFile = thisRooted.GetFullPath(thisRooted.SolutionFile),
+            DetailsFolder = thisRooted.GetFullPath(thisRooted.DetailsFolder),
         };
         return result;
     }
@@ -69,14 +69,14 @@ public record SolutionInfo(
         var detailDirectoryPath = System.IO.Path.GetDirectoryName(detailJsonFullPath)
             ?? throw new InvalidOperationException();
 
-        var rootPath = string.Equals(detailDirectoryPath, this.RootPath, StringComparison.InvariantCultureIgnoreCase)
+        var detailsRoot = string.Equals(detailDirectoryPath, this.DetailsRoot, StringComparison.InvariantCultureIgnoreCase)
             ? string.Empty
-            : System.IO.Path.GetRelativePath(detailDirectoryPath, this.RootPath);
+            : System.IO.Path.GetRelativePath(detailDirectoryPath, this.DetailsRoot);
 
         var result = this with {
-            RootPath = rootPath,
-            SolutionFilePath = this.GetRelativePath(this.SolutionFilePath),
-            DetailPath = this.GetRelativePath(this.DetailPath),
+            DetailsRoot = detailsRoot,
+            SolutionFile = this.GetRelativePath(this.SolutionFile),
+            DetailsFolder = this.GetRelativePath(this.DetailsFolder),
         };
         return result;
     }
