@@ -14,12 +14,16 @@ public class MarkdownUtility {
     }
 
     public async Task ParseDetail() {
-        Console.WriteLine($"DetailsFolder: {SolutionInfo.DetailsFolder}");
-        var lstMarkdownFile = Directory.EnumerateFiles(SolutionInfo.DetailsFolder, "*.md", SearchOption.AllDirectories);
+        // System.Console.Out.WriteLine($"DetailsFolder: {SolutionInfo.DetailsFolder}");
+
+        var lstMarkdownFile = Directory.EnumerateFiles(this.SolutionInfo.DetailsFolder, "*.md", SearchOption.AllDirectories);
+        if (lstMarkdownFile is null || !lstMarkdownFile.Any()){
+            System.Console.Out.WriteLine($"DetailsFolder: {SolutionInfo.DetailsFolder} contains no *.md files");
+            return;
+        }
         foreach (var markdownFile in lstMarkdownFile) {
             await this.ParseMarkdownFile(markdownFile);
         }
-        await Task.CompletedTask;
     }
 
     public async Task ParseMarkdownFile(string markdownFile) {

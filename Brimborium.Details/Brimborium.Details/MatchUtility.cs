@@ -15,6 +15,7 @@ public static class MatchUtility {
     }
     
     public static MatchInfo parseMatch(string value) {
+        // § Syntax Marker
         var arr = value.Split(arrCharParagraph);
         arr = arr.Select(
             item => item

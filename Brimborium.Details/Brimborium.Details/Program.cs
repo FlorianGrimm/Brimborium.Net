@@ -11,42 +11,16 @@ public static class Program {
             System.Console.Out.WriteLine("Configuration changed");
         }, null);
         */
-        
-        SolutionInfo solutionInfo;
 
-        {
-            System.Console.Out.WriteLine($"appSettings.DetailsRoot: {appSettings.DetailsRoot}");
-            System.Console.Out.WriteLine($"appSettings.DetailsConfiguration: {appSettings.DetailsConfiguration}");
-            if (string.IsNullOrEmpty(appSettings.DetailsRoot)) {
-                System.Console.Error.WriteLine("no DetailsRoot");
-                return;
-            }
-
-            var loadedSolutionInfo = SolutionInfoUtility.LoadSolutionInfo(
-                configuration);
-
-            if (string.IsNullOrEmpty(loadedSolutionInfo.SolutionFile)){
-                System.Console.Error.WriteLine("empty SolutionFile - please specify");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(loadedSolutionInfo.DetailsFolder)){
-                System.Console.Error.WriteLine("empty DetailsFolder - please specify");
-                return;
-            }
-
-            solutionInfo = loadedSolutionInfo.PostLoad(appSettings.DetailsRoot);
-            System.Console.Out.WriteLine($"Final Values:");
-            System.Console.Out.WriteLine($"DetailsRoot: {solutionInfo.DetailsRoot}");
-            System.Console.Out.WriteLine($"SolutionFile: {solutionInfo.SolutionFile}");
-            System.Console.Out.WriteLine($"DetailsFolder: {solutionInfo.DetailsFolder}");
+        SolutionInfo? solutionInfo = ValidateConfiguration(configuration, appSettings);
+        if (solutionInfo is null) {
+            return;
         }
-
         var markdownUtility = new MarkdownUtility(solutionInfo);
         await markdownUtility.ParseDetail();
 
-        // var csharpUtility=new CSharpUtility(solutionInfo);
-        // await csharpUtility.ParseCSharp();
+        var csharpUtility = new CSharpUtility(solutionInfo);
+        await csharpUtility.ParseCSharp();
 
         // var typescriptUtility=new TypeScriptUtility(solutionInfo);
         // await typescriptUtility.ParseTypeScript();
@@ -138,6 +112,36 @@ public static class Program {
             return (configuration, appSettings);
         }
     } // CreateConfiguration
+
+    public static SolutionInfo? ValidateConfiguration(IConfigurationRoot configuration, AppSettings appSettings) {
+
+        // System.Console.Out.WriteLine($"appSettings.DetailsRoot: {appSettings.DetailsRoot}");
+        // System.Console.Out.WriteLine($"appSettings.DetailsConfiguration: {appSettings.DetailsConfiguration}");
+        if (string.IsNullOrEmpty(appSettings.DetailsRoot)) {
+            System.Console.Error.WriteLine("no DetailsRoot");
+            return null;
+        }
+
+        var loadedSolutionInfo = SolutionInfoUtility.LoadSolutionInfo(
+            configuration);
+
+        if (string.IsNullOrEmpty(loadedSolutionInfo.SolutionFile)) {
+            System.Console.Error.WriteLine("empty SolutionFile - please specify");
+            return null;
+        }
+
+        if (string.IsNullOrEmpty(loadedSolutionInfo.DetailsFolder)) {
+            System.Console.Error.WriteLine("empty DetailsFolder - please specify");
+            return null;
+        }
+
+        var solutionInfo = loadedSolutionInfo.PostLoad(appSettings.DetailsRoot);
+        System.Console.Out.WriteLine($"Final Values:");
+        System.Console.Out.WriteLine($"DetailsRoot: {solutionInfo.DetailsRoot}");
+        System.Console.Out.WriteLine($"SolutionFile: {solutionInfo.SolutionFile}");
+        System.Console.Out.WriteLine($"DetailsFolder: {solutionInfo.DetailsFolder}");
+        return solutionInfo;
+    }
 }
 
 public class AppSettings {

@@ -7,7 +7,7 @@ public class CSharpUtility {
     }
 
     public async Task ParseCSharp() {
-        var r = new System.Text.RegularExpressions.Regex("//[ \t]+§([^\\r\\n]+)");
+        var r = new System.Text.RegularExpressions.Regex("//[ \t]*§([^\\r\\n]+)");
 
         string solutionFile = SolutionInfo.SolutionFile;
         Console.WriteLine($"Loading solution '{solutionFile}'");
